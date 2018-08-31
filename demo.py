@@ -1,4 +1,4 @@
-from Azure import ResourceManager
+from ResourceManager import ResourceManager
 
 rm = ResourceManager()
 
