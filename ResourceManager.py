@@ -1,19 +1,57 @@
 from Certificate import Certificate
 import subprocess
 import time
+import json
 
 class ResourceManager:
 
 	def __init__(self, subscription="eec8e14e-b47d-40d9-8bd9-23ff5c381b40"):
-
+		
+		# RM Authenticated Client
 		self.subscription = subscription
 
-		# RM Client
 		login = "az login"
 		setAccount = "az account set --subscription " + self.subscription
 		commands = login + ";" + setAccount
 
 		subprocess.call(commands, shell=True)
+
+	def deploy(self, template_file="./AzureDeploy.json"):		
+		
+		self.template_file = template_file
+
+		parameters = {
+			"clusterLocation": "westus",
+			"clusterName": "mycluster",
+			"adminUserName": "Admin",
+			"adminPassword": "Password#1234",
+			"vmImagePublisher": "Canonical",
+			"vmImageOffer": "UbuntuServer",
+			"vmImageSku": "16.04-LTS",
+			"vmImageVersion": "latest",
+			"loadBalancedAppPort1": 80,
+			"loadBalancedAppPort2": 8081,
+			"clusterProtectionlevel": "EncryptAndSign",
+			"certificateStoreValue": "My",
+			"certificateThumbprint": "<CERTIFICATE_THUMBPRINT>",
+			"sourceVaultValue": "<SOURCE_VAULT_VALUE>",
+			"certificateUrlValue": "<CERTIFICATE_VALUE>",
+			"storageAccountType": "Standard_LRS",
+			"supportLogStorageAccountType": "Standard_LRS",
+			"applicationDiagnosticsStorageAccountType": "Standard_LRS",
+			"nt0InstanceCount": 5,
+			"vmNodeType0Size": "Standard_D2_v2",
+			"nt1InstanceCount": 1,
+			"vmNodeType1Size": "Standard_D2_v2",
+			"nt2InstanceCount": 1,
+			"vmNodeType2Size": "Standard_D2_v2"
+		}
+
+		parameters = {k: {'value': v} for k, v in parameters.items()}
+
+		command = "az deployment create --location " + self.parameters['location']['value'] + " --template-file " + self.template_file + " --parameters " + self.parameters
+
+		subprocess.call(command, shell=True)
 
 	def keyVault(self, keyVaultName="aljokv", keyVaultGroupName="aljokvrg", location="westus"):
 		
