@@ -54,21 +54,21 @@ class Deployment:
 			
 			# Keyvault Cluster Certificate Exist or Create
 			if self.sourceVaultValue.find('/subscriptions/') >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find('vault.azure.net') != -1:
-				# Use Keyvault Certificate Arguments
-				print('Using Keyvault Certificate Deployment Arguments')
+				# Use Keyvault Certificate Arguments for resource Validation
+				print('Validating Keyvault Certificate Deployment Arguments')
 			else:
 				self.sourceVaultValue = self.parameters_file_json['parameters']['sourceVaultValue']['value']
 				self.certificateThumbprint = self.parameters_file_json['parameters']['certificateThumbprint']['value']
 				self.certificateUrlValue = self.parameters_file_json['parameters']['certificateUrlValue']['value']
 
 				if self.sourceVaultValue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") >= 0:
-					# use Parameters File Keyvault Certificate Declarations
-					print('Using keyvault Certificate Parameters File Declarations')
+					# Use Parameters File Keyvault Certificate Declarations for resource Validation
+					print('Validating Keyvault Certificate Parameters File Declarations')
 				else:
 					# Create KeyVault
 					print('Creating Deployment Keyvault Self Signed Certificate')
 					groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.clusterLocation
-					keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group
+					keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group + ' --enabled-for-deployment true'
 					groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
 
 					subprocess.call(groupKeyVaultCmd, shell=True)
@@ -94,28 +94,41 @@ class Deployment:
 						print(stderr)
 						sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
 
-					# Get Thumbprint
-					thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-					stdout, stderr = thumbprintProcess.communicate()
-
-					if thumbprintProcess.wait() == 0:
-						self.certificateThumbprint = stdout.decode("utf-8")
-					else:
-						print(stderr)
-						sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
-
-					# Get Certificate URL
-					urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					# Get Certificate Url
+					urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 					stdout, stderr = urlProcess.communicate()
-				
+
 					if urlProcess.wait() == 0:
 						self.certificateUrlValue = stdout.decode("utf-8")
 					else:
 						print(stderr)
 						sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
+
+					# Get Certificate Thumbprint
+					thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+					stdout, stderr = thumbprintProcess.communicate()
+				
+					if thumbprintProcess.wait() == 0:
+						self.certificateThumbprint = stdout.decode("utf-8")
+					else:
+						print(stderr)
+						sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
 			
+			# Validate KeyVault Resource Availability
+			validateSourceVault = subprocess.Popen(["az", "resource", "show", "--ids", self.sourceVaultValue], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+			stdout, stderr = validateSourceVault.communicate()
+
+			if validateSourceVault.wait() == 0:
+				print("Source Vault Resource is Valid within subscription context")
+			else:
+				print(stderr)
+				sys.exit("Source Vault is invalid within subscription context")
+
+			# TODO: Validate KeyVault Certificate Url and Thumbprint Resource Availability
+			 
 			# Write Declarative Parameters File
 			self.parameters_file_json['parameters']['sourceVaultValue']['value'] = self.sourceVaultValue
 			self.parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
