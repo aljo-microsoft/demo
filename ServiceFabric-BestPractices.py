@@ -127,7 +127,8 @@ class Deployment:
 				print(stderr)
 				sys.exit("Source Vault is invalid within subscription context")
 
-			# Validate KeyVault Certificate Url
+			# Validate KeyVault Certificate
+			# Certificate URL
 			vaultName = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
 			certName = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]			 
 			
@@ -141,8 +142,8 @@ class Deployment:
 				print(stderr)
 				sys.exit("Certificate SID URL is invalid within subscription context")
  
-			# Validate KeyVault Thumbprint
-			certThumbprintValidateProcess = subprocess.Popen(["az", "resource", "show", "--vault-name", vaultName, "--name", certName, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			# Certificate Thumbprint
+			certThumbprintValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", vaultName, "--name", certName, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 			stdout, stderr = certThumbprintValidateProcess.communicate()
 
