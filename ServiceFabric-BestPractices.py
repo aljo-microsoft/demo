@@ -89,7 +89,7 @@ class Deployment:
 					stdout, stderr = resourceIdProcess.communicate()
 
 					if resourceIdProcess.wait() == 0:
-						self.sourceVaultValue = stdout.decode("utf-8")
+						self.sourceVaultValue = stdout.decode("utf-8").replace('\n', '')
 					else:
 						print(stderr)
 						sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
@@ -100,7 +100,7 @@ class Deployment:
 					stdout, stderr = urlProcess.communicate()
 
 					if urlProcess.wait() == 0:
-						self.certificateUrlValue = stdout.decode("utf-8")
+						self.certificateUrlValue = stdout.decode("utf-8").replace('\n', '')
 					else:
 						print(stderr)
 						sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
@@ -111,7 +111,7 @@ class Deployment:
 					stdout, stderr = thumbprintProcess.communicate()
 				
 					if thumbprintProcess.wait() == 0:
-						self.certificateThumbprint = stdout.decode("utf-8")
+						self.certificateThumbprint = stdout.decode("utf-8").replace('\n', '')
 					else:
 						print(stderr)
 						sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
@@ -135,7 +135,7 @@ class Deployment:
 
 			stdout, stderr = certUrlValidateProcess.communicate()
 
-			if certUrlValidateProcess.wait() == 0 and stdout.decode("utf-8") == self.certificateUrlValue:
+			if certUrlValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificateUrlValue:
 				print("Certificate SID URL is valid within subscription context")
 			else:
 				print(stderr)
@@ -146,7 +146,7 @@ class Deployment:
 
 			stdout, stderr = certThumbprintValidateProcess.communicate()
 
-			if certThumbprintValidateProcess.wait() == 0 and stdout.decode("utf-8") == self.certificateThumbprint:
+			if certThumbprintValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificateThumbprint:
 				print("Certificate Thumbprint is valid within subscription context")
 			else:
 				print(stderr)
