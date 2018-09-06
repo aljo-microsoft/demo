@@ -20,7 +20,7 @@ class ResourceProperties:
 
 		self.parameters_file_json = json.load(open(self.parameters_file))
 
-		self.location = parameters_file_json['parameters']['location']['value']
+		self.location = parameters_file_json['parameters']['clusterLocation']['value']
 		
 		validateCmd = 'az group deployment validate --resource-group ' + resource_group + ' --mode Incremental --parameters ' + parameters_file_json['parameters'] + ' --template-file ' + self.template_file'
 
