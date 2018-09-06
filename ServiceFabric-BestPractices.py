@@ -184,9 +184,9 @@ class Deployment:
 					sys.exit("Problem creating deployment group")
 
 			# Validate Deployment Declaration
-			validateParametersFileFormat = "@" + self.parameters_file
+			self.parametersFileArgFormat = "@" + self.parameters_file
 
-			deploymentValidationProcess = subprocess.Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", validateParametersFileFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			deploymentValidationProcess = subprocess.Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 			stdout, stderr = deploymentValidationProcess.communicate()
 
@@ -200,10 +200,10 @@ class Deployment:
 		else:
 			sys.exit('Template and Parameters Files NOT Found')
 		
-	def createCluster(self):
-		# az deployment create
-		# az sf is an option, but in Azure it isn't the only resource
-		print("Creating Cluster")
+	def provisionCluster(self):
+		groupDeploymentCreateCmd = 'az group deployment create -g ' + self.deployment_resource_group + ' --template-file ' + self.template_file + ' --parameters ' + self.parametersFileArgFormat
+
+		subprocess.call(groupDeploymentCreateCmd, shell=True)
 
 	def setupClient(self):
 		# Down load certificate
@@ -234,7 +234,7 @@ class Deployment:
 
 def main():
 	deployment = Deployment()
-	deployment.createCluster()
+	deployment.provisionCluster()
 	deployment.setupClient()
 	deployment.patchOrchestrationApplication()
 	deployment.enableHostMSI()
