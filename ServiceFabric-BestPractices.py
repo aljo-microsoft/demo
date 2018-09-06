@@ -157,9 +157,45 @@ class Deployment:
 			self.parameters_file_json['parameters']['sourceVaultValue']['value'] = self.sourceVaultValue
 			self.parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
 			self.parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificateUrlValue
+			self.parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
+			self.parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
+			self.parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
+			self.parameters_file_json['parameters']['clusterLocation']['value'] = self.clusterLocation
 
-			json.dump(self.parameters_file_json, open(self.parameters_file, 'w')) 											       
-		else:
+			json.dump(self.parameters_file_json, open(self.parameters_file, 'w'))
+
+			# Exists or Create Deployment Group - needed for validation
+			deploymentGroupExistsProcess = subprocess.Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+			stdout, stderr = deploymentGroupExistsProcess.communicate()
+
+			if deploymentGroupExistsProcess.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
+				print("Deployment Group Exists")
+				# TODO: Validate Group Location
+			else:
+				deploymentGroupCreateProcess = subprocess.Popen(["az", "group", "create", "--location", self.clusterLocation, "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				
+				stdout, stderr = deploymentGroupCreateProcess.communicate()
+
+				if deploymentGroupCreateProcess.wait() == 0:
+					print("Deployment Group Created")
+				else:
+					print(stderr)
+					sys.exit("Problem creating deployment group")
+
+			# Validate Deployment Declaration
+			validateParametersFileFormat = "@" + self.parameters_file
+
+			deploymentValidationProcess = subprocess.Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", validateParametersFileFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+			stdout, stderr = deploymentValidationProcess.communicate()
+
+			if deploymentValidationProcess.wait() == 0:
+				print("Your Deployment Declaration is Validate Syntactically")
+				print(stdout)
+			else:
+				print(stderr)
+				print("Your Deployment Declaration is Invalid Syntactically")    									else:
 			sys.exit('Parameters File NOT Found')
 		
 	def createCluster(self):
