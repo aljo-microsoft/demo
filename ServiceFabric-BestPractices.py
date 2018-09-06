@@ -1,9 +1,15 @@
+__author__ = "Alexander Johnson"
+__email__ = "aljo-microsoft@github.com"
+__status__ = "Development"
+
+""" This demostrates best practices for an Azure Service Fabric Cluster """
+
 import subprocess
 import json
 from pathlib import Path
 import sys
 
-class Deployment:
+class ServiceFabricResourceDeclaration:
 	
 	def __init__(
 		self,
