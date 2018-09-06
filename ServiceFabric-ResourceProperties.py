@@ -1,10 +1,11 @@
 import subprocess
 import json
+from pathlib import Path
+import sys
 
 class ResourceProperties:
 
-	def __init__(self, subscription="eec8e14e-b47d-40d9-8bd9-23ff5c381b40", template_file="AzureDeploy.json", parameters_file="AzureDeploy.Parameters.json", resource_group="MyDeploymentResourceGroup", clusterName="MyCluster", adminUserName="myAdmin", adminPassword="Password#1234"):
-		self.clusterName = clusterName
+	def __init__(self, subscription="eec8e14e-b47d-40d9-8bd9-23ff5c381b40", template_file="AzureDeploy.json", parameters_file="AzureDeploy.Parameters.json"):
 
 		# Az CLI Client	
 		self.subscription = subscription
@@ -14,22 +15,19 @@ class ResourceProperties:
 		cmds = loginCmd + ";" accountSetCmd
 		subprocess.call(cmds, shell=True)
 
-		# Validate Template and Parms Syntax
+		# Validate Template and Parameters Files Exists
 		self.template_file = template_file
 		self.parameters_file = parameters_file
 
-		self.parameters_file_json = json.load(open(self.parameters_file))
-
-		self.location = parameters_file_json['parameters']['clusterLocation']['value']
+		if (Path(self.parameters_file)).exists():
+			print("Parameter File Found")
+		else:
+			sys.exit('Parameters File NOT Found')
 		
-		validateCmd = 'az group deployment validate --resource-group ' + resource_group + ' --mode Incremental --parameters ' + parameters_file_json['parameters'] + ' --template-file ' + self.template_file'
-
-		subprocess.call(validateCmd, shell=True)
-
-		# Set Parameter values
-		self.parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
-		self.parameters_file_json['parameters']['adminUserName']['value'] = adminUserName
-		self.parameters_file_json['parameters']['adminPassword']['value'] = adminPassword
+		if (Path(self.template_file)).exists():
+			print("Template File Found")
+		else:
+			sys.exit('Template file NOT Found')
 
 	def selfSignedCertificate(self, keyVaultName="MyKeyVault", keyVaultResourceGroup="MyKeyVaultResourceGroup", certificateName="MySelfSignedCertificate", description="My Self Signed Certificate", certificatePassword="Password#1234"):
 		
@@ -89,3 +87,7 @@ class ResourceProperties:
 
 		# Update Parameters File
 		json.dump(self.parameters_file_json, open(self.parameters_file, 'w')) 
+	
+	def deploy(self):
+		# Validate Declaration; need to create resource group before running
+		validateCmd = 'az group deployment validate --resource-group ' + resource_group + ' --mode Incremental --parameters @' + self.parameters_file + ' --template-file ' + self.template_file'
