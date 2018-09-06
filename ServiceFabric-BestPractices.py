@@ -10,7 +10,8 @@ from pathlib import Path
 import sys
 
 class ServiceFabricResourceDeclaration:
-	
+	# All Production Services have deployment time Resource Declaration values
+	# E.G. Secrets being the most common dynamic values being declared
 	def __init__(
 		self,
 		subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
@@ -207,15 +208,20 @@ class ServiceFabricResourceDeclaration:
 			sys.exit('Template and Parameters Files NOT Found')
 		
 	def provisionCluster(self):
+		# Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
 		groupDeploymentCreateCmd = 'az group deployment create -g ' + self.deployment_resource_group + ' --template-file ' + self.template_file + ' --parameters ' + self.parametersFileArgFormat
 
 		subprocess.call(groupDeploymentCreateCmd, shell=True)
 
 	def setupClient(self):
-		# Down load certificate
-		# Convert to PEM format if for Linux
-		# Import pfx self signed cert into trustedpeople store for windows
-		# Convert to PEM format for linux import into chrome browser trusted root authority
+		# SRE's whom Manage your Application can level SFX to gain state on the health of your Application
+		# This sets up your local machine to authenticate you with a certificate authentication, which will
+		# work for secure clusters, whether or not another authentication mechansim is used; e.g. If Azure
+		# Active Directory is configured for a secure cluster, a certificate can be used to authenticated.
+		# TODO: implement the following behavior
+		# Down load admin certificate
+		# Convert to PEM format if localhost is Linux and import into browsers trusted root authority for self signed certs
+		# Import pfx cert into personal and/or trustedpeople store if cert is self signed for windows localhost
 		print("Setting Up Client")
 
 	def patchOrchestrationApplication(self):
@@ -239,13 +245,13 @@ class ServiceFabricResourceDeclaration:
 		print("Deploying SF Native Demo Application")
 
 def main():
-	deployment = Deployment()
-	deployment.provisionCluster()
-	deployment.setupClient()
-	deployment.patchOrchestrationApplication()
-	deployment.enableHostMSI()
-	deployment.setMSIPermissions()
-	deployment.deployNativeDemoApplication()
+	resourceDeclaration = ServiceFabricResourceDeclaration()
+	resourceDeclaration.provisionCluster()
+	resourceDeclaration.setupClient()
+	resourceDeclaration.patchOrchestrationApplication()
+	resourceDeclaration.enableHostMSI()
+	resourceDeclaration.setMSIPermissions()
+	resourceDeclaration.deployNativeDemoApplication()
 
 if __name__ == '__main__':
 	main()
