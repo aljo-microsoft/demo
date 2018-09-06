@@ -1,4 +1,4 @@
-# demo
+# Demo Service Fabric Best Practices
 Demo Reliable Production Service Fabric Application
 
-Demostrate deployment of secure SF Application using python 
+Demostrate secure Azure SF Application resource deployment 
