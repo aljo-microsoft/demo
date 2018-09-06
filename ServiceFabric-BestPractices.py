@@ -7,20 +7,20 @@ class Deployment:
 	
 	def __init__(
 		self,
-		subscription="eec8e14e-b47d-40d9-8bd9-23ff5c381b40",
-		template_file="AzureDeploy.json",
-		parameters_file="AzureDeploy.Parameters.json",
-		deployment_resource_group="aljoDeploymentRG",
-		keyvault_resource_group="aljoKeyVaultRG",
-		keyvault_name="aljoKeyvault",
-		clusterName="aljocluster",
-		adminUserName="aljo",
-		adminPassword="Password#1234",
-		clusterLocation="westus",
-		certificate_name="clusterCertificate",
-		certificateThumbprint="GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT",
-		sourceVaultValue="GEN-KEYVAULT-RESOURCE-ID",
-		certificateUrlValue="GEN-KEYVAULT-SSL-SECRET-URI"
+		subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
+		template_file='AzureDeploy.json',
+		parameters_file='AzureDeploy.Parameters.json',
+		deployment_resource_group='aljoDeploymentRG',
+		keyvault_resource_group='aljoKeyVaultRG',
+		keyvault_name='aljoKeyvault',
+		clusterName='aljocluster',
+		adminUserName='aljo',
+		adminPassword='Password#1234',
+		clusterLocation='westus',
+		certificate_name='clusterCertificate',
+		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
+		sourceVaultValue='GEN-KEYVAULT-RESOURCE-ID',
+		certificateUrlValue='GEN-KEYVAULT-SSL-SECRET-URI'
 		):
 
 		# Set Parameters
@@ -29,6 +29,7 @@ class Deployment:
 		self.parameters_file = parameters_file
 		self.deployment_resource_group = deployment_resource_group
 		self.keyvault_resource_group = keyvault_resource_group
+		self.keyvault_name = keyvault_name
 		self.clusterName = clusterName
 		self.adminUserName = adminUserName
 		self.adminPassword = adminPassword
@@ -40,8 +41,8 @@ class Deployment:
 		
 		# Az CLI Client	
 		loginCmd = 'az login'
-		accountSetCmd = 'az account set --subscription " + self.subscription
-		cmds = loginCmd + ";" accountSetCmd
+		accountSetCmd = 'az account set --subscription ' + self.subscription
+		cmds = loginCmd + ';' + accountSetCmd
 		
 		subprocess.call(cmds, shell=True)
 
@@ -51,22 +52,26 @@ class Deployment:
 			
 			self.parameters_file_json = json.load(open(self.parameters_file))
 			
+			parm_sourceVaultValue = self.parameters_file_json['parameters']['sourceVaultValue']['value']
+			parm_certificateThumbprint = self.parameters_file_json['parameters']['certificateThumbprint']['value']
+			parm_certificateUrlValue = self.parameters_file_json['parameters']['certificateUrlValue']['value']
+ 
 			# Keyvault Cluster Certificate Exist or Create
-			if self.sourceVaultValue.find("/subscriptions/") == 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") != -1:
+			if self.sourceVaultValue.find('/subscriptions/') >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find('vault.azure.net') != -1:
 				# Use Keyvault Certificate Arguments
-				print("Using Keyvault Certificate Arguments")
-				
-			elif self.parameters_file_json['parameters']['sourceVaultValue']['value'].find("/subscriptions/") == 0 and len(self.parameters_file_json['parameters']['certificateThumbprint']['value'] !> 36 and self.parameters_file_json['parameters']['certificateUrlValue']['value'].find("vault.azure.net"):
+				print('Using Keyvault Certificate Deployment Arguments')
+			
+			elif parm_sourceVaultValue.find("/subscriptions/") >= 0 and len(parm_certificateThumbprint) > 36 and parm_certificateUrlValue.find("vault.azure.net") >= 0:
 				# use Parameters File Keyvault Certificate Declarations
-				print("Using keyvault Certificate Parameters File Declaration")
+				print('Using keyvault Certificate Parameters File Declarations')
 																       
-				self.sourceVaultValue = self.parameters_file_json['parameters']['sourceVaultValue']['value']
-				self.certificateThumbprint = self.parameters_file_json['parameters']['certificateThumbprint']['value']
-				self.certificateUrlValue = self.parameters_file_json['parameters']['certificateUrlValue']['value']
+				self.sourceVaultValue = parm_sourceVaultValue
+				self.certificateThumbprint = parm_certificateThumbprint
+				self.certificateUrlValue = parm_certificateUrlValue
 																       
 			else:
 				# Create KeyVault
-				print("Creating Keyvault Self Signed Certificate")
+				print('Creating Deployment Keyvault Self Signed Certificate')
 				groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.clusterLocation
 				keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group
 				groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
@@ -78,35 +83,41 @@ class Deployment:
 				subprocess.call(keyvaultShowCmd, shell=True)
 				
 				# Create Self Signed Certificate
-				certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' p "$(az keyvault certificate get-default-policy)"'
+				certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' -n ' + self.certificate_name + ' -p "$(az keyvault certificate get-default-policy)"'
 				subprocess.call(certificateCreateCmd, shell=True)
 																       
 				# Get Keyvault Self Signed Certificate Properties
 				# Get resource Id
-				resourceIdProcess = subprocess.Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=subprocess.PIPE)
-				stdout = resourceIdProcess.communicate()
+				resourceIdProcess = subprocess.Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+				stdout, stderr = resourceIdProcess.communicate()
 				
 				if resourceIdProcess.wait() == 0:
 					self.sourceVaultValue = stdout.decode("utf-8")
 				else:
+					print(stderr)
 					sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
 				# Get Thumbprint										
-				thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE)
-				stdout = thumbprintProcess.communicate()
+				thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				
+				stdout, stderr = thumbprintProcess.communicate()
 				
 				if thumbprintProcess.wait() == 0:
 					self.certificateThumbprint = stdout.decode("utf-8")
 				else:
+					print(stderr)
 					sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
 				# Get Certificate URL
-				urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE)
-				stdout = urlProcess.communicate()
+				urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				
+				stdout, stderr = urlProcess.communicate()
 				
 				if urlProcess.wait() == 0:
 					self.certificateUrlValue = stdout.decode("utf-8")
 				else:
+					print(stderr)
 					sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
-			# Write Declarative Parameters File													       
+			# Write Declarative Parameters File
 			json.dump(self.parameters_file_json, open(self.parameters_file, 'w')) 											       
 		else:
 			sys.exit('Parameters File NOT Found')
@@ -114,41 +125,47 @@ class Deployment:
 	def createCluster(self):
 		# az deployment create
 		# az sf is an option, but in Azure it isn't the only resource
-																       
+		print("Creating Cluster")
+
 	def setupClient(self):
 		# Down load certificate
 		# Convert to PEM format if for Linux
 		# Import pfx self signed cert into trustedpeople store for windows
 		# Convert to PEM format for linux import into chrome browser trusted root authority
-																       
+		print("Setting Up Client")
+
 	def patchOrchestrationApplication(self):
 		# Download POA and Archive Package
 		# Create Storage Account, Upload POA, and Get Storage Properties
 		# Use Package properties to declare App and Services as Resources in Template
 		# Deploy POA as resource to SF Cluster
-																       
+		print("Deploying Patch Orchestration Application")
+
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
-																       
+		print("Enabling Host MIS")
+
 	def setMSIPermissions(self):
 		# grant AAD permissions to MSI for resource such as Cosmos DB
-																       
-	def deployNativeDemoApplication(self):															       
-		# Deploy ACR hosted container using data encryption certificate for ACR password
-		# App implementation to use MSI to authenticate to resource such as Cosmos DB														       
-	
-	def main(self):
-		deployment = Deployment()
-		deployment.createCluster()
-		deployment.setupClient()														       
-		deployment.patchOrchestrationApplication()														       
-		deployment.enableHostMSI()
-		deployment.setMSIPermissions()
-		deployment.deployNativeDemoApplication()
+		print("Applying Permissions to Resource for MSI")
 
-if __name__ == __main__:
+	def deployNativeDemoApplication(self):
+		# Deploy ACR hosted container using data encryption certificate for ACR password
+		# App implementation to use MSI to authenticate to resource such as Cosmos DB
+		print("Deploying SF Native Demo Application")
+
+def main():
+	deployment = Deployment()
+	deployment.createCluster()
+	deployment.setupClient()
+	deployment.patchOrchestrationApplication()
+	deployment.enableHostMSI()
+	deployment.setMSIPermissions()
+	deployment.deployNativeDemoApplication()
+
+if __name__ == '__main__':
 	main()
-																       
+
 # TODO: Mesh demo of Secure Store Service
 # enableSecureStoreService()
 # Reason: Feature announcement and how to enable it on OneBox
