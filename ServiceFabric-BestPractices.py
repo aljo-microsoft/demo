@@ -52,72 +52,75 @@ class Deployment:
 			
 			self.parameters_file_json = json.load(open(self.parameters_file))
 			
-			parm_sourceVaultValue = self.parameters_file_json['parameters']['sourceVaultValue']['value']
-			parm_certificateThumbprint = self.parameters_file_json['parameters']['certificateThumbprint']['value']
-			parm_certificateUrlValue = self.parameters_file_json['parameters']['certificateUrlValue']['value']
- 
 			# Keyvault Cluster Certificate Exist or Create
 			if self.sourceVaultValue.find('/subscriptions/') >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find('vault.azure.net') != -1:
 				# Use Keyvault Certificate Arguments
 				print('Using Keyvault Certificate Deployment Arguments')
-			
-			elif parm_sourceVaultValue.find("/subscriptions/") >= 0 and len(parm_certificateThumbprint) > 36 and parm_certificateUrlValue.find("vault.azure.net") >= 0:
-				# use Parameters File Keyvault Certificate Declarations
-				print('Using keyvault Certificate Parameters File Declarations')
-																       
-				self.sourceVaultValue = parm_sourceVaultValue
-				self.certificateThumbprint = parm_certificateThumbprint
-				self.certificateUrlValue = parm_certificateUrlValue
-																       
 			else:
-				# Create KeyVault
-				print('Creating Deployment Keyvault Self Signed Certificate')
-				groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.clusterLocation
-				keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group
-				groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
-				
-				subprocess.call(groupKeyVaultCmd, shell=True)
-																       
-				# Keyvault DNS Population Takes 10 Secs
-				keyvaultShowCmd = 'az keyvault show -n ' + self.keyvault_name + ' -g ' + self.keyvault_resource_group
-				subprocess.call(keyvaultShowCmd, shell=True)
-				
-				# Create Self Signed Certificate
-				certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' -n ' + self.certificate_name + ' -p "$(az keyvault certificate get-default-policy)"'
-				subprocess.call(certificateCreateCmd, shell=True)
-																       
-				# Get Keyvault Self Signed Certificate Properties
-				# Get resource Id
-				resourceIdProcess = subprocess.Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				self.sourceVaultValue = self.parameters_file_json['parameters']['sourceVaultValue']['value']
+				self.certificateThumbprint = self.parameters_file_json['parameters']['certificateThumbprint']['value']
+				self.certificateUrlValue = self.parameters_file_json['parameters']['certificateUrlValue']['value']
 
-				stdout, stderr = resourceIdProcess.communicate()
-				
-				if resourceIdProcess.wait() == 0:
-					self.sourceVaultValue = stdout.decode("utf-8")
+				if self.sourceVaultValue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") >= 0:
+					# use Parameters File Keyvault Certificate Declarations
+					print('Using keyvault Certificate Parameters File Declarations')
 				else:
-					print(stderr)
-					sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
-				# Get Thumbprint										
-				thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					# Create KeyVault
+					print('Creating Deployment Keyvault Self Signed Certificate')
+					groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.clusterLocation
+					keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group
+					groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
+
+					subprocess.call(groupKeyVaultCmd, shell=True)
+
+					# Keyvault DNS Population Takes 10 Secs
+					keyvaultShowCmd = 'az keyvault show -n ' + self.keyvault_name + ' -g ' + self.keyvault_resource_group
+					subprocess.call(keyvaultShowCmd, shell=True)
+
+					# Create Self Signed Certificate
+					certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' -n ' + self.certificate_name + ' -p "$(az keyvault certificate get-default-policy)"'
+					
+					subprocess.call(certificateCreateCmd, shell=True)
+
+					# Get Keyvault Self Signed Certificate Properties
+					# Get resource Id
+					resourceIdProcess = subprocess.Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+					stdout, stderr = resourceIdProcess.communicate()
+
+					if resourceIdProcess.wait() == 0:
+						self.sourceVaultValue = stdout.decode("utf-8")
+					else:
+						print(stderr)
+						sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
+
+					# Get Thumbprint
+					thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+					stdout, stderr = thumbprintProcess.communicate()
+
+					if thumbprintProcess.wait() == 0:
+						self.certificateThumbprint = stdout.decode("utf-8")
+					else:
+						print(stderr)
+						sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
+
+					# Get Certificate URL
+					urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+					stdout, stderr = urlProcess.communicate()
 				
-				stdout, stderr = thumbprintProcess.communicate()
-				
-				if thumbprintProcess.wait() == 0:
-					self.certificateThumbprint = stdout.decode("utf-8")
-				else:
-					print(stderr)
-					sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
-				# Get Certificate URL
-				urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				
-				stdout, stderr = urlProcess.communicate()
-				
-				if urlProcess.wait() == 0:
-					self.certificateUrlValue = stdout.decode("utf-8")
-				else:
-					print(stderr)
-					sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
+					if urlProcess.wait() == 0:
+						self.certificateUrlValue = stdout.decode("utf-8")
+					else:
+						print(stderr)
+						sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
+			
 			# Write Declarative Parameters File
+			self.parameters_file_json['parameters']['sourceVaultValue']['value'] = self.sourceVaultValue
+			self.parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
+			self.parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificateUrlValue
+
 			json.dump(self.parameters_file_json, open(self.parameters_file, 'w')) 											       
 		else:
 			sys.exit('Parameters File NOT Found')
