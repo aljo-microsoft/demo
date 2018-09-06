@@ -191,12 +191,14 @@ class Deployment:
 			stdout, stderr = deploymentValidationProcess.communicate()
 
 			if deploymentValidationProcess.wait() == 0:
-				print("Your Deployment Declaration is Validate Syntactically")
 				print(stdout)
+				print("Your Deployment Declaration is Valid Syntactically")
 			else:
 				print(stderr)
-				print("Your Deployment Declaration is Invalid Syntactically")    									else:
-			sys.exit('Parameters File NOT Found')
+				print("Your Deployment Declaration is Invalid Syntactically")
+
+		else:
+			sys.exit('Template and Parameters Files NOT Found')
 		
 	def createCluster(self):
 		# az deployment create
