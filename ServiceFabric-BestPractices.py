@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import sys
 
-class ResourceProperties:
+class Deployment:
 	
 	def __init__(
 		self,
@@ -112,20 +112,20 @@ class ResourceProperties:
 			sys.exit('Parameters File NOT Found')
 		
 	def createCluster(self):
-		# resource put command
+		# az deployment create
+		# az sf is an option, but in Azure it isn't the only resource
 																       
 	def setupClient(self):
-		# Down load certificate and add to trustedpeople store for windows
-		# Convert to PEM format for linux
-		# test connection using sfctl or az sf?
+		# Down load certificate
+		# Convert to PEM format if for Linux
+		# Import pfx self signed cert into trustedpeople store for windows
+		# Convert to PEM format for linux import into chrome browser trusted root authority
 																       
 	def patchOrchestrationApplication(self):
-		# update template to declare app as resource
-		# download POA
-		# create storage account
-		# Upload POA To Storage account
-		# Get URL with read permissions to storage account file
-		# Deploy POA as resource
+		# Download POA and Archive Package
+		# Create Storage Account, Upload POA, and Get Storage Properties
+		# Use Package properties to declare App and Services as Resources in Template
+		# Deploy POA as resource to SF Cluster
 																       
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
@@ -133,6 +133,26 @@ class ResourceProperties:
 	def setMSIPermissions(self):
 		# grant AAD permissions to MSI for resource such as Cosmos DB
 																       
-	def deployNativeDemoApp(self):															       
+	def deployNativeDemoApplication(self):															       
 		# Deploy ACR hosted container using data encryption certificate for ACR password
-		# App implementation to use MSI to write authenticate to resource such as Cosmos DB														       
+		# App implementation to use MSI to authenticate to resource such as Cosmos DB														       
+	
+	def main(self):
+		deployment = Deployment()
+		deployment.createCluster()
+		deployment.setupClient()														       
+		deployment.patchOrchestrationApplication()														       
+		deployment.enableHostMSI()
+		deployment.setMSIPermissions()
+		deployment.deployNativeDemoApplication()
+
+if __name__ == __main__:
+	main()
+																       
+# TODO: Mesh demo of Secure Store Service
+# enableSecureStoreService()
+# Reason: Feature announcement and how to enable it on OneBox
+# deployMeshDemoSecrets(acrSecretName, acrSecretValue) - password for ACR
+# Reason: Management operations of Secure Store Service
+# deployMeshDemoApp() - update package, deploy containerized App, use 3S secure password for ACR, and MSI to write data to DB.
+# Reason: 3S to secure secrets, and MSI to avoid manual handling of secrets																       
