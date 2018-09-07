@@ -28,6 +28,7 @@ class ServiceFabricResourceDeclaration:
 		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 		sourceVaultValue='GEN-KEYVAULT-RESOURCE-ID',
 		certificateUrlValue='GEN-KEYVAULT-SSL-SECRET-URI'
+		userEmail='aljo-microsoft@github.com'
 		):
 
 		# Set Parameters
@@ -45,6 +46,7 @@ class ServiceFabricResourceDeclaration:
 		self.certificateThumbprint = certificateThumbprint
 		self.sourceVaultValue = sourceVaultValue
 		self.certificateUrlValue = certificateUrlValue
+		self.userEmail = userEmail
 		
 		# Az CLI Client	
 		loginCmd = 'az login'
@@ -99,7 +101,9 @@ class ServiceFabricResourceDeclaration:
 					defaultPolicyJson = json.loads(defaultPolicy)
 					# Set Subject Name to FQDN
 					# Browsers won't trust certificates with subject names that don't match FQDN
-					defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
+					dnsName = self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
+					defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + dnsName
+					defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
 					policyFileName = "policy.json"
 					json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
 					policyFileArgFormat = "@" + policyFileName
