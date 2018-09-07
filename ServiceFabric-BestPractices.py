@@ -85,7 +85,23 @@ class ServiceFabricResourceDeclaration:
 					subprocess.call(keyvaultShowCmd, shell=True)
 
 					# Create Self Signed Certificate
-					certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' -n ' + self.certificate_name + ' -p "$(az keyvault certificate get-default-policy)"'
+					# Get Default Policy
+					defaultPolicyProcess = subproces.Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					
+					stdout, stderr = defaultPolicyProcess.communicate()
+					
+					if defaultPolicyProcess.wait() == 0:
+						defaultPolicy = stdout.decode("utf-8")
+					else:
+						print(stderr)
+						sys.exit("Couldn't get kevault certificate default policy")
+					
+					defaultPolicyJson = json.loads(defaultPolicy)
+					# Set Subject Name to FQDN
+					# Browsers won't trust certificates with subject names that don't match FQDN
+					defaultPolicyJson['x509CertificateProperties']['subject'] = self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
+					
+					certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' -n ' + self.certificate_name + ' -p ' + defaultPolicyJson
 					
 					subprocess.call(certificateCreateCmd, shell=True)
 
