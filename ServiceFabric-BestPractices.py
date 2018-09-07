@@ -100,8 +100,11 @@ class ServiceFabricResourceDeclaration:
 					# Set Subject Name to FQDN
 					# Browsers won't trust certificates with subject names that don't match FQDN
 					defaultPolicyJson['x509CertificateProperties']['subject'] = self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
-					
-					certificateCreateProcess = subprocess.Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", defaultPolicyJson], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					policyFileName = "policy.json"
+					json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
+					policyFileArgFormat = "@" + policyFileName
+
+					certificateCreateProcess = subprocess.Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policyFileArgFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 					stdout, stderr = certificateCreateProcess.communicate()
 
