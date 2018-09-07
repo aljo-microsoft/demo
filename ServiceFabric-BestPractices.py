@@ -101,10 +101,16 @@ class ServiceFabricResourceDeclaration:
 					# Browsers won't trust certificates with subject names that don't match FQDN
 					defaultPolicyJson['x509CertificateProperties']['subject'] = self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
 					
-					certificateCreateCmd = 'az keyvault certificate create --vault-name ' + self.keyvault_name + ' -n ' + self.certificate_name + ' -p ' + defaultPolicyJson
-					
-					subprocess.call(certificateCreateCmd, shell=True)
+					certificateCreateProcess = subprocess.Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", defaultPolicyJson], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+					stdout, stderr = certificateCreateProcess.communicate()
+
+					if certificateCreateProcess.wait() == 0:
+						print(stdout)
+					else:
+						print(stderr)
+						sys.exit("Failed to Create Certificate")
+					
 					# Get Keyvault Self Signed Certificate Properties
 					# Get resource Id
 					resourceIdProcess = subprocess.Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
