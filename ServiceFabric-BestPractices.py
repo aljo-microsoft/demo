@@ -99,7 +99,7 @@ class ServiceFabricResourceDeclaration:
 					defaultPolicyJson = json.loads(defaultPolicy)
 					# Set Subject Name to FQDN
 					# Browsers won't trust certificates with subject names that don't match FQDN
-					defaultPolicyJson['x509CertificateProperties']['subject'] = self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
+					defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
 					policyFileName = "policy.json"
 					json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
 					policyFileArgFormat = "@" + policyFileName
