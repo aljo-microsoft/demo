@@ -152,10 +152,10 @@ class ServiceFabricResourceDeclaration:
 
 			# Validate KeyVault Certificate
 			# Certificate URL
-			vaultName = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
-			certName = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]			 
+			self.keyvault_name = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
+			self.certificate_name = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]			 
 			
-			certUrlValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", vaultName, "--name", certName, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			certUrlValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 			stdout, stderr = certUrlValidateProcess.communicate()
 
@@ -166,7 +166,7 @@ class ServiceFabricResourceDeclaration:
 				sys.exit("Certificate SID URL is invalid within subscription context")
  
 			# Certificate Thumbprint
-			certThumbprintValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", vaultName, "--name", certName, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			certThumbprintValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 			stdout, stderr = certThumbprintValidateProcess.communicate()
 
@@ -225,9 +225,18 @@ class ServiceFabricResourceDeclaration:
 		
 	def provisionCluster(self):
 		# Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
-		groupDeploymentCreateCmd = 'az group deployment create -g ' + self.deployment_resource_group + ' --template-file ' + self.template_file + ' --parameters ' + self.parametersFileArgFormat
+		print("Provisioning Cluster")
+		
+		groupDeploymentCreateProcess = subprocess.Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-		subprocess.call(groupDeploymentCreateCmd, shell=True)
+		stdout, stderr = groupDeploymentCreateProcess.communicate()
+
+		if groupDeploymentCreateProcess.wait() == 0:
+			print(stdout)
+			print("Provisioning Cluster Successful")
+		else:
+			print(stderr)
+			print("Provisiong Cluster Failed")
 
 	def setupClient(self):
 		# SRE's whom Manage your Application can level SFX to gain state on the health of your Application
@@ -238,7 +247,19 @@ class ServiceFabricResourceDeclaration:
 		# Down load admin certificate
 		# Convert to PEM format if localhost is Linux and import into browsers trusted root authority for self signed certs
 		# Import pfx cert into personal and/or trustedpeople store if cert is self signed for windows localhost
-		print("Setting Up Client")
+		# Download Certificate
+		print("Downloading Certificate")
+		certificateFile = self.certificate_name + ".pfx"
+		downloadCertProcess = subprocess.Popen(["az", "keyvault", "certificate", "download", "--file", certificateFile, "--encoding", "PEM", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		stdout, stderr = downloadCertProcess.communicate()
+
+		if downloadCertProcess.wait() == 0:
+			print(stdout)
+			print("Download of Certificate Successful")
+		else:
+			print(stderr)
+			print("Download of Certificate Failed")
 
 	def patchOrchestrationApplication(self):
 		# Download POA and Archive Package
