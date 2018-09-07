@@ -86,7 +86,7 @@ class ServiceFabricResourceDeclaration:
 
 					# Create Self Signed Certificate
 					# Get Default Policy
-					defaultPolicyProcess = subproces.Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					defaultPolicyProcess = subprocess.Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 					
 					stdout, stderr = defaultPolicyProcess.communicate()
 					
