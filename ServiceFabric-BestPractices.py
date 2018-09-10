@@ -27,7 +27,7 @@ class ServiceFabricResourceDeclaration:
 		certificate_name='clusterCertificate',
 		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 		sourceVaultValue='GEN-KEYVAULT-RESOURCE-ID',
-		certificateUrlValue='GEN-KEYVAULT-SSL-SECRET-URI'
+		certificateUrlValue='GEN-KEYVAULT-SSL-SECRET-URI',
 		userEmail='aljo-microsoft@github.com'
 		):
 
