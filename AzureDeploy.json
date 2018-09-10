@@ -32,21 +32,21 @@
     },
     "vmImagePublisher": {
       "type": "string",
-      "defaultValue": "Canonical",
+      "defaultValue": "RedHat",
       "metadata": {
         "description": "VM image Publisher"
       }
     },
     "vmImageOffer": {
       "type": "string",
-      "defaultValue": "UbuntuServer",
+      "defaultValue": "RHEL",
       "metadata": {
         "description": "VM image offer"
       }
     },
     "vmImageSku": {
       "type": "string",
-      "defaultValue": "16.04-LTS",
+      "defaultValue": "7.3",
       "metadata": {
         "description": "VM image SKU"
       }
@@ -163,7 +163,7 @@
   "variables": {
     "computeLocation": "[parameters('clusterLocation')]",
     "dnsName": "[parameters('clusterName')]",
-    "vmStorageAccountName": "[toLower(concat( 'sflogs', uniqueString(resourceGroup().id), '1' ))]",
+    "vmStorageAccountName": "[toLower(concat(uniqueString(resourceGroup().id), '1' ))]",
     "vmName": "vm",
     "publicIPAddressName": "PublicIP-VM",
     "publicIPAddressType": "Dynamic",
@@ -178,7 +178,6 @@
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "overProvision": "false",
     "vmssApiVersion": "2017-03-30",
-    "sfrpApiVersion": "2017-07-01-preview",
     "lbApiVersion": "2015-06-15",
     "vNetApiVersion": "2015-06-15",
     "storageApiVersion": "2016-01-01",
@@ -193,7 +192,7 @@
     "subnet0Prefix": "10.0.0.0/24",
     "subnet0Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet0Name'))]",
     "supportLogStorageAccountName": "[toLower( concat( uniqueString(resourceGroup().id),'2'))]",
-    "applicationDiagnosticsStorageAccountName": "[toLower(concat('wad',uniqueString(resourceGroup().id), '3' ))]",
+    "applicationDiagnosticsStorageAccountName": "[toLower(concat(uniqueString(resourceGroup().id), '3' ))]",
     "wadlogs": "<WadCfg><DiagnosticMonitorConfiguration>",
     "wadperfcounters1": "<PerformanceCounters scheduledTransferPeriod=\"PT1M\"><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\AvailableMemory\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\PercentAvailableMemory\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Mem. percent available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\UsedMemory\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory used\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\PercentUsedMemory\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Memory percentage\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\PercentUsedByCache\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Mem. used by cache\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor\\PercentIdleTime\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU idle time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor\\PercentUserTime\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU user time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor\\PercentProcessorTime\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU percentage guest OS\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor\\PercentIOWaitTime\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU IO wait time\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
     "wadperfcounters2": "<PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\BytesPerSecond\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk total bytes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\ReadBytesPerSecond\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk read guest OS\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\WriteBytesPerSecond\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk write guest OS\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\TransfersPerSecond\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk transfers\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\ReadsPerSecond\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk reads\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\WritesPerSecond\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk writes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\AverageReadTime\" sampleRate=\"PT15S\" unit=\"Seconds\"><annotation displayName=\"Disk read time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\AverageWriteTime\" sampleRate=\"PT15S\" unit=\"Seconds\"><annotation displayName=\"Disk write time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\AverageTransferTime\" sampleRate=\"PT15S\" unit=\"Seconds\"><annotation displayName=\"Disk transfer time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk\\AverageDiskQueueLength\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Disk queue length\" locale=\"en-us\"/></PerformanceCounterConfiguration></PerformanceCounters>",
@@ -271,7 +270,7 @@
     {
       "apiVersion": "[variables('publicIPApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(variables('lbIPName'),'-',variables('vmNodeType0Name'))]",
+      "name": "[concat(variables('lbIPName'),'-','0')]",
       "location": "[variables('computeLocation')]",
       "properties": {
         "dnsSettings": {
@@ -290,7 +289,7 @@
       "name": "[concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name'))]",
       "location": "[variables('computeLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-',variables('vmNodeType0Name')))]"
+        "[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','0'))]"
       ],
       "properties": {
         "frontendIPConfigurations": [
@@ -298,7 +297,7 @@
             "name": "LoadBalancerIPConfig",
             "properties": {
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('lbIPName'),'-',variables('vmNodeType0Name')))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('lbIPName'),'-','0'))]"
               }
             }
           }
@@ -583,7 +582,7 @@
       }
     },
     {
-      "apiVersion": "[variables('sfrpApiVersion')]",
+      "apiVersion": "2017-07-01-preview",
       "type": "Microsoft.ServiceFabric/clusters",
       "name": "[parameters('clusterName')]",
       "location": "[parameters('clusterLocation')]",
@@ -591,20 +590,11 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('supportLogStorageAccountName'))]"
       ],
       "properties": {
-        "addonFeatures": [
-          "DnsService",
-          "RepairManager"
-        ],
+        "addonFeatures": [],
         "certificate": {
           "thumbprint": "[parameters('certificateThumbprint')]",
           "x509StoreName": "[parameters('certificateStoreValue')]"
         },
-        "clientCertificateThumbprints": [
-          {
-            "CertificateThumbprint": "[parameters('certificateThumbprint')]",
-            "IsAdmin" : true
-          }
-        ],
         "clusterState": "Default",
         "diagnosticsStorageAccountConfig": {
           "blobEndpoint": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('supportLogStorageAccountName')), variables('storageApiVersion')).primaryEndpoints.blob]",
@@ -624,7 +614,7 @@
             "name": "Security"
           }
         ],
-        "managementEndpoint": "[concat('https://',reference(concat(variables('lbIPName'),'-',variables('vmNodeType0Name'))).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
+        "managementEndpoint": "[concat('https://',reference(concat(variables('lbIPName'),'-','0')).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
         "nodeTypes": [
           {
             "name": "[variables('vmNodeType0Name')]",
@@ -646,7 +636,7 @@
         "provisioningState": "Default",
         "reliabilityLevel": "Silver",
         "upgradeMode": "Automatic",
-        "vmImage": "Linux"
+        "vmImage": "RedHat"
       },
       "tags": {
         "resourceType": "Service Fabric",
