@@ -591,6 +591,12 @@
       ],
       "properties": {
         "addonFeatures": [],
+        "clientCertificateThumbprints": [
+          {
+            "thumbprint": "[parameters('certificateThumbprint')]",
+            "IsAdmin": true
+          }
+        ],
         "certificate": {
           "thumbprint": "[parameters('certificateThumbprint')]",
           "x509StoreName": "[parameters('certificateStoreValue')]"
