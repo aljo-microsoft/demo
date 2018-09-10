@@ -261,18 +261,30 @@ class ServiceFabricResourceDeclaration:
 		# Convert to PEM format if localhost is Linux and import into browsers trusted root authority for self signed certs
 		# Import pfx cert into personal and/or trustedpeople store if cert is self signed for windows localhost
 		# Download Certificate
-		print("Downloading Certificate")
-		certificateFile = self.certificate_name + ".pem"
-		downloadCertProcess = subprocess.Popen(["az", "keyvault", "certificate", "download", "--file", certificateFile, "--encoding", "PEM", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		print("Downloading Certificate file in base64 format")
+		certificateB64File = self.certificate_name + "64.pem"
+		downloadCertProcess = subprocess.Popen(["az", "keyvault", "secret", "download", "--file", certificateB64File, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		stdout, stderr = downloadCertProcess.communicate()
 
 		if downloadCertProcess.wait() == 0:
 			print(stdout)
-			print("Download of Certificate Successful")
+			print("Download of Certificate file in Base 64 Format Successful")
 		else:
 			print(stderr)
-			print("Download of Certificate Failed")
+			print("Download of Certificate file in Base 64 Format Failed")
+		print("Converting Base 64 Certificate File to PEM format")
+		certificateFile = self.certificate_name + ".pem"
+		convertCertProcess = subprocess.Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", certificateFile, "-nodes"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		
+		stdout, stderr = convertCertProcess.communicate()
+		
+		if convertCertProcess.wait() == 0:
+			print(stdout)
+			print("Convert of base64 file to PEM format successful")
+		else:
+			print(stderr)
+			print("Converting base64 file to PEM format failed")
 
 	def patchOrchestrationApplication(self):
 		# Download POA and Archive Package
