@@ -252,7 +252,7 @@ class ServiceFabricResourceDeclaration:
 			print("Provisiong Cluster Failed")
 
 	def setupClient(self):
-		# SRE's whom Manage your Application can level SFX to gain state on the health of your Application
+		# SRE's whom Manage your Application can leverage SFX to gain state on the health of your Application
 		# This sets up your local machine to authenticate you with a certificate authentication, which will
 		# work for secure clusters, whether or not another authentication mechansim is used; e.g. If Azure
 		# Active Directory is configured for a secure cluster, a certificate can be used to authenticated.
