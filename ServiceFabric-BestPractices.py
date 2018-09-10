@@ -23,7 +23,7 @@ class ServiceFabricResourceDeclaration:
 		clusterName='aljocluster',
 		adminUserName='aljo',
 		adminPassword='Password#1234',
-		clusterLocation='westus',
+		location='westus',
 		certificate_name='clusterCertificate',
 		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 		sourceVaultValue='GEN-KEYVAULT-RESOURCE-ID',
@@ -41,7 +41,7 @@ class ServiceFabricResourceDeclaration:
 		self.clusterName = clusterName
 		self.adminUserName = adminUserName
 		self.adminPassword = adminPassword
-		self.clusterLocation = clusterLocation
+		self.location = location
 		self.certificate_name = certificate_name
 		self.certificateThumbprint = certificateThumbprint
 		self.sourceVaultValue = sourceVaultValue
@@ -76,7 +76,7 @@ class ServiceFabricResourceDeclaration:
 				else:
 					# Create KeyVault
 					print('Creating Deployment Keyvault Self Signed Certificate')
-					groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.clusterLocation
+					groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.location
 					keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group + ' --enabled-for-deployment true'
 					groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
 
@@ -101,7 +101,7 @@ class ServiceFabricResourceDeclaration:
 					defaultPolicyJson = json.loads(defaultPolicy)
 					# Set Subject Name to FQDN
 					# Browsers won't trust certificates with subject names that don't match FQDN
-					dnsName = self.clusterName + "." + self.clusterLocation + ".cloudapp.azure.com"
+					dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com"
 					defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + dnsName
 					defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
 					policyFileName = "policy.json"
@@ -196,7 +196,7 @@ class ServiceFabricResourceDeclaration:
 			self.parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
 			self.parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
 			self.parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
-			self.parameters_file_json['parameters']['clusterLocation']['value'] = self.clusterLocation
+			self.parameters_file_json['parameters']['location']['value'] = self.location
 
 			json.dump(self.parameters_file_json, open(self.parameters_file, 'w'))
 
@@ -209,7 +209,7 @@ class ServiceFabricResourceDeclaration:
 				print("Deployment Group Exists")
 				# TODO: Validate Group Location
 			else:
-				deploymentGroupCreateProcess = subprocess.Popen(["az", "group", "create", "--location", self.clusterLocation, "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				deploymentGroupCreateProcess = subprocess.Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				
 				stdout, stderr = deploymentGroupCreateProcess.communicate()
 
