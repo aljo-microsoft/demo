@@ -593,7 +593,7 @@
         "addonFeatures": [],
         "clientCertificateThumbprints": [
           {
-            "thumbprint": "[parameters('certificateThumbprint')]",
+            "CertificateThumbprint": "[parameters('certificateThumbprint')]",
             "IsAdmin": true
           }
         ],
