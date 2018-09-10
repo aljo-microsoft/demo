@@ -262,7 +262,7 @@ class ServiceFabricResourceDeclaration:
 		# Import pfx cert into personal and/or trustedpeople store if cert is self signed for windows localhost
 		# Download Certificate
 		print("Downloading Certificate")
-		certificateFile = self.certificate_name + ".pfx"
+		certificateFile = self.certificate_name + ".pem"
 		downloadCertProcess = subprocess.Popen(["az", "keyvault", "certificate", "download", "--file", certificateFile, "--encoding", "PEM", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		stdout, stderr = downloadCertProcess.communicate()
