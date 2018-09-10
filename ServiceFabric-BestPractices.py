@@ -20,7 +20,7 @@ class ServiceFabricResourceDeclaration:
 		deployment_resource_group='aljoDeploymentRG',
 		keyvault_resource_group='aljoKeyVaultRG',
 		keyvault_name='aljoKeyvault',
-		clusterName='aljoFabricCluster',
+		clusterName='aljosfcluster',
 		adminUserName='aljo',
 		adminPassword='Password#1234',
 		clusterLocation='westus',
