@@ -48,12 +48,11 @@ class ServiceFabricResourceDeclaration:
 		self.certificateUrlValue = certificateUrlValue
 		self.userEmail = userEmail
 		
-		# Az CLI Client	
-		loginCmd = 'az login'
+		# Az CLI Client
 		accountSetCmd = 'az account set --subscription ' + self.subscription
-		cmds = loginCmd + ';' + accountSetCmd
+		cmd = accountSetCmd
 		
-		subprocess.call(cmds, shell=True)
+		subprocess.call(cmd, shell=True)
 
 		# Validate Template and Parameters
 		if (Path(self.parameters_file)).exists() and (Path(self.template_file)).exists():
