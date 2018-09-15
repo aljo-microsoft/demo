@@ -252,15 +252,8 @@ class ServiceFabricResourceDeclaration:
 			print("Provisiong Cluster Failed")
 
 	def setupClient(self):
-		# SRE's whom Manage your Application can leverage SFX to gain state on the health of your Application
-		# This sets up your local machine to authenticate you with a certificate authentication, which will
-		# work for secure clusters, whether or not another authentication mechansim is used; e.g. If Azure
-		# Active Directory is configured for a secure cluster, a certificate can be used to authenticated.
-		# TODO: implement the following behavior
-		# Down load admin certificate
-		# Convert to PEM format if localhost is Linux and import into browsers trusted root authority for self signed certs
-		# Import pfx cert into personal and/or trustedpeople store if cert is self signed for windows localhost
-		# Download Certificate
+		# Downloads client admin certificate
+		# Convert to PEM format for linux compatibility
 		print("Downloading Certificate file in base64 format")
 		certificateB64File = self.certificate_name + "64.pem"
 		downloadCertProcess = subprocess.Popen(["az", "keyvault", "secret", "download", "--file", certificateB64File, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -309,7 +302,7 @@ class ServiceFabricResourceDeclaration:
 def main():
 	start = datetime.now()
 	resourceDeclaration = ServiceFabricResourceDeclaration()
-	print("Execution Duration for Resource Declaration: " + (datetime.now() - start))
+	print("Execution Duration for Resource Declaration Initialization: " + (datetime.now() - start))
 	resourceDeclaration.provisionCluster()
 	print("Execution Duration to Provision Cluster: " + (datetime.now() - start))
 	startClient = datetime.now()
