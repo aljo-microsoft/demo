@@ -8,6 +8,7 @@ import subprocess
 import json
 from pathlib import Path
 import sys
+from datetime import datetime
 
 class ServiceFabricResourceDeclaration:
 	# All Production Services have deployment time Resource Declaration values
@@ -306,9 +307,14 @@ class ServiceFabricResourceDeclaration:
 		print("Deploying SF Native Demo Application")
 
 def main():
+	start = datetime.now()
 	resourceDeclaration = ServiceFabricResourceDeclaration()
+	print("Execution Duration for Resource Declaration: " + (datetime.now() - start))
 	resourceDeclaration.provisionCluster()
+	print("Execution Duration to Provision Cluster: " + (datetime.now() - start))
+	startClient = datetime.now()
 	resourceDeclaration.setupClient()
+	print("Execution Duration for Client Setup: " + (datetime.now() - startClient))
 	resourceDeclaration.patchOrchestrationApplication()
 	resourceDeclaration.enableHostMSI()
 	resourceDeclaration.setMSIPermissions()
