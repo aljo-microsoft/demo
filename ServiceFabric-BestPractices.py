@@ -58,7 +58,7 @@ class ServiceFabricResourceDeclaration:
 		accountSetCmd = 'az account set --subscription ' + self.subscription
 		cmd = accountSetCmd
 		
-		subprocess.call(cmd, shell=True)
+		call(cmd, shell=True)
 
 		# Get Parameters
 		if (Path(self.parameters_file).exists()):
