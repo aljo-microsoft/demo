@@ -32,7 +32,6 @@ class ServiceFabricResourceDeclaration:
 		adminPassword='Password#1234',
 		location='westus',
 		certificate_name='clusterCertificate',
-		certificate_file_name=certificate_name + ".pem",
 		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 		sourceVaultValue='GEN-KEYVAULT-RESOURCE-ID',
 		certificateUrlValue='GEN-KEYVAULT-SSL-SECRET-URI',
@@ -52,7 +51,7 @@ class ServiceFabricResourceDeclaration:
 		self.location = location
 		self.dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com",
 		self.certificate_name = certificate_name
-		self.certificate_file_name = certificate_file_name
+		self.certificate_file_name = certificate_name + ".pem"
 		self.certificateThumbprint = certificateThumbprint
 		self.sourceVaultValue = sourceVaultValue
 		self.certificateUrlValue = certificateUrlValue
