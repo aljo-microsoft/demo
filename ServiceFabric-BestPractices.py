@@ -13,6 +13,7 @@ import sys
 from datetime import datetime
 import requests
 import time
+import zipfile
 
 class ServiceFabricResourceDeclaration:
 	# All Production Services have deployment time Resource Declaration values
@@ -330,7 +331,12 @@ class ServiceFabricResourceDeclaration:
 		# Create Storage Account, Upload POA, and Get Storage Properties
 		# Use Package properties to declare App and Services as Resources in Template
 		# Deploy POA as resource to SF Cluster
-		print("Deploying Patch Orchestration Application")
+		print("Downloading Patch Orchestration Application")
+		r = requests.get("https://aka.ms/POA/POA_v2.0.2.sfpkg")
+		open("POA_v2.0.2.sfpkg", 'wb').write(r.content)
+		
+		
+		
 
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
