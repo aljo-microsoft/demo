@@ -31,7 +31,6 @@ class ServiceFabricResourceDeclaration:
 		adminUserName='aljo',
 		adminPassword='Password#1234',
 		location='westus',
-		dnsName=clusterName + "." + location + ".cloudapp.azure.com",
 		certificate_name='clusterCertificate',
 		certificate_file_name=certificate_name + ".pem",
 		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
@@ -51,7 +50,7 @@ class ServiceFabricResourceDeclaration:
 		self.adminUserName = adminUserName
 		self.adminPassword = adminPassword
 		self.location = location
-		self.dnsName = dnsName
+		self.dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com",
 		self.certificate_name = certificate_name
 		self.certificate_file_name = certificate_file_name
 		self.certificateThumbprint = certificateThumbprint
