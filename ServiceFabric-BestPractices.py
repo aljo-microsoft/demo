@@ -327,16 +327,102 @@ class ServiceFabricResourceDeclaration:
 			sys.exit("Cluster Provisioning Failed")
 	
 	def patchOrchestrationApplication(self):
-		# Download POA and Archive Package
-		# Create Storage Account, Upload POA, and Get Storage Properties
-		# Use Package properties to declare App and Services as Resources in Template
-		# Deploy POA as resource to SF Cluster
+		# Deploying Applications as Resources is a best practice for Production.
+		# To demonstrate this, this will deploy the Patch Orchestration Application.
+		# Steps to be performed to achieve this are:
+		# 1. Download POA SFPKG
+		# 2. Create Storage Account
+		# 3. Get the Connection String to Storage Account
+		# 4. Create Storage Account File Share
+		# 5. Upload File to Storage Account Share
+		# 6. Get secured URL to File in Storage Account Share
+		# 8. Declare Application and Services as Resources in Template
+		# 9. Declarative Resource Deployment
+
+		# Download POA SFPKG
 		print("Downloading Patch Orchestration Application")
-		r = requests.get("https://aka.ms/POA/POA_v2.0.2.sfpkg")
-		open("POA_v2.0.2.sfpkg", 'wb').write(r.content)
 		
+		poaFileName = "POA_v2.0.2.sfpkg"
+		poaURL = "https://aka.ms/POA/" + poaFileName
+		r = requests.get(poaURL)
+		open(poaFileName, 'wb').write(r.content)
+		print("POA SFPKG Downloaded")
 		
+		# Create Storate
+		storage_account_name = 'aljostorage'
 		
+		createStorageProcess = Popen(["az", "storage", "account", "create", "-n", storage_account_name, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
+			
+		stdout, stderr = clusterConnectProcess.communicate()
+			
+		if createStorageProcess.wait() == 0:
+			print("Storage Account Created")
+		else:
+			sys.exit(stderr)
+		
+		# Get Connection String
+		connectionStringProcess = Popen(["az", "storage", "show-connection-string", "-g", self.deployment_resource_group, "-n", storage_account_name], stdout=PIPE, stderr=PIPE)
+			
+		stdout, stderr = connectionStringProcess.communicate()
+			
+		if connectionStringProcess.wait() == 0:
+			connectionString = stdout.decode("utf-8")
+			print(connectionString)
+			print("Got Storage Connection String")
+		else:
+			sys.exit(stderr)
+
+		# Create storage account file share
+		shareName = "aljoshare"
+		
+		createShareProcess = Popen(["az", "storage", "share", "create", shareName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+			
+		stdout, stderr = createShareProcess.communicate()
+			
+		if createShareProcess.wait() == 0:
+			print("Created Share")
+		else:
+			sys.exit(stderr)
+		
+		# Upload File To Share
+		uploadFileProcess = Popen(["az", "storage", "file", "upload", "-s", shareName, "--source", poaFileName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+			
+		stdout, stderr = uploadFileProcess.communicate()
+			
+		if uploadFileProcess.wait() == 0:
+			print("Uploaded POA PKG To Storage Account")
+		else:
+			sys.exit(stderr)
+		
+		# Get URL for POA in Storage Account Share
+		urlShareProcess = Popen(["az", "storage", "file", "url", "--path", poaFileName, "--share-name", shareName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+			
+		stdout, stderr = urlShareProcess.communicate()
+			
+		if urlShareProcess.wait() == 0:
+			poaUrl = stdout.decode("utf-8")
+			print(poaUrl)
+			print("Got URL for POA file in Storage Account Share")
+		else:
+			sys.exit(stderr)
+			
+		# TODO: Update Template with Application and Services as Resources
+		#       Can use Python from zipfile import zipFile to extract SFPKG and take properties from package.
+		#
+		#       Will also need to set RepairManager Add-on Feature:
+	        #	For i in range(templateJson[‘resources’]):
+		#		if(templateJson[‘resources’][i][‘type’] == ‘Microsoft.ServiceFabric/clusters’) and ‘addonFeatures’ in templateJson[‘resources’][i][‘properties’] and ‘RepairManager’ in templateJson[‘resources’][i][‘properties’][‘addonFeatures’]:
+		#			print(“RepairManager already declared in Template”)
+		#		else if templateJson[‘resources’][i][‘type’] == ‘Microsoft.ServiceFabric/clusters’) and ‘addonFeatures’ in templateJson[‘resources’][i][‘properties’]
+		#			print(“RepairManager enabled as add-on feature in Template”)
+		#			templateJson[‘resources’][I][‘properties’][‘addonFeatures’] += [‘RepairManager’]
+		#		else:
+		#			print(“Add-On Feature RepairManager declared in Template”)
+		#			templateJson[‘resources’][I][‘properties’][‘addonFeatures’] = [‘RepairManager’]
+		#
+		print("if above results in poaUrl, we can update template, else fix above function")
+		#       Will need secure URL to SFPKG that ARM can access from Rest.
+		#       Deploy POA as resources.
 
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
@@ -367,6 +453,8 @@ def main():
 	print("Provisioned healthy cluster for Deployment Duration: " + str(datetime.now() - demoStart))
 	
 	resourceDeclaration.patchOrchestrationApplication()
+	print("Deployed Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
+	
 	resourceDeclaration.enableHostMSI()
 	resourceDeclaration.setMSIPermissions()
 	resourceDeclaration.deployNativeDemoApplication()
