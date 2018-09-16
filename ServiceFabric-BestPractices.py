@@ -259,17 +259,17 @@ class ServiceFabricResourceDeclaration:
 		
 	def deployResources(self):
 		# Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
-		print("Provisioning Cluster")
+		print("Deploying Resources")
 		
 		groupDeploymentCreateProcess = Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=PIPE, stderr=PIPE)
 
 		stdout, stderr = groupDeploymentCreateProcess.communicate()
 
 		if groupDeploymentCreateProcess.wait() == 0:
-			print("Provisioning Cluster Successful")
+			print("Resource Deployment Successful")
 		else:
 			print(stderr)
-			print("Provisiong Cluster Failed")
+			print("Resource Deployment Failed")
 
 	def setupClient(self):
 		# Downloads client admin certificate
@@ -301,16 +301,19 @@ class ServiceFabricResourceDeclaration:
 		
 		notConnectedToCluster = True
 		
+		print("Validating Cluster Healthy For Deployment")
 		while notConnectedToCluster:
+			
 			clusterConnectProcess = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
 			
 			stdout, stderr = clusterConnectProcess.communicate()
 			
 			if clusterConnectProcess.wait() == 0:
 				notConnectedToCluster = False
-			
-			print("Unable to Connect to Deployed Cluster Resource... Waiting 60 secs to try again")
-			time.sleep(60)
+				print("Connected to Cluster")
+			else:
+				print("Unable to Connect to Deployed Cluster Resource... Waiting 60 secs to try again")
+				time.sleep(60)
 				
 		clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
 		
