@@ -49,7 +49,7 @@ class ServiceFabricResourceDeclaration:
 		self.adminUserName = adminUserName
 		self.adminPassword = adminPassword
 		self.location = location
-		self.dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com",
+		self.dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com"
 		self.certificate_name = certificate_name
 		self.certificate_file_name = certificate_name + ".pem"
 		self.certificateThumbprint = certificateThumbprint
