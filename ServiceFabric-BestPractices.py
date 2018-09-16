@@ -134,7 +134,7 @@ class ServiceFabricResourceDeclaration:
 				stdout, stderr = resourceIdProcess.communicate()
 
 				if resourceIdProcess.wait() == 0:
-					self.sourceVaultvalue = stdout.decode("utf-8").replace('\n', '')
+					self.sourceVaultValue = stdout.decode("utf-8").replace('\n', '')
 				else:
 					print(stderr)
 					sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
@@ -145,7 +145,7 @@ class ServiceFabricResourceDeclaration:
 				stdout, stderr = urlProcess.communicate()
 
 				if urlProcess.wait() == 0:
-					self.certificateUrlvalue = stdout.decode("utf-8").replace('\n', '')
+					self.certificateUrlValue = stdout.decode("utf-8").replace('\n', '')
 				else:
 					print(stderr)
 					sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
