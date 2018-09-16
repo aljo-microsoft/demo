@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import sys
 from datetime import datetime
+import requests
 
 class ServiceFabricResourceDeclaration:
 	# All Production Services have deployment time Resource Declaration values
@@ -16,6 +17,8 @@ class ServiceFabricResourceDeclaration:
 	def __init__(
 		self,
 		subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
+		template_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.json',
+		paramters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
 		template_file='AzureDeploy.json',
 		parameters_file='AzureDeploy.Parameters.json',
 		deployment_resource_group='aljoDeploymentRG',
@@ -55,48 +58,53 @@ class ServiceFabricResourceDeclaration:
 		
 		subprocess.call(cmd, shell=True)
 
-		# Validate Template and Parameters
-		if (Path(self.parameters_file)).exists() and (Path(self.template_file)).exists():
-			print("Template and Parameter File's Found")
+		# Get Parameters
+		if (Path(self.parameters_file).exists()):
+			print("Using local Parameter File Found")
 			
-			self.parameters_file_json = json.load(open(self.parameters_file))
+			parameters_file_json = json.load(open(self.parameters_file))
+		else:
+			print("Using Tutorial Parameters File")
+			parms = requests.get(parameters_uri)
+			parmBytes = parms.content
+			parameters_file_json = json.loads(parmBytes.decode("utf-8"))
 			
-			# Keyvault Cluster Certificate Exist or Create
-			if self.sourceVaultValue.find('/subscriptions/') >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find('vault.azure.net') != -1:
-				# Use Keyvault Certificate Arguments for resource Validation
-				print('Validating Keyvault Certificate Deployment Arguments')
+		# Keyvault Cluster Certificate Exist or Create
+		if self.sourceVaultValue.find('/subscriptions/') >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find('vault.azure.net') != -1:
+			# Use Keyvault Certificate Arguments for resource Validation
+			print('Validating Keyvault Certificate Deployment Arguments')
+		else:
+			self.sourceVaultValue = parameters_file_json['parameters']['sourceVaultValue']['value']
+			self.certificateThumbprint = parameters_file_json['parameters']['certificateThumbprint']['value']
+			self.certificateUrlValue = parameters_file_json['parameters']['certificateUrlValue']['value']
+
+			if self.sourceVaultValue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") >= 0:
+				# Use Parameters File Keyvault Certificate Declarations for resource Validation
+				print('Validating Keyvault Certificate Parameters File Declarations')
 			else:
-				self.sourceVaultValue = self.parameters_file_json['parameters']['sourceVaultValue']['value']
-				self.certificateThumbprint = self.parameters_file_json['parameters']['certificateThumbprint']['value']
-				self.certificateUrlValue = self.parameters_file_json['parameters']['certificateUrlValue']['value']
+				# Create KeyVault
+				print('Creating Deployment Keyvault Self Signed Certificate')
+				groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.location
+				keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group + ' --enabled-for-deployment true'
+				groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
 
-				if self.sourceVaultValue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") >= 0:
-					# Use Parameters File Keyvault Certificate Declarations for resource Validation
-					print('Validating Keyvault Certificate Parameters File Declarations')
+				subprocess.call(groupKeyVaultCmd, shell=True)
+
+				# Keyvault DNS Population Takes 10 Secs
+				keyvaultShowCmd = 'az keyvault show -n ' + self.keyvault_name + ' -g ' + self.keyvault_resource_group
+				subprocess.call(keyvaultShowCmd, shell=True)
+
+				# Create Self Signed Certificate
+				# Get Default Policy
+				defaultPolicyProcess = subprocess.Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					
+				stdout, stderr = defaultPolicyProcess.communicate()
+					
+				if defaultPolicyProcess.wait() == 0:
+					defaultPolicy = stdout.decode("utf-8")
 				else:
-					# Create KeyVault
-					print('Creating Deployment Keyvault Self Signed Certificate')
-					groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.location
-					keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group + ' --enabled-for-deployment true'
-					groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
-
-					subprocess.call(groupKeyVaultCmd, shell=True)
-
-					# Keyvault DNS Population Takes 10 Secs
-					keyvaultShowCmd = 'az keyvault show -n ' + self.keyvault_name + ' -g ' + self.keyvault_resource_group
-					subprocess.call(keyvaultShowCmd, shell=True)
-
-					# Create Self Signed Certificate
-					# Get Default Policy
-					defaultPolicyProcess = subprocess.Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-					
-					stdout, stderr = defaultPolicyProcess.communicate()
-					
-					if defaultPolicyProcess.wait() == 0:
-						defaultPolicy = stdout.decode("utf-8")
-					else:
-						print(stderr)
-						sys.exit("Couldn't get kevault certificate default policy")
+					print(stderr)
+					sys.exit("Couldn't get kevault certificate default policy")
 					
 					defaultPolicyJson = json.loads(defaultPolicy)
 					# Set Subject Name to FQDN
@@ -190,15 +198,15 @@ class ServiceFabricResourceDeclaration:
 				sys.exit("Certificate Thumbprint is invalid within subscription context")
 
 			# Write Declarative Parameters File
-			self.parameters_file_json['parameters']['sourceVaultValue']['value'] = self.sourceVaultValue
-			self.parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
-			self.parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificateUrlValue
-			self.parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
-			self.parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
-			self.parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
-			self.parameters_file_json['parameters']['location']['value'] = self.location
+			parameters_file_json['parameters']['sourceVaultValue']['value'] = self.sourceVaultValue
+			parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
+			parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificateUrlValue
+			parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
+			parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
+			parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
+			parameters_file_json['parameters']['location']['value'] = self.location
 
-			json.dump(self.parameters_file_json, open(self.parameters_file, 'w'))
+			json.dump(parameters_file_json, open(self.parameters_file, 'w'))
 
 			# Exists or Create Deployment Group - needed for validation
 			deploymentGroupExistsProcess = subprocess.Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -219,6 +227,17 @@ class ServiceFabricResourceDeclaration:
 					print(stderr)
 					sys.exit("Problem creating deployment group")
 
+			# Get Template
+			if (Path(self.template_file).exists()):
+				print("Using local template File Found")
+			else:
+				print("Using Tutorial Template File")
+				template = requests.get(template_uri)
+				templateBytes = template.content
+				template_file_json = json.loads(templateBytes.decode("utf-8"))
+				
+				json.dump(template_file_json, open(self.template_file, 'w'))
+			
 			# Validate Deployment Declaration
 			self.parametersFileArgFormat = "@" + self.parameters_file
 
@@ -227,14 +246,10 @@ class ServiceFabricResourceDeclaration:
 			stdout, stderr = deploymentValidationProcess.communicate()
 
 			if deploymentValidationProcess.wait() == 0:
-				print(stdout)
 				print("Your Deployment Declaration is Valid Syntactically")
 			else:
 				print(stderr)
 				print("Your Deployment Declaration is Invalid Syntactically")
-
-		else:
-			sys.exit('Template and Parameters Files NOT Found')
 		
 	def provisionCluster(self):
 		# Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
@@ -245,7 +260,6 @@ class ServiceFabricResourceDeclaration:
 		stdout, stderr = groupDeploymentCreateProcess.communicate()
 
 		if groupDeploymentCreateProcess.wait() == 0:
-			print(stdout)
 			print("Provisioning Cluster Successful")
 		else:
 			print(stderr)
@@ -261,7 +275,6 @@ class ServiceFabricResourceDeclaration:
 		stdout, stderr = downloadCertProcess.communicate()
 
 		if downloadCertProcess.wait() == 0:
-			print(stdout)
 			print("Download of Certificate file in Base 64 Format Successful")
 		else:
 			print(stderr)
