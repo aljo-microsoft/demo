@@ -74,9 +74,9 @@ class ServiceFabricResourceDeclaration:
 			# Use Keyvault Certificate Arguments for resource Validation
 			print('Validating Keyvault Certificate Deployment Arguments')
 		else:
-			self.sourceVaultValue = parameters_file_json['parameters']['sourceVaultValue']['value']
+			self.sourceVaultValue = parameters_file_json['parameters']['sourceVaultvalue']['value']
 			self.certificateThumbprint = parameters_file_json['parameters']['certificateThumbprint']['value']
-			self.certificateUrlValue = parameters_file_json['parameters']['certificateUrlValue']['value']
+			self.certificateUrlValue = parameters_file_json['parameters']['certificateUrlvalue']['value']
 
 			if self.sourceVaultValue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") >= 0:
 				# Use Parameters File Keyvault Certificate Declarations for resource Validation
@@ -198,9 +198,9 @@ class ServiceFabricResourceDeclaration:
 				sys.exit("Certificate Thumbprint is invalid within subscription context")
 
 			# Write Declarative Parameters File
-			parameters_file_json['parameters']['sourceVaultValue']['value'] = self.sourceVaultValue
+			parameters_file_json['parameters']['sourceVaultvalue']['value'] = self.sourceVaultValue
 			parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
-			parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificateUrlValue
+			parameters_file_json['parameters']['certificateUrlvalue']['value'] = self.certificateUrlValue
 			parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
 			parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
 			parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
