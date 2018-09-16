@@ -207,8 +207,7 @@ class ServiceFabricResourceDeclaration:
 		parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
 		parameters_file_json['parameters']['location']['value'] = self.location
 
-		json.dump(parameters_file_json, open(self.parameters_file, 'w')
-		parametersFile.close()
+		json.dump(parameters_file_json, open(self.parameters_file, 'w'))
 
 		# Exists or Create Deployment Group - needed for validation
 		deploymentGroupExistsProcess = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
