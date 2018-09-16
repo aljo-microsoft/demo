@@ -4,7 +4,9 @@ __status__ = "Development"
 
 """ This demostrates best practices for an Azure Service Fabric Cluster """
 
-import subprocess
+from subprocess import call
+from subprocess import Popen
+from subprocess import PIPE
 import json
 from pathlib import Path
 import sys
@@ -88,174 +90,173 @@ class ServiceFabricResourceDeclaration:
 				keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group + ' --enabled-for-deployment true'
 				groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
 
-				subprocess.call(groupKeyVaultCmd, shell=True)
+				call(groupKeyVaultCmd, shell=True)
 
 				# Keyvault DNS Population Takes 10 Secs
 				keyvaultShowCmd = 'az keyvault show -n ' + self.keyvault_name + ' -g ' + self.keyvault_resource_group
-				subprocess.call(keyvaultShowCmd, shell=True)
+				call(keyvaultShowCmd, shell=True)
 
 				# Create Self Signed Certificate
 				# Get Default Policy
-				defaultPolicyProcess = subprocess.Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				defaultPolicyProcess = Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=PIPE, stderr=PIPE)
 					
 				stdout, stderr = defaultPolicyProcess.communicate()
 					
 				if defaultPolicyProcess.wait() == 0:
-					defaultPolicy = stdout.decode("utf-8")
+					defaultPolicyJson = json.loads(stdout.decode("utf-8"))
 				else:
 					print(stderr)
 					sys.exit("Couldn't get kevault certificate default policy")
-					
-					defaultPolicyJson = json.loads(defaultPolicy)
-					# Set Subject Name to FQDN
-					# Browsers won't trust certificates with subject names that don't match FQDN
-					dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com"
-					defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + dnsName
-					defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
-					policyFileName = "policy.json"
-					json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
-					policyFileArgFormat = "@" + policyFileName
 
-					certificateCreateProcess = subprocess.Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policyFileArgFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				# Set Subject Name to FQDN
+				# Browsers won't trust certificates with subject names that don't match FQDN
+				dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com"
+				defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + dnsName
+				defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
+				policyFileName = "policy.json"
+				json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
+				policyFileArgFormat = "@" + policyFileName
 
-					stdout, stderr = certificateCreateProcess.communicate()
+				certificateCreateProcess = Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policyFileArgFormat], stdout=PIPE, stderr=PIPE)
 
-					if certificateCreateProcess.wait() == 0:
-						print(stdout)
-					else:
-						print(stderr)
-						sys.exit("Failed to Create Certificate")
-					
-					# Get Keyvault Self Signed Certificate Properties
-					# Get resource Id
-					resourceIdProcess = subprocess.Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				stdout, stderr = certificateCreateProcess.communicate()
 
-					stdout, stderr = resourceIdProcess.communicate()
-
-					if resourceIdProcess.wait() == 0:
-						self.sourceVaultValue = stdout.decode("utf-8").replace('\n', '')
-					else:
-						print(stderr)
-						sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
-
-					# Get Certificate Url
-					urlProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-					stdout, stderr = urlProcess.communicate()
-
-					if urlProcess.wait() == 0:
-						self.certificateUrlValue = stdout.decode("utf-8").replace('\n', '')
-					else:
-						print(stderr)
-						sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
-
-					# Get Certificate Thumbprint
-					thumbprintProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-					stdout, stderr = thumbprintProcess.communicate()
-				
-					if thumbprintProcess.wait() == 0:
-						self.certificateThumbprint = stdout.decode("utf-8").replace('\n', '')
-					else:
-						print(stderr)
-						sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
-			
-			# Validate KeyVault Resource Availability
-			validateSourceVault = subprocess.Popen(["az", "resource", "show", "--ids", self.sourceVaultValue], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-			stdout, stderr = validateSourceVault.communicate()
-
-			if validateSourceVault.wait() == 0:
-				print("Source Vault Resource is Valid within subscription context")
-			else:
-				print(stderr)
-				sys.exit("Source Vault is invalid within subscription context")
-
-			# Validate KeyVault Certificate
-			# Certificate URL
-			self.keyvault_name = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
-			self.certificate_name = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]			 
-			
-			certUrlValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-			stdout, stderr = certUrlValidateProcess.communicate()
-
-			if certUrlValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificateUrlValue:
-				print("Certificate SID URL is valid within subscription context")
-			else:
-				print(stderr)
-				sys.exit("Certificate SID URL is invalid within subscription context")
- 
-			# Certificate Thumbprint
-			certThumbprintValidateProcess = subprocess.Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-			stdout, stderr = certThumbprintValidateProcess.communicate()
-
-			if certThumbprintValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificateThumbprint:
-				print("Certificate Thumbprint is valid within subscription context")
-			else:
-				print(stderr)
-				sys.exit("Certificate Thumbprint is invalid within subscription context")
-
-			# Write Declarative Parameters File
-			parameters_file_json['parameters']['sourceVaultvalue']['value'] = self.sourceVaultValue
-			parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
-			parameters_file_json['parameters']['certificateUrlvalue']['value'] = self.certificateUrlValue
-			parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
-			parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
-			parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
-			parameters_file_json['parameters']['location']['value'] = self.location
-
-			json.dump(parameters_file_json, open(self.parameters_file, 'w'))
-
-			# Exists or Create Deployment Group - needed for validation
-			deploymentGroupExistsProcess = subprocess.Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-			stdout, stderr = deploymentGroupExistsProcess.communicate()
-
-			if deploymentGroupExistsProcess.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
-				print("Deployment Group Exists")
-				# TODO: Validate Group Location
-			else:
-				deploymentGroupCreateProcess = subprocess.Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				
-				stdout, stderr = deploymentGroupCreateProcess.communicate()
-
-				if deploymentGroupCreateProcess.wait() == 0:
-					print("Deployment Group Created")
+				if certificateCreateProcess.wait() == 0:
+					print(stdout)
 				else:
 					print(stderr)
-					sys.exit("Problem creating deployment group")
+					sys.exit("Failed to Create Certificate")
+					
+				# Get Keyvault Self Signed Certificate Properties
+				# Get resource Id
+				resourceIdProcess = Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-			# Get Template
-			if (Path(self.template_file).exists()):
-				print("Using local template File Found")
-			else:
-				print("Using Tutorial Template File")
-				template = requests.get(template_uri)
-				templateBytes = template.content
-				template_file_json = json.loads(templateBytes.decode("utf-8"))
+				stdout, stderr = resourceIdProcess.communicate()
+
+				if resourceIdProcess.wait() == 0:
+					self.sourceVaultValue = stdout.decode("utf-8").replace('\n', '')
+				else:
+					print(stderr)
+					sys.exit("Couldn't get KeyVault Self Signed Certificate Resource Id")
+
+				# Get Certificate Url
+				urlProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+
+				stdout, stderr = urlProcess.communicate()
+
+				if urlProcess.wait() == 0:
+					self.certificateUrlValue = stdout.decode("utf-8").replace('\n', '')
+				else:
+					print(stderr)
+					sys.exit("Couldn't get KeyVault Self Signed Certificate URL")
+
+				# Get Certificate Thumbprint
+				thumbprintProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+
+				stdout, stderr = thumbprintProcess.communicate()
 				
-				json.dump(template_file_json, open(self.template_file, 'w'))
+				if thumbprintProcess.wait() == 0:
+					self.certificateThumbprint = stdout.decode("utf-8").replace('\n', '')
+				else:
+					print(stderr)
+					sys.exit("Couldn't get KeyVault Self Signed Certificate Thumbprint")
 			
-			# Validate Deployment Declaration
-			self.parametersFileArgFormat = "@" + self.parameters_file
+		# Validate KeyVault Resource Availability
+		validateSourceVault = Popen(["az", "resource", "show", "--ids", self.sourceVaultValue], stdout=PIPE, stderr=PIPE)
 
-			deploymentValidationProcess = subprocess.Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, stderr = validateSourceVault.communicate()
 
-			stdout, stderr = deploymentValidationProcess.communicate()
+		if validateSourceVault.wait() == 0:
+			print("Source Vault Resource is Valid within subscription context")
+		else:
+			print(stderr)
+			sys.exit("Source Vault is invalid within subscription context")
 
-			if deploymentValidationProcess.wait() == 0:
-				print("Your Deployment Declaration is Valid Syntactically")
+		# Validate KeyVault Certificate
+		# Certificate URL
+		self.keyvault_name = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
+		self.certificate_name = self.certificateUrlValue.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]			 
+			
+		certUrlValidateProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+
+		stdout, stderr = certUrlValidateProcess.communicate()
+
+		if certUrlValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificateUrlValue:
+			print("Certificate SID URL is valid within subscription context")
+		else:
+			print(stderr)
+			sys.exit("Certificate SID URL is invalid within subscription context")
+ 
+		# Certificate Thumbprint
+		certThumbprintValidateProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+
+		stdout, stderr = certThumbprintValidateProcess.communicate()
+
+		if certThumbprintValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificateThumbprint:
+			print("Certificate Thumbprint is valid within subscription context")
+		else:
+			print(stderr)
+			sys.exit("Certificate Thumbprint is invalid within subscription context")
+
+		# Write Declarative Parameters File
+		parameters_file_json['parameters']['sourceVaultvalue']['value'] = self.sourceVaultValue
+		parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificateThumbprint
+		parameters_file_json['parameters']['certificateUrlvalue']['value'] = self.certificateUrlValue
+		parameters_file_json['parameters']['clusterName']['value'] = self.clusterName
+		parameters_file_json['parameters']['adminUserName']['value'] = self.adminUserName
+		parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
+		parameters_file_json['parameters']['location']['value'] = self.location
+
+		json.dump(parameters_file_json, open(self.parameters_file, 'w'))
+
+		# Exists or Create Deployment Group - needed for validation
+		deploymentGroupExistsProcess = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+
+		stdout, stderr = deploymentGroupExistsProcess.communicate()
+
+		if deploymentGroupExistsProcess.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
+			print("Deployment Group Exists")
+			# TODO: Validate Group Location
+		else:
+			deploymentGroupCreateProcess = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+				
+			stdout, stderr = deploymentGroupCreateProcess.communicate()
+
+			if deploymentGroupCreateProcess.wait() == 0:
+				print("Deployment Group Created")
 			else:
 				print(stderr)
-				print("Your Deployment Declaration is Invalid Syntactically")
+				sys.exit("Problem creating deployment group")
+
+		# Get Template
+		if (Path(self.template_file).exists()):
+			print("Using local template File Found")
+		else:
+			print("Using Tutorial Template File")
+			template = requests.get(template_uri)
+			templateBytes = template.content
+			template_file_json = json.loads(templateBytes.decode("utf-8"))
+				
+			json.dump(template_file_json, open(self.template_file, 'w'))
+			
+		# Validate Deployment Declaration
+		self.parametersFileArgFormat = "@" + self.parameters_file
+
+		deploymentValidationProcess = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=PIPE, stderr=PIPE)
+
+		stdout, stderr = deploymentValidationProcess.communicate()
+
+		if deploymentValidationProcess.wait() == 0:
+			print("Your Deployment Declaration is Valid Syntactically")
+		else:
+			print(stderr)
+			print("Your Deployment Declaration is Invalid Syntactically")
 		
 	def provisionCluster(self):
 		# Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
 		print("Provisioning Cluster")
 		
-		groupDeploymentCreateProcess = subprocess.Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		groupDeploymentCreateProcess = Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parametersFileArgFormat], stdout=PIPE, stderr=PIPE)
 
 		stdout, stderr = groupDeploymentCreateProcess.communicate()
 
@@ -270,7 +271,7 @@ class ServiceFabricResourceDeclaration:
 		# Convert to PEM format for linux compatibility
 		print("Downloading Certificate file in base64 format")
 		certificateB64File = self.certificate_name + "64.pem"
-		downloadCertProcess = subprocess.Popen(["az", "keyvault", "secret", "download", "--file", certificateB64File, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		downloadCertProcess = Popen(["az", "keyvault", "secret", "download", "--file", certificateB64File, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=PIPE, stderr=PIPE)
 
 		stdout, stderr = downloadCertProcess.communicate()
 
@@ -281,7 +282,7 @@ class ServiceFabricResourceDeclaration:
 			print("Download of Certificate file in Base 64 Format Failed")
 		print("Converting Base 64 Certificate File to PEM format")
 		certificateFile = self.certificate_name + ".pem"
-		convertCertProcess = subprocess.Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", certificateFile, "-nodes", "-passout", "pass:"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		convertCertProcess = Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", certificateFile, "-nodes", "-passout", "pass:"], stdout=PIPE, stderr=PIPE)
 		
 		stdout, stderr = convertCertProcess.communicate()
 		
