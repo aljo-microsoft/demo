@@ -18,7 +18,7 @@ class ServiceFabricResourceDeclaration:
 		self,
 		subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
 		template_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.json',
-		paramters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
+		parameters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
 		template_file='AzureDeploy.json',
 		parameters_file='AzureDeploy.Parameters.json',
 		deployment_resource_group='aljoDeploymentRG',
