@@ -12,6 +12,7 @@ from pathlib import Path
 import sys
 from datetime import datetime
 import requests
+import time
 
 class ServiceFabricResourceDeclaration:
 	# All Production Services have deployment time Resource Declaration values
@@ -30,7 +31,9 @@ class ServiceFabricResourceDeclaration:
 		adminUserName='aljo',
 		adminPassword='Password#1234',
 		location='westus',
+		dnsName=clusterName + "." + location + ".cloudapp.azure.com",
 		certificate_name='clusterCertificate',
+		certificate_file_name=certificate_name + ".pem",
 		certificateThumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 		sourceVaultValue='GEN-KEYVAULT-RESOURCE-ID',
 		certificateUrlValue='GEN-KEYVAULT-SSL-SECRET-URI',
@@ -48,7 +51,9 @@ class ServiceFabricResourceDeclaration:
 		self.adminUserName = adminUserName
 		self.adminPassword = adminPassword
 		self.location = location
+		self.dnsName = dnsName
 		self.certificate_name = certificate_name
+		self.certificate_file_name = certificate_file_name
 		self.certificateThumbprint = certificateThumbprint
 		self.sourceVaultValue = sourceVaultValue
 		self.certificateUrlValue = certificateUrlValue
@@ -110,9 +115,8 @@ class ServiceFabricResourceDeclaration:
 
 				# Set Subject Name to FQDN
 				# Browsers won't trust certificates with subject names that don't match FQDN
-				dnsName = self.clusterName + "." + self.location + ".cloudapp.azure.com"
-				defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + dnsName
-				defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
+				defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + self.dnsName
+				defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [self.dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
 				policyFileName = "policy.json"
 				json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
 				policyFileArgFormat = "@" + policyFileName
@@ -255,7 +259,7 @@ class ServiceFabricResourceDeclaration:
 			print(stderr)
 			print("Your Deployment Declaration is Invalid Syntactically")
 		
-	def provisionCluster(self):
+	def deployResources(self):
 		# Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
 		print("Provisioning Cluster")
 		
@@ -284,18 +288,42 @@ class ServiceFabricResourceDeclaration:
 			print(stderr)
 			print("Download of Certificate file in Base 64 Format Failed")
 		print("Converting Base 64 Certificate File to PEM format")
-		certificateFile = self.certificate_name + ".pem"
-		convertCertProcess = Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", certificateFile, "-nodes", "-passin", "pass:"], stdout=PIPE, stderr=PIPE)
+		convertCertProcess = Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", self.certificate_file_name, "-nodes", "-passin", "pass:"], stdout=PIPE, stderr=PIPE)
 		
 		stdout, stderr = convertCertProcess.communicate()
 		
 		if convertCertProcess.wait() == 0:
-			print(stdout)
 			print("Convert of base64 file to PEM format successful")
 		else:
 			print(stderr)
 			print("Converting base64 file to PEM format failed")
 
+	def clusterHealthyProvisioning(self):
+		endpoint = 'https://' + self.dnsName + ':19080'
+		
+		notConnectedToCluster = true
+		
+		while notConnectedToCluster:
+			clusterConnectProcess = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
+			
+			stdout, stderr = clusterConnectProcess.communicate()
+			
+			if clusterConnectProcess.wait() == 0:
+				notConnectedToCluster = false
+			
+			print("Unable to Connect to Deployed Cluster Resource... Waiting 30 secs to try again")
+			time.sleep(30)
+				
+		clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
+		
+		stdout, stderr = clusterHealthProcess.communicate()
+		
+		if clusterHealthProcess.wait() == 0:
+			print("Provisioning Healthy Cluster Complete")
+		else:
+			print(stderr)
+			sys.exit("Provisioning Health Cluster Failed")
+	
 	def patchOrchestrationApplication(self):
 		# Download POA and Archive Package
 		# Create Storage Account, Upload POA, and Get Storage Properties
@@ -317,19 +345,25 @@ class ServiceFabricResourceDeclaration:
 		print("Deploying SF Native Demo Application")
 
 def main():
-	start = datetime.now()
+	demoStart = datetime.now()
+	
 	resourceDeclaration = ServiceFabricResourceDeclaration()
-	print("Execution Duration for Resource Declaration Initialization: " + str(datetime.now() - start))
-	resourceDeclaration.provisionCluster()
-	print("Execution Duration to Provision Cluster: " + str(datetime.now() - start))
-	startClient = datetime.now()
+	print("Resource Declaration Initilization Duration: " + str(datetime.now() - demoStart))
+	
+	resourceDeclaration.deployResources()
+	print("Deploy Resources Duration: " + str(datetime.now() - demoStart))
+	
 	resourceDeclaration.setupClient()
-	print("Execution Duration for Client Setup: " + str(datetime.now() - startClient))
+	print("Client Setup Duration: " + str(datetime.now() - demoStart))
+	
+	resourceDeclaration.clusterHealthyProvisioning()
+	print("Provisioned healthy cluster for Deployment Duration: " + str(datetime.now() - demoStart))
+	
 	resourceDeclaration.patchOrchestrationApplication()
 	resourceDeclaration.enableHostMSI()
 	resourceDeclaration.setMSIPermissions()
 	resourceDeclaration.deployNativeDemoApplication()
-	print("sfctl cluster select --endpoint https://aljocluster.westus.azure.com:19080 --pem clusterCertificate.pem --no-verifty")
+	print("sfctl cluster select --endpoint https://aljocluster.westus.azure.com:19080 --pem clusterCertificate.pem --no-verify")
 	print("sfctl cluster health")
 
 if __name__ == '__main__':
