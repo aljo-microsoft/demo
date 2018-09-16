@@ -363,8 +363,6 @@ def main():
 	resourceDeclaration.enableHostMSI()
 	resourceDeclaration.setMSIPermissions()
 	resourceDeclaration.deployNativeDemoApplication()
-	print("sfctl cluster select --endpoint https://aljocluster.westus.azure.com:19080 --pem clusterCertificate.pem --no-verify")
-	print("sfctl cluster health")
 
 if __name__ == '__main__':
 	main()
