@@ -312,8 +312,8 @@ class ServiceFabricResourceDeclaration:
 				notConnectedToCluster = False
 				print("Connected to Cluster")
 			else:
-				print("Unable to Connect to Deployed Cluster Resource... Waiting 60 secs to try again")
-				time.sleep(60)
+				print("Unable to Connect to Deployed Cluster Resource... Waiting 15 secs to try again")
+				time.sleep(15)
 				
 		clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
 		
