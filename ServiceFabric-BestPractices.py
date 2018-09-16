@@ -299,7 +299,7 @@ class ServiceFabricResourceDeclaration:
 	def clusterHealthyProvisioning(self):
 		endpoint = 'https://' + self.dnsName + ':19080'
 		
-		notConnectedToCluster = true
+		notConnectedToCluster = True
 		
 		while notConnectedToCluster:
 			clusterConnectProcess = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
@@ -307,7 +307,7 @@ class ServiceFabricResourceDeclaration:
 			stdout, stderr = clusterConnectProcess.communicate()
 			
 			if clusterConnectProcess.wait() == 0:
-				notConnectedToCluster = false
+				notConnectedToCluster = False
 			
 			print("Unable to Connect to Deployed Cluster Resource... Waiting 30 secs to try again")
 			time.sleep(30)
