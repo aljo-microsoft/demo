@@ -268,7 +268,7 @@ class ServiceFabricResourceDeclaration:
 			print("Download of Certificate file in Base 64 Format Failed")
 		print("Converting Base 64 Certificate File to PEM format")
 		certificateFile = self.certificate_name + ".pem"
-		convertCertProcess = subprocess.Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", certificateFile, "-nodes"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		convertCertProcess = subprocess.Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", certificateFile, "-nodes", "-passout", "pass:"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		
 		stdout, stderr = convertCertProcess.communicate()
 		
