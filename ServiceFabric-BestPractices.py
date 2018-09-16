@@ -301,7 +301,7 @@ class ServiceFabricResourceDeclaration:
 		
 		notConnectedToCluster = True
 		
-		print("Validating Cluster Healthy For Deployment")
+		print("Started Post Resource Deployment Provisioning Configuration")
 		while notConnectedToCluster:
 			
 			clusterConnectProcess = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
@@ -320,10 +320,10 @@ class ServiceFabricResourceDeclaration:
 		stdout, stderr = clusterHealthProcess.communicate()
 		
 		if clusterHealthProcess.wait() == 0:
-			print("Provisioning Healthy Cluster Complete")
+			print("Provisioned Healthy Cluster")
 		else:
 			print(stderr)
-			sys.exit("Provisioning Health Cluster Failed")
+			sys.exit("Cluster Provisioning Failed")
 	
 	def patchOrchestrationApplication(self):
 		# Download POA and Archive Package
