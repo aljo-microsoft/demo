@@ -80,7 +80,7 @@ class ServiceFabricResourceDeclaration:
 			self.certificateThumbprint = parameters_file_json['parameters']['certificateThumbprint']['value']
 			self.certificateUrlvalue = parameters_file_json['parameters']['certificateUrlvalue']['value']
 
-			if self.sourceVaultValue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlValue.find("vault.azure.net") >= 0:
+			if self.sourceVaultvalue.find("/subscriptions/") >= 0 and len(self.certificateThumbprint) > 36 and self.certificateUrlvalue.find("vault.azure.net") >= 0:
 				# Use Parameters File Keyvault Certificate Declarations for resource Validation
 				print('Validating Keyvault Certificate Parameters File Declarations')
 			else:
