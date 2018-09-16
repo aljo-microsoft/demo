@@ -207,7 +207,9 @@ class ServiceFabricResourceDeclaration:
 		parameters_file_json['parameters']['adminPassword']['value'] = self.adminPassword
 		parameters_file_json['parameters']['location']['value'] = self.location
 
-		json.dump(parameters_file_json, open(self.parameters_file, 'w+'))
+		parametersFile = open(self.parameters_file, 'x')
+		json.dump(parameters_file_json, parametersFile)
+		parametersFile.close()
 
 		# Exists or Create Deployment Group - needed for validation
 		deploymentGroupExistsProcess = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
@@ -236,8 +238,10 @@ class ServiceFabricResourceDeclaration:
 			template = requests.get(template_uri)
 			templateBytes = template.content
 			template_file_json = json.loads(templateBytes.decode("utf-8"))
-				
-			json.dump(template_file_json, open(self.template_file, 'w+'))
+			
+			templateFile = open(self.template_file, 'x')
+			json.dump(template_file_json, templateFile)
+			templateFile.close()
 
 		# Validate Deployment Declaration
 		print("Validating Deployment Declaration")
