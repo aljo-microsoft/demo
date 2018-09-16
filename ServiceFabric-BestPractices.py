@@ -64,7 +64,7 @@ class ServiceFabricResourceDeclaration:
 		if (Path(self.parameters_file).exists()):
 			print("Using local Parameter File Found")
 			
-			parameters_file_json = json.load(parametersFile = open(self.parameters_file))
+			parameters_file_json = json.load(open(self.parameters_file, 'r'))
 		else:
 			print("Using Tutorial Parameters File")
 			parms = requests.get(parameters_uri)
