@@ -58,11 +58,16 @@ class ServiceFabricResourceDeclaration:
 		self.userEmail = userEmail
 		
 		# Az CLI Client
-		accountSetCmd = 'az account set --subscription ' + self.subscription
-		cmd = accountSetCmd
+		accountSetProcess = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
 		
-		call(cmd, shell=True)
-
+		stdout, stderr = accountSetProcess.communicate()
+		
+		if accountSetProcess.wait() == 0:
+			print("Account Set to Deployment Subscription")
+		else:
+			print(stderr)
+			sys.exit("Couldn't set Subscription")
+		
 		# Get Parameters
 		if (Path(self.parameters_file).exists()):
 			print("Using local Parameter File Found")
