@@ -4,7 +4,6 @@ __status__ = "Development"
 
 """ This demostrates best practices for an Azure Service Fabric Cluster """
 
-from subprocess import call
 from subprocess import Popen
 from subprocess import PIPE
 import json
@@ -90,15 +89,36 @@ class ServiceFabricResourceDeclaration:
 			else:
 				# Create KeyVault
 				print('Creating Deployment Keyvault Self Signed Certificate')
-				groupCreateCmd = 'az group create --name ' + self.keyvault_resource_group + ' --location ' + self.location
-				keyVaultCreateCmd = 'az keyvault create --name ' + self.keyvault_name + ' --resource-group ' + self.keyvault_resource_group + ' --enabled-for-deployment true'
-				groupKeyVaultCmd = groupCreateCmd + ';' + keyVaultCreateCmd
-
-				call(groupKeyVaultCmd, shell=True)
-
+				keyvaultGroupCreateProcess = Popen(["az", "group", "create", "--name", self.keyvault_resource_group, "--location", self.location], stdout=PIPE, stderr=PIPE)
+				
+				stdout, stderr = keyvaultGroupCreateProcess.communicate()
+				
+				if keyvaultGroupCreateProcess.wait() == 0:
+					print("Resource Group for KeyVault Created")
+				else:
+					print(stderr)
+					sys.exit("Couldn't create resource group for KeyVault")
+				
+				keyvaultCreateProcess = Popen(["az", "keyvault", "create", "--name", self.keyvault_name, "--resource-group", self.keyvault_resource_group, "--enabled-for-deployment", "true"], stdout=PIPE, stderr=PIPE)
+				
+				stdout, stderr = keyvaultCreateProcess.communicate()
+				
+				if keyvaultCreateProcess.wait() == 0:
+					print("Keyvault Resource Created")
+				else:
+					print(stderr)
+					sys.exit("Couldn't create Keyvault Resource")
+				
 				# Keyvault DNS Population Takes 10 Secs
-				keyvaultShowCmd = 'az keyvault show -n ' + self.keyvault_name + ' -g ' + self.keyvault_resource_group
-				call(keyvaultShowCmd, shell=True)
+				keyvaultShowProcess = Popen(["az", "keyvault", "show", "-n", self.keyvault_name, "-g", self.keyvault_resource_group], stdout=PIPE, stderr=PIPE)
+				
+				stdout, stderr = keyvaultShowProcess.communicate()
+				
+				if keyvaultShowProcess.wait() == 0:
+					print("Keyvault DNS has populated")
+				else:
+					print(stderr)
+					sys.exit("Couldn't show created Keyvault Resource")
 
 				# Create Self Signed Certificate
 				# Get Default Policy
@@ -338,20 +358,20 @@ class ServiceFabricResourceDeclaration:
 		# 6. Get secured URL to File in Storage Account Share
 		# 8. Declare Application and Services as Resources in Template
 		# 9. Declarative Resource Deployment
-
-		# Download POA SFPKG
-		print("Downloading Patch Orchestration Application")
 		
-		poaFileName = "POA_v2.0.2.sfpkg"
-		poaURL = "https://aka.ms/POA/" + poaFileName
+		print("Starting Deployment of Patch Orchestration Application")
+		self.poaFileName = "POA_v2.0.2.sfpkg"
+		self.storage_account_name = 'aljostorage'
+		self.shareName = "aljoshare"
+		
+		# Download POA SFPKG
+		poaURL = "https://aka.ms/POA/" + self.poaFileName
 		r = requests.get(poaURL)
-		open(poaFileName, 'wb').write(r.content)
-		print("POA SFPKG Downloaded")
+		open(self.poaFileName, 'wb').write(r.content)
+		print(self.poaFileName + " Downloaded")
 		
 		# Create Storate
-		storage_account_name = 'aljostorage'
-		
-		createStorageProcess = Popen(["az", "storage", "account", "create", "-n", storage_account_name, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
+		createStorageProcess = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = clusterConnectProcess.communicate()
 			
@@ -361,7 +381,7 @@ class ServiceFabricResourceDeclaration:
 			sys.exit(stderr)
 		
 		# Get Connection String
-		connectionStringProcess = Popen(["az", "storage", "show-connection-string", "-g", self.deployment_resource_group, "-n", storage_account_name], stdout=PIPE, stderr=PIPE)
+		connectionStringProcess = Popen(["az", "storage", "show-connection-string", "-g", self.deployment_resource_group, "-n", self.storage_account_name], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = connectionStringProcess.communicate()
 			
@@ -373,9 +393,7 @@ class ServiceFabricResourceDeclaration:
 			sys.exit(stderr)
 
 		# Create storage account file share
-		shareName = "aljoshare"
-		
-		createShareProcess = Popen(["az", "storage", "share", "create", shareName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+		createShareProcess = Popen(["az", "storage", "share", "create", self.shareName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = createShareProcess.communicate()
 			
@@ -385,7 +403,7 @@ class ServiceFabricResourceDeclaration:
 			sys.exit(stderr)
 		
 		# Upload File To Share
-		uploadFileProcess = Popen(["az", "storage", "file", "upload", "-s", shareName, "--source", poaFileName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+		uploadFileProcess = Popen(["az", "storage", "file", "upload", "-s", self.shareName, "--source", self.poaFileName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = uploadFileProcess.communicate()
 			
@@ -395,17 +413,18 @@ class ServiceFabricResourceDeclaration:
 			sys.exit(stderr)
 		
 		# Get URL for POA in Storage Account Share
-		urlShareProcess = Popen(["az", "storage", "file", "url", "--path", poaFileName, "--share-name", shareName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+		urlShareProcess = Popen(["az", "storage", "file", "url", "--path", self.poaFileName, "--share-name", self.shareName, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = urlShareProcess.communicate()
 			
 		if urlShareProcess.wait() == 0:
-			poaUrl = stdout.decode("utf-8")
-			print(poaUrl)
+			poaShareUrl = stdout.decode("utf-8")
 			print("Got URL for POA file in Storage Account Share")
 		else:
 			sys.exit(stderr)
 			
+		print("if value of below is a URL for Share that contains POA, then update template")
+		print(poaShareUrl)
 		# TODO: Update Template with Application and Services as Resources
 		#       Can use Python from zipfile import zipFile to extract SFPKG and take properties from package.
 		#
@@ -420,8 +439,6 @@ class ServiceFabricResourceDeclaration:
 		#			print(“Add-On Feature RepairManager declared in Template”)
 		#			templateJson[‘resources’][I][‘properties’][‘addonFeatures’] = [‘RepairManager’]
 		#
-		print("if above results in poaUrl, we can update template, else fix above function")
-		#       Will need secure URL to SFPKG that ARM can access from Rest.
 		#       Deploy POA as resources.
 
 	def enableHostMSI(self):
@@ -455,9 +472,9 @@ def main():
 	resourceDeclaration.patchOrchestrationApplication()
 	print("Deployed Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
 	
-	resourceDeclaration.enableHostMSI()
-	resourceDeclaration.setMSIPermissions()
-	resourceDeclaration.deployNativeDemoApplication()
+	#resourceDeclaration.enableHostMSI()
+	#resourceDeclaration.setMSIPermissions()
+	#resourceDeclaration.deployNativeDemoApplication()
 
 if __name__ == '__main__':
 	main()
