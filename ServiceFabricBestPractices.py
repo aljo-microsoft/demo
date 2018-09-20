@@ -347,7 +347,7 @@ class ServiceFabricResourceDeclaration:
 			print(stderr)
 			sys.exit("Cluster Provisioning Failed")
 	
-	def patchOrchestrationApplication(self):
+	def patchOrchestrationApplicationDeclaration(self):
 		# Deploying Applications as Resources is a best practice for Production.
 		# To demonstrate this, this will deploy the Patch Orchestration Application.
 		# Steps to be performed to achieve this are:
@@ -464,8 +464,11 @@ def main():
 	resourceDeclaration.clusterConnectionValidation()
 	print("Connected to cluster: " + str(datetime.now() - demoStart))
 	
-	resourceDeclaration.patchOrchestrationApplication()
+	resourceDeclaration.patchOrchestrationApplicationDeclaration()
 	print("Deployed Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
+	
+	resourceDeclaration.deployResources()
+	print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
 	
 	#resourceDeclaration.enableHostMSI()
 	#resourceDeclaration.setMSIPermissions()
