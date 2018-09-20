@@ -363,10 +363,10 @@ class ServiceFabricResourceDeclaration:
 		# 8. Declare Application and Services as Resources in Template
 		# 9. Declarative Resource Deployment
 		
-		print("Starting Deployment of Patch Orchestration Application")
+		print("Updating Declaration with Patch Orchestration Application")
 		self.poa_file_name = "POA_v2.0.2.sfpkg"
-		self.storage_account_name = 'storage'
-		self.share_name = "share"
+		self.storage_account_name = 'bestpracticesstorage'
+		self.share_name = "bestpracticesshare"
 		
 		# Download POA SFPKG
 		poaUrl = "https://aka.ms/POA/" + self.poa_file_name
