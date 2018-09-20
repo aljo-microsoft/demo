@@ -14,6 +14,7 @@ import requests
 import time
 import zipfile
 import getpass
+import xml.etree.ElementTree
 
 class ServiceFabricResourceDeclaration:
 	# Microservice development Best Practice in Azure, is Reliable Service Fabric Applications, 
@@ -364,7 +365,8 @@ class ServiceFabricResourceDeclaration:
 		# 9. Declarative Resource Deployment
 		
 		print("Updating Declaration with Patch Orchestration Application")
-		self.poa_file_name = "POA_v2.0.2.sfpkg"
+		poa_name = 'POA_v2.0.2'
+		self.poa_file_name = poa_name + ".sfpkg"
 		self.storage_account_name = 'bestpracticesstorage'
 		self.share_name = "bestpracticesshare"
 		
@@ -444,14 +446,30 @@ class ServiceFabricResourceDeclaration:
 				templateJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
 		
 		# Declare Patch Orchestration Application and Services as resources
-		# Unzip SFPKG and Get Properties 
-		sfpkgApplicationTypeName = "TODO: use Unzip to Get POA applicationTypeName From ApplicationManiest.xml"
-		sfpkgApplicationTypeVersion = "TODO: Get POA applicationTypeVersion From ApplicationManifest.xml"
-		sfpkgApplicationName = "TODO: Get POA applicationName from ApplicationManifest.xml"
-		sfpkgCoordinatorServiceName = "TODO: Get POA Coordinator Service Name from ServiceManifest.xml"
-		sfpkgCoordinatorServiceType = "TODO: Get POA Coordinator Service Type from ServiceManifest.xml"
-		sfpkgNodeAgentServiceName = "TODO: Get POA NodeAgent Service Name from ServiceManifest.xml"
-		sfpkgNodeAgentServiceType = "TODO: Get POA NodeAgent Service Type from ServiceManifest.xml"
+		# Unzip SFPKG and Get Properties
+		poaSfpkg = zipfile.ZipFile(self.poa_file_name, "r")
+		poaSfpkg.extractall(poa_name)
+		applicationManifestPath = poa_name + "/ApplicationManifest.xml"
+									       
+		applicationManifest = xml.etree.ElementTree.parse(applicationManifestPath).getroot()							       
+									 
+		sfpkgApplicationTypeVersion = applicationManifest.attrib['ApplicationTypeVersion']
+		sfpkgApplicationTypeName = applicationManifest.attrib['ApplicationTypeName']	       
+		sfpkgApplicationName = poa_name
+		
+		for i in range(len(applicationManifest)):
+			if (applicationManifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices'):
+				poaServices = applicationManifest[i].getchildren()
+				
+				for j in range(len(poaServices)):
+					if (poaServices[j].attrib['Name'].lower().contains("coordinator")):
+						sfpkgCoordinatorServiceName = poaServices[j].attrib['Name']
+						sfpkgCoordinatorServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
+					else if (poaServices[j].attrib['Name'].lower().contains("nodeagent")):
+						sfpkgNodeAgentServiceName = poaServices[j].attrib['Name']
+						sfpkgNodeAgentServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
+					else:
+						sys.exit("couldn't find coordinator or nodeagent services properties in Application Manifest")
 		
 		# Declare POA ApplicationType
 		applicationTypeName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "')]"
