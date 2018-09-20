@@ -486,7 +486,7 @@ class ServiceFabricResourceDeclaration:
 		# Declare POA ApplicationTypeVersion
 		applicationTypeVersion = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "', '/', '" + sfpkgApplicationTypeVersion + "')]"
 		applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "')]"					       
-		templateFileJson["resources"] += {""apiVersion": "2017-07-01-preview",
+		templateFileJson["resources"] += {"apiVersion": "2017-07-01-preview",
      						  "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
      						  "name": applicationTypeVersion,
      						  "location": "[variables('location')]",
@@ -564,7 +564,7 @@ class ServiceFabricResourceDeclaration:
      		# Declare POA NodeAgent Service
 		nodeAgentServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName "', '/', '" + sfpkgNodeAgentServiceName + "')]"
      		nodeAgentServiceDependsOn =  "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
-		templateFileJson["resources"] += { "apiVersion": "2017-07-01-preview",
+		templateFileJson["resources"] += {"apiVersion": "2017-07-01-preview",
 						  "type": "Microsoft.ServiceFabric/clusters/applications/services",
 						  "name": nodeAgentServiceName,
 						  "location": "[variables('location')]",
