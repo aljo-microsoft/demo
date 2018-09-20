@@ -437,12 +437,12 @@ class ServiceFabricResourceDeclaration:
 	
 		for i in range(0, numberOfResource):
 			if ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"]) and ("RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"])):
-				print(“RepairManager already declared in Template”)
+				print('RepairManager already declared in Template')
 			else if ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"])):
-				print(“RepairManager enabled as add-on feature in Template”)
-				templateFileJson["resources"][i]["properties"][‘addonFeatures"] += ["RepairManager"]
+				print('RepairManager enabled as add-on feature in Template')
+				templateFileJson["resources"][i]["properties"][‘addonFeatures'] += ["RepairManager"]
 			else:
-				print(“Add-On Feature RepairManager declared in Template”)
+				print('Add-On Feature RepairManager declared in Template')
 				templateJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
 		
 		# Declare Patch Orchestration Application and Services as resources
