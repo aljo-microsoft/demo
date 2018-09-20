@@ -147,8 +147,8 @@ class ServiceFabricResourceDeclaration:
 
 				# Set Subject Name to FQDN
 				# Browsers won't trust certificates with subject names that don't match FQDN
-				defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + self.dnsName
-				defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [self.dnsName], 'emails': [self.userEmail], 'upns': [self.userEmail]} 
+				defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + self.dns_name
+				defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [self.dns_name], 'emails': [self.user_email], 'upns': [self.user_email]} 
 				policyFileName = "policy.json"
 				json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
 				policyFileArgFormat = "@" + policyFileName
