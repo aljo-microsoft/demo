@@ -467,8 +467,8 @@ def main():
 	resourceDeclaration.patchOrchestrationApplicationDeclaration()
 	print("Deployed Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
 	
-	resourceDeclaration.deployResources()
-	print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
+	#resourceDeclaration.deployResources()
+	#print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
 	
 	#resourceDeclaration.enableHostMSI()
 	#resourceDeclaration.setMSIPermissions()
