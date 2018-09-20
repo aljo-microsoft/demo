@@ -374,7 +374,7 @@ class ServiceFabricResourceDeclaration:
 		# Create Storate
 		createStorageProcess = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
 			
-		stdout, stderr = clusterConnectProcess.communicate()
+		stdout, stderr = createStorageProcess.communicate()
 			
 		if createStorageProcess.wait() == 0:
 			print("Storage Account Created")
