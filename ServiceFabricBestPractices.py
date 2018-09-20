@@ -440,7 +440,7 @@ class ServiceFabricResourceDeclaration:
 				print('RepairManager already declared in Template')
 			elif ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"])):
 				print('RepairManager enabled as add-on feature in Template')
-				templateFileJson["resources"][i]["properties"][‘addonFeatures'] += ["RepairManager"]
+				templateFileJson["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
 			else:
 				print('Add-On Feature RepairManager declared in Template')
 				templateJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
