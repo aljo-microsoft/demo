@@ -423,7 +423,7 @@ class ServiceFabricResourceDeclaration:
 		stdout, stderr = urlShareProcess.communicate()
 			
 		if urlShareProcess.wait() == 0:
-			poaPackageUrl = stdout.decode("utf-8")
+			poaPackageUrl = stdout.decode("utf-8").replace('\n', '').replace('"', '')
 			print("Got URL for POA file in Storage Account Share")
 		else:
 			sys.exit(stderr)
