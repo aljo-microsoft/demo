@@ -436,14 +436,15 @@ class ServiceFabricResourceDeclaration:
 		numberOfResource = len(templateFileJson["resources"])
 	
 		for i in range(0, numberOfResource):
-			if ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"]) and ("RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"])):
-				print('RepairManager already declared in Template')
-			elif ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"])):
-				print('RepairManager enabled as add-on feature in Template')
-				templateFileJson["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
-			else:
-				print('Add-On Feature RepairManager declared in Template')
-				templateFileJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
+			if (templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters"):
+				if (("addonFeatures" in templateFileJson["resources"][i]["properties"]) and ("RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"])):
+					print('RepairManager already declared in Template')
+				elif ("addonFeatures" in templateFileJson["resources"][i]["properties"]):
+					print('RepairManager enabled as add-on feature in Template')
+					templateFileJson["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
+				else:
+					print('Add-On Feature RepairManager declared in Template')
+					templateFileJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
 		
 		# Declare Patch Orchestration Application and Services as resources
 		# Unzip SFPKG and Get Properties
