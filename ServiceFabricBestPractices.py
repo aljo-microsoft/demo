@@ -13,6 +13,7 @@ from datetime import datetime
 import requests
 import time
 import zipfile
+import getpass
 
 class ServiceFabricResourceDeclaration:
 	# Microservice development Best Practice in Azure, is Reliable Service Fabric Applications, 
@@ -25,6 +26,8 @@ class ServiceFabricResourceDeclaration:
 	# E.G. may include provisioning an x509 certificates issued by an accessible Certificate Authority.
 	#
 	# This was tested September 19 2018 using Azure Cloud Shell.
+	#
+	# Arguments take precedence over declared values.
 
 	def __init__(
 		self,
@@ -33,10 +36,10 @@ class ServiceFabricResourceDeclaration:
 		parameters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
 		template_file='AzureDeploy.json',
 		parameters_file='AzureDeploy.Parameters.json',
-		deployment_resource_group='deploymentresourceggroup',
-		keyvault_resource_group='keyvaultresourcegroup',
-		keyvault_name='keyvaultname',
-		cluster_name='cluster',
+		deployment_resource_group='bestpracticedeploymentresourceggroup',
+		keyvault_resource_group='bestpracticekeyvaultresourcegroup',
+		keyvault_name='bestpracticekeyvaultname',
+		cluster_name='bestpracticecluster',
 		admin_user_name='sudo',
 		admin_password='Password#1234',
 		location='westus',
