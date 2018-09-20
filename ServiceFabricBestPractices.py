@@ -563,7 +563,7 @@ class ServiceFabricResourceDeclaration:
      
      		# Declare POA NodeAgent Service
 		nodeAgentServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgNodeAgentServiceName + "')]"
-     		nodeAgentServiceDependsOn =  "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
+		nodeAgentServiceDependsOn =  "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
 		templateFileJson["resources"] += {"apiVersion": "2017-07-01-preview",
 						  "type": "Microsoft.ServiceFabric/clusters/applications/services",
 						  "name": nodeAgentServiceName,
