@@ -51,7 +51,7 @@ class ServiceFabricResourceDeclaration:
 		user_email='aljo-microsoft@github.com'):
 
 	    	# Set Parameters
-	    	self.subscription = subscription
+		self.subscription = subscription
 		self.template_file = template_file
 		self.parameters_file = parameters_file
 		self.deployment_resource_group = deployment_resource_group
