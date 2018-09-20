@@ -681,13 +681,13 @@ def main():
 	print("Connected to cluster: " + str(datetime.now() - demoStart))
 	
 	resourceDeclaration.patchOrchestrationApplicationDeclaration()
-	print("Deployed Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
+	print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
 	
 	resourceDeclaration.validateDeclaration()
 	print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demoStart))
 	
-	#resourceDeclaration.deployResources()
-	#print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
+	resourceDeclaration.deployResources()
+	print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
 	
 	#resourceDeclaration.enableHostMSI()
 	#resourceDeclaration.setMSIPermissions()
