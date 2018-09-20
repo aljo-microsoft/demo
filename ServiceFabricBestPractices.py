@@ -322,7 +322,7 @@ class ServiceFabricResourceDeclaration:
 			print("Converting base64 file to PEM format failed")
 
 	def clusterConnectionValidation(self):
-		endpoint = 'https://' + self.dnsName + ':19080'
+		endpoint = 'https://' + self.dns_name + ':19080'
 		
 		notConnectedToCluster = True
 		
