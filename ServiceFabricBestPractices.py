@@ -387,12 +387,12 @@ class ServiceFabricResourceDeclaration:
 		stdout, stderr = clusterHealthProcess.communicate()
 		
 		if clusterHealthProcess.wait() == 0:
-			print("Provisioned Healthy Cluster")
+			print("Securely Connected to Healthy Cluster")
 			stdout.close()
 			stdout.close()
 		else:
+			# Expect Warning Error message if using Self Signed Certificate
 			print(stderr)
-			sys.exit("Cluster Provisioning Failed")
 	
 	def patchOrchestrationApplicationDeclaration(self):
 		# Deploying Applications as Resources is a best practice for Production.
