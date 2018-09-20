@@ -372,7 +372,7 @@ class ServiceFabricResourceDeclaration:
 		print(self.poa_file_name + " Downloaded")
 		
 		# Create Storate
-		createStorageProcess = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
+		createStorageProcess = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-g", self.deployment_resource_group, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = createStorageProcess.communicate()
 			
