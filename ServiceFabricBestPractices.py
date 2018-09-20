@@ -421,7 +421,7 @@ class ServiceFabricResourceDeclaration:
 		stdout, stderr = urlShareProcess.communicate()
 			
 		if urlShareProcess.wait() == 0:
-			poaShareUrl = stdout.decode("utf-8")
+			poaPackageUrl = stdout.decode("utf-8")
 			print("Got URL for POA file in Storage Account Share")
 		else:
 			sys.exit(stderr)
@@ -446,12 +446,17 @@ class ServiceFabricResourceDeclaration:
 		# Declare Patch Orchestration Application and Services as resources
 		# Unzip SFPKG and Get Properties 
 		sfpkgApplicationTypeName = "TODO: use Unzip to Get POA applicationTypeName From ApplicationManiest.xml"
-		sfpkgApplicationTypeVersionName = "TODO: Get POA applicationTypeVersion From ApplicationManifest.xml"
+		sfpkgApplicationTypeVersion = "TODO: Get POA applicationTypeVersion From ApplicationManifest.xml"
 		sfpkgApplicationName = "TODO: Get POA applicationName from ApplicationManifest.xml"
+		sfpkgCoordinatorServiceName = "TODO: Get POA Coordinator Service Name from ServiceManifest.xml"
+		sfpkgCoordinatorServiceType = "TODO: Get POA Coordinator Service Type from ServiceManifest.xml"
+		sfpkgNodeAgentServiceName = "TODO: Get POA NodeAgent Service Name from ServiceManifest.xml"
+		sfpkgNodeAgentServiceType = "TODO: Get POA NodeAgent Service Type from ServiceManifest.xml"
+		
 		# TODO: Declare Parameter with Default Values In template
 		
-		# Declare Application Type
-		applicationTypeName = "[concat(parameters('clusterName'), '/', parameters('" + sfpkgApplicationTypeName + "'))]"
+		# Declare POA ApplicationType
+		applicationTypeName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "')]"
 		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
      						  "type": "Microsoft.ServiceFabric/clusters/applicationTypes", `
      						  "name": applicationTypeName, `
@@ -462,24 +467,24 @@ class ServiceFabricResourceDeclaration:
 						   ] `
 						 ]
    		
-		# Declare Application Type Version
-		applicationTypeVersionName = "[concat(parameters('clusterName'), '/', parameters('" + applicationTypeName + "'), '/', parameters('" + sfpkgApplicationTypeVersionName + "'))]"
-		applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/'," + applicationTypeName					       
+		# Declare POA ApplicationTypeVersion
+		applicationTypeVersion = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "', '/', '" + sfpkgApplicationTypeVersion + "')]"
+		applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "')]"					       
 		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
      						  "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions", `
-     						  "name": applicationTypeVersionName, `
+     						  "name": applicationTypeVersion, `
      						  "location": "[variables('location')]", `
      						  "dependsOn": [ `
  							applicationTypeVersiondependsOn `
 					          ], `
      						  "properties": [ `
       						  "provisioningState": "Default", `
-       						  "appPackageUrl": "[parameters('appPackageUrl')]" `
+       						  "appPackageUrl": poaPackageUrl `
 						  ] `
 						  ]
-		# Declare Application
-		applicationName = "[concat(parameters('clusterName'), '/', parameters(':" + sfpkgApplicationName + "'))]"
-		applicationNameDependendsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('" + applicationTypeName + "'), '/versions/', parameters('" + applicationTypeVersion + "'))]"
+		# Declare POA Application
+		applicationName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "')]"
+		applicationNameDependendsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "', '/versions/', '" + sfpkgApplicationTypeVersion + "')]"
 		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
 						  "type": "Microsoft.ServiceFabric/clusters/applications", `
 						  "name": applicationName, `
@@ -489,8 +494,8 @@ class ServiceFabricResourceDeclaration:
 						  ], `
 						  "properties": [ `
 							"provisioningState": "Default", `
-							"typeName": applicationTypeName, `
-							"typeVersion": applicationTypeVersion, `
+							"typeName": sfpkgApplicationTypeName, `
+							"typeVersion": sfpkgApplicationTypeVersion, `
 							"parameters": [], `
 							"upgradePolicy": [ `
 								"upgradeReplicaSetCheckTimeout": "01:00:00.0", `
@@ -516,38 +521,37 @@ class ServiceFabricResourceDeclaration:
 						]
 									       
 		# Declare POA Services
-		# Declare POA Client Service
-		# Declare POA Agent Service
-		"""
-		  {
-     "apiVersion": "2017-07-01-preview",
-     "type": "Microsoft.ServiceFabric/clusters/applications/services",
-     "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'), '/', parameters('serviceName'))]",
-     "location": "[variables('clusterLocation')]",
-     "dependsOn": [
-       "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]"
-     ],
-     "properties": {
-       "provisioningState": "Default",
-       "serviceKind": "Stateless",
-       "serviceTypeName": "[parameters('serviceTypeName')]",
-       "instanceCount": "-1",
-       "partitionDescription": {
-         "partitionScheme": "Singleton"
-       },
-       "correlationScheme": [],
-       "serviceLoadMetrics": [],
-       "servicePlacementPolicies": []
-     }
+		# Declare POA Coordinator Service
+		coordinatorServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgCoordinatorServiceName + "')]"						       
+		coordinatorServiceDependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
+		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
+						  "type": "Microsoft.ServiceFabric/clusters/applications/services", `
+						  "name": coordinatorServiceName , `
+						  "location": "[variables('location')]", `
+						  "dependsOn": [ `
+							coordinatorServiceDependsOn `
+						   ], `
+						  "properties": [ `
+							"provisioningState": "Default", `
+							"serviceKind": "Stateless", `
+							"serviceTypeName": sfpkgCoordinatorServiceType, `
+							"instanceCount": "-1", `
+							"partitionDescription": [ `
+								"partitionScheme": "Singleton" `
+							], `
+							"correlationScheme": [], `
+							"serviceLoadMetrics": [], `
+							"servicePlacementPolicies": [] `
+						  ]
      
-     and
-     
-     {
-     "apiVersion": "2017-07-01-preview",
-     "type": "Microsoft.ServiceFabric/clusters/applications/services",
-     "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'), '/', parameters('serviceName2'))]",
-     "location": "[variables('clusterLocation')]",
-     "dependsOn": [
+     		# Declare POA NodeAgent Service
+		nodeAgentServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName "', '/', '" + sfpkgNodeAgentServiceName + "')]"
+     		nodeAgentServiceDependsOn =  "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
+		templateFileJson["resources"] += [ "apiVersion": "2017-07-01-preview", `
+						  "type": "Microsoft.ServiceFabric/clusters/applications/services", `
+						  "name": nodeAgentServiceName, `
+						  "location": "[variables('location')]", `
+						  "dependsOn": [
        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]"
      ],
      "properties": {
