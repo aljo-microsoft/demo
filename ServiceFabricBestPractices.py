@@ -431,7 +431,7 @@ class ServiceFabricResourceDeclaration:
 		# Update Template
 		# Enable or Validate RepairManager
 		print("Enable or Validate Repair Manager")
-		templateFileJson = json.load(open(self.template_file, 'rt'))
+		templateFileJson = json.load(open(self.template_file, 'r'))
 		
 		numberOfResource = len(templateFileJson["resources"])
 	
@@ -443,7 +443,7 @@ class ServiceFabricResourceDeclaration:
 				templateFileJson["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
 			else:
 				print('Add-On Feature RepairManager declared in Template')
-				templateJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
+				templateFileJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
 		
 		# Declare Patch Orchestration Application and Services as resources
 		# Unzip SFPKG and Get Properties
