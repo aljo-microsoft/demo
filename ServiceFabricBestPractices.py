@@ -270,9 +270,6 @@ class ServiceFabricResourceDeclaration:
 			templateFile = open(self.template_file, 'x')
 			json.dump(templateFileJson, templateFile)
 			templateFile.close()
-			
-		# Validate Deployment Declaration
-		validateDeclaration()
 
 	def validateDeclaration(self):
 		# Validate Deployment Declaration
@@ -603,10 +600,6 @@ class ServiceFabricResourceDeclaration:
 		templateFile = open(self.template_file, 'w')
 		json.dump(templateFileJson, templateFile)
 		templateFile.close()
-		
-		# Validating POA Deployment Declaration
-		print("Validating POA Deployment Declaration")
-		validateDeclaration()
 
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
@@ -622,6 +615,9 @@ def main():
 	resourceDeclaration = ServiceFabricResourceDeclaration()
 	print("Resource Declaration Initilization Duration: " + str(datetime.now() - demoStart))
 	
+	resourceDeclaration.validateDeclaration()
+	print("Resource Declaration Validation Duration: " + str(datetime.now() - demoStart))
+	
 	resourceDeclaration.deployResources()
 	print("Deploy Resources Duration: " + str(datetime.now() - demoStart))
 	
@@ -633,6 +629,9 @@ def main():
 	
 	resourceDeclaration.patchOrchestrationApplicationDeclaration()
 	print("Deployed Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
+	
+	resourceDeclaration.validateDeclaration()
+	print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demoStart))
 	
 	#resourceDeclaration.deployResources()
 	#print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
