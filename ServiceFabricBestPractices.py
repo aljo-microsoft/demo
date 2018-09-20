@@ -425,24 +425,155 @@ class ServiceFabricResourceDeclaration:
 			print("Got URL for POA file in Storage Account Share")
 		else:
 			sys.exit(stderr)
-			
-		print("if value of below is a URL for Share that contains POA, then update template")
-		print(poaShareUrl)
-		# TODO: Update Template with Application and Services as Resources
-		#       Can use Python from zipfile import zipFile to extract SFPKG and take properties from package.
-		#
-		#       Will also need to set RepairManager Add-on Feature:
-	        #	For i in range(templateJson[‘resources’]):
-		#		if(templateJson[‘resources’][i][‘type’] == ‘Microsoft.ServiceFabric/clusters’) and ‘addonFeatures’ in templateJson[‘resources’][i][‘properties’] and ‘RepairManager’ in templateJson[‘resources’][i][‘properties’][‘addonFeatures’]:
-		#			print(“RepairManager already declared in Template”)
-		#		else if templateJson[‘resources’][i][‘type’] == ‘Microsoft.ServiceFabric/clusters’) and ‘addonFeatures’ in templateJson[‘resources’][i][‘properties’]
-		#			print(“RepairManager enabled as add-on feature in Template”)
-		#			templateJson[‘resources’][I][‘properties’][‘addonFeatures’] += [‘RepairManager’]
-		#		else:
-		#			print(“Add-On Feature RepairManager declared in Template”)
-		#			templateJson[‘resources’][I][‘properties’][‘addonFeatures’] = [‘RepairManager’]
-		#
-		#       Deploy POA as resources.
+		
+		# Update Template
+		# Enable or Validate RepairManager
+		print("Enable or Validate Repair Manager")
+		templateFileJson = json.load(open(self.template_file, 'rt'))
+		
+		numberOfResource = len(templateFileJson["resources"])
+	
+		for i in range(0, numberOfResource):
+			if(templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and "addonFeatures" in templateFileJson["resources"][i]["properties"] and "RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"]:
+				print(“RepairManager already declared in Template”)
+			else if templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and "addonFeatures" in templateFileJson["resources"][i]["properties"]
+				print(“RepairManager enabled as add-on feature in Template”)
+				templateFileJson["resources"][i]["properties"][‘addonFeatures"] += ["RepairManager"]
+			else:
+				print(“Add-On Feature RepairManager declared in Template”)
+				templateJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
+		
+		# Declare Patch Orchestration Application and Services as resources
+		# Unzip SFPKG and Get Properties 
+		sfpkgApplicationTypeName = "TODO: use Unzip to Get POA applicationTypeName From ApplicationManiest.xml"
+		sfpkgApplicationTypeVersionName = "TODO: Get POA applicationTypeVersion From ApplicationManifest.xml"
+		sfpkgApplicationName = "TODO: Get POA applicationName from ApplicationManifest.xml"
+		# TODO: Declare Parameter with Default Values In template
+		
+		# Declare Application Type
+		applicationTypeName = "[concat(parameters('clusterName'), '/', parameters('" + sfpkgApplicationTypeName + "'))]"
+		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
+     						  "type": "Microsoft.ServiceFabric/clusters/applicationTypes", `
+     						  "name": applicationTypeName, `
+     						  "location": "[variables('location')]", `
+     					          "dependsOn": [], `
+     					          "properties": [ `
+       						     "provisioningState": "Default" `
+						   ] `
+						 ]
+   		
+		# Declare Application Type Version
+		applicationTypeVersionName = "[concat(parameters('clusterName'), '/', parameters('" + applicationTypeName + "'), '/', parameters('" + sfpkgApplicationTypeVersionName + "'))]"
+		applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/'," + applicationTypeName					       
+		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
+     						  "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions", `
+     						  "name": applicationTypeVersionName, `
+     						  "location": "[variables('location')]", `
+     						  "dependsOn": [ `
+ 							applicationTypeVersiondependsOn `
+					          ], `
+     						  "properties": [ `
+      						  "provisioningState": "Default", `
+       						  "appPackageUrl": "[parameters('appPackageUrl')]" `
+						  ] `
+						  ]
+		# Declare Application
+		applicationName = "[concat(parameters('clusterName'), '/', parameters(':" + sfpkgApplicationName + "'))]"
+		applicationNameDependendsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('" + applicationTypeName + "'), '/versions/', parameters('" + applicationTypeVersion + "'))]"
+		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
+						  "type": "Microsoft.ServiceFabric/clusters/applications", `
+						  "name": applicationName, `
+						  "location": "[variables('location')]", `
+						  "dependsOn": [ `
+							applicationNameDependendsOn `
+						  ], `
+						  "properties": [ `
+							"provisioningState": "Default", `
+							"typeName": applicationTypeName, `
+							"typeVersion": applicationTypeVersion, `
+							"parameters": [], `
+							"upgradePolicy": [ `
+								"upgradeReplicaSetCheckTimeout": "01:00:00.0", `
+								"forceRestart": "false", `
+								"rollingUpgradeMonitoringPolicy": [ `
+									"healthCheckWaitDuration": "00:02:00.0", `
+									"healthCheckStableDuration": "00:05:00.0", `
+									"healthCheckRetryTimeout": "00:10:00.0", `
+									"upgradeTimeout": "01:00:00.0", `
+									"upgradeDomainTimeout": "00:20:00.0" `
+								], `
+								"applicationHealthPolicy": [ `
+									"considerWarningAsError": "false", `
+									"maxPercentUnhealthyDeployedApplications": "50", `
+									"defaultServiceTypeHealthPolicy": [ `
+										"maxPercentUnhealthyServices": "50", `
+										"maxPercentUnhealthyPartitionsPerService": "50", `
+										"maxPercentUnhealthyReplicasPerPartition": "50" `
+									] `
+								] `
+							] `
+						] `
+						]
+									       
+		# Declare POA Services
+		# Declare POA Client Service
+		# Declare POA Agent Service
+		"""
+		  {
+     "apiVersion": "2017-07-01-preview",
+     "type": "Microsoft.ServiceFabric/clusters/applications/services",
+     "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'), '/', parameters('serviceName'))]",
+     "location": "[variables('clusterLocation')]",
+     "dependsOn": [
+       "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]"
+     ],
+     "properties": {
+       "provisioningState": "Default",
+       "serviceKind": "Stateless",
+       "serviceTypeName": "[parameters('serviceTypeName')]",
+       "instanceCount": "-1",
+       "partitionDescription": {
+         "partitionScheme": "Singleton"
+       },
+       "correlationScheme": [],
+       "serviceLoadMetrics": [],
+       "servicePlacementPolicies": []
+     }
+     
+     and
+     
+     {
+     "apiVersion": "2017-07-01-preview",
+     "type": "Microsoft.ServiceFabric/clusters/applications/services",
+     "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'), '/', parameters('serviceName2'))]",
+     "location": "[variables('clusterLocation')]",
+     "dependsOn": [
+       "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]"
+     ],
+     "properties": {
+       "provisioningState": "Default",
+       "serviceKind": "Stateful",
+       "serviceTypeName": "[parameters('serviceTypeName2')]",
+       "targetReplicaSetSize": "3",
+       "minReplicaSetSize": "2",
+       "replicaRestartWaitDuration": "00:01:00.0",
+       "quorumLossWaitDuration": "00:02:00.0",
+       "standByReplicaKeepDuration": "00:00:30.0",
+       "partitionDescription": {
+         "partitionScheme": "UniformInt64Range",
+         "count": "5",
+         "lowKey": "1",
+         "highKey": "5"
+       },
+       "hasPersistedState": "true",
+       "correlationScheme": [],
+       "serviceLoadMetrics": [],
+       "servicePlacementPolicies": [],
+       "defaultMoveCost": "Low"
+     }
+   }
+							       
+		"""
 
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
