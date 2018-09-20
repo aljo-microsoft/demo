@@ -2,7 +2,7 @@ __author__ = "Alexander Johnson"
 __email__ = "aljo-microsoft@github.com"
 __status__ = "Development"
 
-""" This demostrates best practices for a Reliable microservice in Azure using the Service Fabric platform """
+""" Demo best practices for Reliable microservices in Azure using Service Fabric """
 
 from subprocess import Popen
 from subprocess import PIPE
@@ -17,19 +17,19 @@ import getpass
 import xml.etree.ElementTree
 
 class ServiceFabricResourceDeclaration:
-	# Microservice development Best Practice in Azure, is Reliable Service Fabric Applications, 
+	# Microservice development Best Practice in Azure, is Reliable Service Fabric Applications,
 	# that leverage Azure Resource Manager API. Initialization of a deployment includes authoring
 	# a declarative model in JSON format; that represents your goal state. As a demostration this
 	# will succeed at provisioning it's goals state that, and can be built upon for deploying your
 	# Application.
-	# 
-	# A vital component of success in adoption to deliver your SLA/O's will require you to make decisions.
-	# E.G. may include provisioning an x509 certificates issued by an accessible Certificate Authority.
+	#
+	# A vital component of success in delivering your SLA/O's will require you to make decisions.
+	# E.G. may include using a x509 certificates issued by an accessible Certificate Authority.
 	#
 	# This was tested September 19 2018 using Azure Cloud Shell.
 	#
 	# Arguments take precedence over declared values.
-
+	
 	def __init__(
 		self,
 		subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
@@ -48,11 +48,10 @@ class ServiceFabricResourceDeclaration:
 		certificate_thumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 		source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
 		certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
-		user_email='aljo-microsoft@github.com'
-		):
+		user_email='aljo-microsoft@github.com'):
 
-		# Set Parameters
-		self.subscription = subscription
+	    	# Set Parameters
+	    	self.subscription = subscription
 		self.template_file = template_file
 		self.parameters_file = parameters_file
 		self.deployment_resource_group = deployment_resource_group
