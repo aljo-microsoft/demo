@@ -365,8 +365,8 @@ class ServiceFabricResourceDeclaration:
 		# 9. Declarative Resource Deployment
 		
 		print("Updating Declaration with Patch Orchestration Application")
-		poa_name = 'POA_v2.0.2'
-		self.poa_file_name = poa_name + ".sfpkg"
+		poa_name = 'poa'
+		self.poa_file_name = "POA_v2.0.2.sfpkg"
 		self.storage_account_name = 'bestpracticesstorage'
 		self.share_name = "bestpracticesshare"
 		
