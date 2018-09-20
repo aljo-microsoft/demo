@@ -78,6 +78,8 @@ class ServiceFabricResourceDeclaration:
 		
 		if accountSetProcess.wait() == 0:
 			print("Account Set to Deployment Subscription")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 		
@@ -113,6 +115,8 @@ class ServiceFabricResourceDeclaration:
 				
 				if keyvaultGroupCreateProcess.wait() == 0:
 					print("Resource Group for KeyVault Created")
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 				
@@ -122,6 +126,8 @@ class ServiceFabricResourceDeclaration:
 				
 				if keyvaultCreateProcess.wait() == 0:
 					print("Keyvault Resource Created")
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 				
@@ -132,6 +138,8 @@ class ServiceFabricResourceDeclaration:
 				
 				if keyvaultShowProcess.wait() == 0:
 					print("Keyvault DNS has populated")
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 
@@ -143,6 +151,8 @@ class ServiceFabricResourceDeclaration:
 					
 				if defaultPolicyProcess.wait() == 0:
 					defaultPolicyJson = json.loads(stdout.decode("utf-8"))
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 
@@ -160,6 +170,8 @@ class ServiceFabricResourceDeclaration:
 
 				if certificateCreateProcess.wait() == 0:
 					print(stdout)
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 					
@@ -171,6 +183,8 @@ class ServiceFabricResourceDeclaration:
 
 				if resourceIdProcess.wait() == 0:
 					self.source_vault_value = stdout.decode("utf-8").replace('\n', '')
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 
@@ -181,6 +195,8 @@ class ServiceFabricResourceDeclaration:
 
 				if urlProcess.wait() == 0:
 					self.certificate_url_value = stdout.decode("utf-8").replace('\n', '')
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 
@@ -191,6 +207,8 @@ class ServiceFabricResourceDeclaration:
 				
 				if thumbprintProcess.wait() == 0:
 					self.certificate_thumbprint = stdout.decode("utf-8").replace('\n', '')
+					stdout.close()
+					stderr.close()
 				else:
 					sys.exit(stderr)
 			
@@ -201,6 +219,8 @@ class ServiceFabricResourceDeclaration:
 
 		if validateSourceVault.wait() == 0:
 			print("Source Vault Resource is Valid within subscription context")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 
@@ -215,6 +235,8 @@ class ServiceFabricResourceDeclaration:
 
 		if certUrlValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_url_value:
 			print("Certificate SID URL is valid within subscription context")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
  
@@ -225,6 +247,8 @@ class ServiceFabricResourceDeclaration:
 
 		if certThumbprintValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_thumbprint:
 			print("Certificate Thumbprint is valid within subscription context")
+			stdout.close()
+			stderr.close()
 		else:
 			print(stderr)
 			sys.exit("Certificate Thumbprint is invalid within subscription context")
@@ -247,6 +271,8 @@ class ServiceFabricResourceDeclaration:
 
 		if deploymentGroupExistsProcess.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
 			print("Deployment Group Exists")
+			stdout.close()
+			stderr.close()
 			# TODO: Validate Group Location
 		else:
 			deploymentGroupCreateProcess = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
@@ -255,6 +281,8 @@ class ServiceFabricResourceDeclaration:
 
 			if deploymentGroupCreateProcess.wait() == 0:
 				print("Deployment Group Created")
+				stdout.close()
+				stderr.close()
 			else:
 				sys.exit(stderr)
 
@@ -281,6 +309,8 @@ class ServiceFabricResourceDeclaration:
 
 		if deploymentValidationProcess.wait() == 0:
 			print("Your Deployment Declaration is Valid Syntactically")
+			stdout.close()
+			stderr.close()
 		else:
 			print(stderr)
 			print("Your Deployment Declaration is Invalid Syntactically")
@@ -295,6 +325,8 @@ class ServiceFabricResourceDeclaration:
 
 		if groupDeploymentCreateProcess.wait() == 0:
 			print("Resource Deployment Successful")
+			stdout.close()
+			stderr.close()
 		else:
 			print(stderr)
 
@@ -309,6 +341,8 @@ class ServiceFabricResourceDeclaration:
 
 		if downloadCertProcess.wait() == 0:
 			print("Download of Certificate file in Base 64 Format Successful")
+			stdout.close()
+			stderr.close()
 		else:
 			print(stderr)
 		
@@ -319,6 +353,8 @@ class ServiceFabricResourceDeclaration:
 		
 		if convertCertProcess.wait() == 0:
 			print("Convert of base64 file to PEM format successful")
+			stdout.close()
+			stderr.close()
 		else:
 			print(stderr)
 			print("Converting base64 file to PEM format failed")
@@ -338,8 +374,12 @@ class ServiceFabricResourceDeclaration:
 			if clusterConnectProcess.wait() == 0:
 				notConnectedToCluster = False
 				print("Connected to Cluster")
+				stdout.close()
+				stderr.close()
 			else:
 				print("Unable to Connect to Deployed Cluster Resource... Waiting 15 secs to try again")
+				stdout.close()
+				stderr.close()
 				time.sleep(15)
 				
 		clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
@@ -348,6 +388,8 @@ class ServiceFabricResourceDeclaration:
 		
 		if clusterHealthProcess.wait() == 0:
 			print("Provisioned Healthy Cluster")
+			stdout.close()
+			stdout.close()
 		else:
 			print(stderr)
 			sys.exit("Cluster Provisioning Failed")
@@ -384,6 +426,8 @@ class ServiceFabricResourceDeclaration:
 			
 		if createStorageProcess.wait() == 0:
 			print("Storage Account Created")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 		
@@ -395,6 +439,8 @@ class ServiceFabricResourceDeclaration:
 		if connectionStringProcess.wait() == 0:
 			connectionString = str(json.loads(stdout.decode("utf-8"))['connectionString'])
 			print("Got Storage Connection String")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 
@@ -405,6 +451,8 @@ class ServiceFabricResourceDeclaration:
 			
 		if createShareProcess.wait() == 0:
 			print("Created Share")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 		
@@ -415,6 +463,8 @@ class ServiceFabricResourceDeclaration:
 			
 		if uploadFileProcess.wait() == 0:
 			print("Uploaded POA PKG To Storage Account")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 		
@@ -426,6 +476,8 @@ class ServiceFabricResourceDeclaration:
 		if urlShareProcess.wait() == 0:
 			poaPackageUrl = stdout.decode("utf-8")
 			print("Got URL for POA file in Storage Account Share")
+			stdout.close()
+			stderr.close()
 		else:
 			sys.exit(stderr)
 		
