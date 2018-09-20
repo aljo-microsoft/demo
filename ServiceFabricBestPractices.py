@@ -592,7 +592,24 @@ class ServiceFabricResourceDeclaration:
 						  "defaultMoveCost": "Low" `
 						  ] `
 						  ]
-	
+						  
+		# Write New Template File with POA Application
+		poaTemplateFileName = "AzureDeployPOA.json"
+		poaTemplateFile = open(poaTemplateFileName, 'x')
+		json.dump(templateFileJson, poaTemplateFile)
+		poaTemplateFile.close()
+						  
+		print("Validating POA Deployment Declaration")
+
+		deploymentValidationProcess = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", poaTemplateFileName, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
+
+		stdout, stderr = deploymentValidationProcess.communicate()
+
+		if deploymentValidationProcess.wait() == 0:
+			print("Your Deployment Declaration is Valid Syntactically")
+		else:
+			print(stderr)
+			print("Your Deployment Declaration is Invalid Syntactically")
 
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
