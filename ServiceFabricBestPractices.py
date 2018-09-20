@@ -340,6 +340,8 @@ class ServiceFabricResourceDeclaration:
 				print("Connected to Cluster")
 			else:
 				print("Unable to Connect to Deployed Cluster Resource... Trying again")
+				stdout.kill()
+				stderr.kill()
 				
 		clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
 		
@@ -358,17 +360,16 @@ class ServiceFabricResourceDeclaration:
 		# 1. Download POA SFPKG
 		# 2. Create Storage Account
 		# 3. Get the Connection String to Storage Account
-		# 4. Create Storage Account File Share
-		# 5. Upload File to Storage Account Share
-		# 6. Get secured URL to File in Storage Account Share
+		# 4. Create Storage Account Blob Container
+		# 5. Upload File to Storage Account Blob Container
+		# 6. Get public URL to File in Storage Account Blob
 		# 8. Declare Application and Services as Resources in Template
-		# 9. Declarative Resource Deployment
 		
 		print("Updating Declaration with Patch Orchestration Application")
 		poa_name = 'poa'
 		self.poa_file_name = "POA_v2.0.2.sfpkg"
 		self.storage_account_name = 'bestpracticesstorage'
-		self.share_name = "bestpracticesshare"
+		self.container_name = "bestpracticescontainer"
 		
 		# Download POA SFPKG
 		poaUrl = "https://aka.ms/POA/" + self.poa_file_name
@@ -397,34 +398,34 @@ class ServiceFabricResourceDeclaration:
 		else:
 			sys.exit(stderr)
 
-		# Create storage account file share
-		createShareProcess = Popen(["az", "storage", "share", "create", "--name", self.share_name, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
-			
-		stdout, stderr = createShareProcess.communicate()
-			
-		if createShareProcess.wait() == 0:
-			print("Created Share")
+		# Create Blob Container
+		createContainerProcess = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connectionString, "--public-access", "blob"], stdout=PIPE, stderr=PIPE)
+		
+		stdout, stderr = createContainerProcess.communicate()
+		
+		if createContainerProcess.wait() == 0:
+			print("Blob Container Created")
 		else:
 			sys.exit(stderr)
 		
-		# Upload File To Share
-		uploadFileProcess = Popen(["az", "storage", "file", "upload", "-s", self.share_name, "--source", self.poa_file_name, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+		# Upload SFPKG to Blob Container
+		uploadPOAProcess = Popen(["az", "storage", "blob", "upload", "--file", self.poa_file_name, "--name", poa_name, "--connection-string", connectionString, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 			
-		stdout, stderr = uploadFileProcess.communicate()
+		stdout, stderr = uploadPOAProcess.communicate()
 			
-		if uploadFileProcess.wait() == 0:
-			print("Uploaded POA PKG To Storage Account")
+		if uploadPOAProcess.wait() == 0:
+			print("Uploaded POA PKG To Storage Account Blob Container")
 		else:
 			sys.exit(stderr)
 		
-		# Get URL for POA in Storage Account Share
-		urlShareProcess = Popen(["az", "storage", "file", "url", "--path", self.poa_file_name, "--share-name", self.share_name, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+		# Get URL for POA in Storage Account Blob Container
+		urlBlobProcess = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connectionString, "--name", poa_name], stdout=PIPE, stderr=PIPE)
 			
-		stdout, stderr = urlShareProcess.communicate()
+		stdout, stderr = urlBlobProcess.communicate()
 			
-		if urlShareProcess.wait() == 0:
-			poaPackageUrl = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-			print("Got URL for POA file in Storage Account Share")
+		if urlBlobProcess.wait() == 0:
+			poaPackageUrl = stdout.decode("utf-8").replace('\n', '')
+			print("Got URL for POA file in Storage Account Blob")
 		else:
 			sys.exit(stderr)
 		
