@@ -382,19 +382,18 @@ class ServiceFabricResourceDeclaration:
 			sys.exit(stderr)
 		
 		# Get Connection String
-		connectionStringProcess = Popen(["az", "storage", "show-connection-string", "-g", self.deployment_resource_group, "-n", self.storage_account_name], stdout=PIPE, stderr=PIPE)
+		connectionStringProcess = Popen(["az", "storage", "account", "show-connection-string", "-g", self.deployment_resource_group, "-n", self.storage_account_name], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = connectionStringProcess.communicate()
 			
 		if connectionStringProcess.wait() == 0:
-			connectionString = stdout.decode("utf-8")
-			print(connectionString)
+			connectionString = str(json.loads(stdout.decode("utf-8"))['connectionString'])
 			print("Got Storage Connection String")
 		else:
 			sys.exit(stderr)
 
 		# Create storage account file share
-		createShareProcess = Popen(["az", "storage", "share", "create", self.share_name, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
+		createShareProcess = Popen(["az", "storage", "share", "create", "--name", self.share_name, "--connection-string", connectionString], stdout=PIPE, stderr=PIPE)
 			
 		stdout, stderr = createShareProcess.communicate()
 			
