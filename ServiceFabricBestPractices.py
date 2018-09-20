@@ -463,10 +463,10 @@ class ServiceFabricResourceDeclaration:
 				poaServices = applicationManifest[i].getchildren()
 				
 				for j in range(len(poaServices)):
-					if (poaServices[j].attrib['Name'].lower().contains("coordinator")):
+					if (poaServices[j].attrib['Name'].lower().find("coordinator") > -1):
 						sfpkgCoordinatorServiceName = poaServices[j].attrib['Name']
 						sfpkgCoordinatorServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
-					elif (poaServices[j].attrib['Name'].lower().contains("nodeagent")):
+					elif (poaServices[j].attrib['Name'].lower().contains("nodeagent") > -1):
 						sfpkgNodeAgentServiceName = poaServices[j].attrib['Name']
 						sfpkgNodeAgentServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
 					else:
