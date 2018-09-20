@@ -438,7 +438,7 @@ class ServiceFabricResourceDeclaration:
 		for i in range(0, numberOfResource):
 			if ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"]) and ("RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"])):
 				print('RepairManager already declared in Template')
-			else if ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"])):
+			elif ((templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters") and ("addonFeatures" in templateFileJson["resources"][i]["properties"])):
 				print('RepairManager enabled as add-on feature in Template')
 				templateFileJson["resources"][i]["properties"][‘addonFeatures'] += ["RepairManager"]
 			else:
@@ -465,7 +465,7 @@ class ServiceFabricResourceDeclaration:
 					if (poaServices[j].attrib['Name'].lower().contains("coordinator")):
 						sfpkgCoordinatorServiceName = poaServices[j].attrib['Name']
 						sfpkgCoordinatorServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
-					else if (poaServices[j].attrib['Name'].lower().contains("nodeagent")):
+					elif (poaServices[j].attrib['Name'].lower().contains("nodeagent")):
 						sfpkgNodeAgentServiceName = poaServices[j].attrib['Name']
 						sfpkgNodeAgentServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
 					else:
