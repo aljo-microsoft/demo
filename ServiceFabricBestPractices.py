@@ -453,8 +453,6 @@ class ServiceFabricResourceDeclaration:
 		sfpkgNodeAgentServiceName = "TODO: Get POA NodeAgent Service Name from ServiceManifest.xml"
 		sfpkgNodeAgentServiceType = "TODO: Get POA NodeAgent Service Type from ServiceManifest.xml"
 		
-		# TODO: Declare Parameter with Default Values In template
-		
 		# Declare POA ApplicationType
 		applicationTypeName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "')]"
 		templateFileJson["resources"] += ["apiVersion": "2017-07-01-preview", `
@@ -551,33 +549,32 @@ class ServiceFabricResourceDeclaration:
 						  "type": "Microsoft.ServiceFabric/clusters/applications/services", `
 						  "name": nodeAgentServiceName, `
 						  "location": "[variables('location')]", `
-						  "dependsOn": [
-       "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]"
-     ],
-     "properties": {
-       "provisioningState": "Default",
-       "serviceKind": "Stateful",
-       "serviceTypeName": "[parameters('serviceTypeName2')]",
-       "targetReplicaSetSize": "3",
-       "minReplicaSetSize": "2",
-       "replicaRestartWaitDuration": "00:01:00.0",
-       "quorumLossWaitDuration": "00:02:00.0",
-       "standByReplicaKeepDuration": "00:00:30.0",
-       "partitionDescription": {
-         "partitionScheme": "UniformInt64Range",
-         "count": "5",
-         "lowKey": "1",
-         "highKey": "5"
-       },
-       "hasPersistedState": "true",
-       "correlationScheme": [],
-       "serviceLoadMetrics": [],
-       "servicePlacementPolicies": [],
-       "defaultMoveCost": "Low"
-     }
-   }
-							       
-		"""
+						  "dependsOn": [ `
+							nodeAgentServiceDependsOn `
+						  ], `
+						  "properties": [ `
+						  "provisioningState": "Default", `
+						  "serviceKind": "Stateful", `
+						  "serviceTypeName": sfpkgNodeAgentServiceName, `
+						  "targetReplicaSetSize": "3", `
+						  "minReplicaSetSize": "2", `
+						  "replicaRestartWaitDuration": "00:01:00.0", `
+						  "quorumLossWaitDuration": "00:02:00.0", `
+						  "standByReplicaKeepDuration": "00:00:30.0", `
+						  "partitionDescription": [ `
+						  	"partitionScheme": "UniformInt64Range", `
+							"count": "5", `
+							"lowKey": "1", `
+							"highKey": "5" `
+						  ], `
+						  "hasPersistedState": "true", `
+						  "correlationScheme": [], `
+						  "serviceLoadMetrics": [], `
+						  "servicePlacementPolicies": [], `
+						  "defaultMoveCost": "Low" `
+						  ] `
+						  ]
+	
 
 	def enableHostMSI(self):
 		# Update template to enable host MSi and apply policies
