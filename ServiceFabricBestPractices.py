@@ -2,19 +2,17 @@ __author__ = "Alexander Johnson"
 __email__ = "aljo-microsoft@github.com"
 __status__ = "Development"
 
-""" Demo best practices for Reliable microservices in Azure using Service Fabric """
-
-from subprocess import Popen
-from subprocess import PIPE
+from datetime import datetime
+import getpass
 import json
 from pathlib import Path
-import sys
-from datetime import datetime
 import requests
+from subprocess import PIPE
+from subprocess import Popen
+import sys
 import time
-import zipfile
-import getpass
 import xml.etree.ElementTree
+import zipfile
 
 class ServiceFabricResourceDeclaration:
     # Microservice development Best Practice in Azure, is Reliable Service Fabric Applications,
@@ -432,10 +430,10 @@ class ServiceFabricResourceDeclaration:
         numberOfResource = len(templateFileJson["resources"])
 
         for i in range(0, numberOfResource):
-            if (templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters"):
+            if templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters":
                 if (("addonFeatures" in templateFileJson["resources"][i]["properties"]) and ("RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"])):
                     print('RepairManager already declared in Template')
-                elif ("addonFeatures" in templateFileJson["resources"][i]["properties"]):
+                elif "addonFeatures" in templateFileJson["resources"][i]["properties"]:
                     print('RepairManager enabled as add-on feature in Template')
                     templateFileJson["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
                 else:
@@ -453,13 +451,13 @@ class ServiceFabricResourceDeclaration:
         sfpkgApplicationName = poa_name
 
         for i in range(len(applicationManifest)):
-            if (applicationManifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices'):
+            if applicationManifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices':
                 poaServices = applicationManifest[i].getchildren()
                 for j in range(len(poaServices)):
-                    if (poaServices[j].attrib['Name'].lower().find("coordinator") > -1):
+                    if poaServices[j].attrib['Name'].lower().find("coordinator") > -1:
                         sfpkgCoordinatorServiceName = poaServices[j].attrib['Name']
                         sfpkgCoordinatorServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
-                    elif (poaServices[j].attrib['Name'].lower().find("nodeagent") > -1):
+                    elif poaServices[j].attrib['Name'].lower().find("nodeagent") > -1:
                         sfpkgNodeAgentServiceName = poaServices[j].attrib['Name']
                         sfpkgNodeAgentServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
@@ -481,7 +479,7 @@ class ServiceFabricResourceDeclaration:
         ]
         # Declare POA ApplicationTypeVersion
         applicationTypeVersion = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "', '/', '" + sfpkgApplicationTypeVersion + "')]"
-        applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "')]"					       
+        applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "')]"
         templateFileJson["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
@@ -541,7 +539,7 @@ class ServiceFabricResourceDeclaration:
 
         # Declare POA Services
         # Declare POA Coordinator Service
-        coordinatorServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgCoordinatorServiceName + "')]"						       
+        coordinatorServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgCoordinatorServiceName + "')]"
         coordinatorServiceDependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
         templateFileJson["resources"] += [
             {
@@ -568,7 +566,7 @@ class ServiceFabricResourceDeclaration:
         ]
         # Declare POA NodeAgent Service
         nodeAgentServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgNodeAgentServiceName + "')]"
-        nodeAgentServiceDependsOn =  "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
+        nodeAgentServiceDependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
         templateFileJson["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
@@ -581,7 +579,7 @@ class ServiceFabricResourceDeclaration:
                 "properties": {
                     "provisioningState": "Default",
                     "serviceKind": "Stateful",
-                    "serviceTypeName": sfpkgNodeAgentServiceName,
+                    "serviceTypeName": sfpkgNodeAgentServiceType,
                     "targetReplicaSetSize": "3",
                     "minReplicaSetSize": "2",
                     "replicaRestartWaitDuration": "00:01:00.0",
