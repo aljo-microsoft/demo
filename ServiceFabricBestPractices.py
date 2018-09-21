@@ -333,10 +333,9 @@ class ServiceFabricResourceDeclaration:
                 print("Connected to Cluster")
             else:
                 print("Unable to Connect to Deployed Cluster Resource... Trying again")
-                stdout.kill()
-                stderr.kill()
+                clusterConnectProcess.kill()
 
-        clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
+        clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = clusterHealthProcess.communicate()
 
