@@ -10,7 +10,7 @@ from subprocess import PIPE
 from subprocess import Popen
 import sys
 import zipfile
-import request
+import requests
 
 class ServiceFabricResourceDeclaration:
     # Microservice development Best Practice in Azure, is Reliable Service Fabric Applications,
