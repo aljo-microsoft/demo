@@ -3,13 +3,13 @@ __email__ = "aljo-microsoft@github.com"
 __status__ = "Development"
 
 from datetime import datetime
+import xml.etree.ElementTree
 import json
 from pathlib import Path
-import requests
 from subprocess import PIPE
 from subprocess import Popen
+import requests
 import sys
-import xml.etree.ElementTree
 import zipfile
 
 class ServiceFabricResourceDeclaration:
