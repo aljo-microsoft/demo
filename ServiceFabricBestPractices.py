@@ -91,7 +91,7 @@ class ServiceFabricResourceDeclaration:
             parametersFileJson = json.loads(parametersBytes.decode("utf-8"))
 
         # Keyvault Cluster Certificate Exist or Create
-	if self.source_vault_value.find('/subscriptions/') >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find('vault.azure.net') != -1:
+        if self.source_vault_value.find('/subscriptions/') >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find('vault.azure.net') != -1:
             # Use Keyvault Certificate Arguments for resource Validation
             print('Validating Keyvault Certificate Deployment Arguments')
         else:
