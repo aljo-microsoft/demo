@@ -72,11 +72,11 @@ class ServiceFabricResourceDeclaration:
         self.container_name = container_name
 
         # Az CLI Client
-        accountSetProcess = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
+        account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = accountSetProcess.communicate()
+        stdout, stderr = account_set_process.communicate()
 
-        if accountSetProcess.wait() == 0:
+        if account_set_process.wait() == 0:
             print("Account Set to Deployment Subscription")
         else:
             sys.exit(stderr)
@@ -88,17 +88,17 @@ class ServiceFabricResourceDeclaration:
         else:
             print("Using Tutorial Parameters File")
             parameters = requests.get(self.parameters_uri)
-            parametersBytes = parameters.content
-            parametersFileJson = json.loads(parametersBytes.decode("utf-8"))
+            parameters_bytes = parameters.content
+            parameters_file_json = json.loads(parameters_bytes.decode("utf-8"))
 
         # Keyvault Cluster Certificate Exist or Create
         if self.source_vault_value.find('/subscriptions/') >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find('vault.azure.net') != -1:
             # Use Keyvault Certificate Arguments for resource Validation
             print('Validating Keyvault Certificate Deployment Arguments')
         else:
-            self.source_vault_value = parametersFileJson['parameters']['sourceVaultValue']['value']
-            self.certificate_thumbprint = parametersFileJson['parameters']['certificateThumbprint']['value']
-            self.certificate_url_value = parametersFileJson['parameters']['certificateUrlValue']['value']
+            self.source_vault_value = parameters_file_json['parameters']['sourceVaultValue']['value']
+            self.certificate_thumbprint = parameters_file_json['parameters']['certificateThumbprint']['value']
+            self.certificate_url_value = parameters_file_json['parameters']['certificateUrlValue']['value']
 
         if self.source_vault_value.find("/subscriptions/") >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find("vault.azure.net") >= 0:
             # Use Parameters File Keyvault Certificate Declarations for resource Validation
@@ -106,77 +106,76 @@ class ServiceFabricResourceDeclaration:
         else:
             # Create KeyVault
             print('Creating Deployment Keyvault Self Signed Certificate')
-            keyvaultGroupCreateProcess = Popen(["az", "group", "create", "--name", self.keyvault_resource_group, "--location", self.location], stdout=PIPE, stderr=PIPE)
+            keyvault_group_create_process = Popen(["az", "group", "create", "--name", self.keyvault_resource_group, "--location", self.location], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = keyvaultGroupCreateProcess.communicate()
+            stdout, stderr = keyvault_group_create_process.communicate()
 
-            if keyvaultGroupCreateProcess.wait() == 0:
+            if keyvault_group_create_process.wait() == 0:
                 print("Resource Group for KeyVault Created")
             else:
                 sys.exit(stderr)
 
-            keyvaultCreateProcess = Popen(["az", "keyvault", "create", "--name", self.keyvault_name, "--resource-group", self.keyvault_resource_group, "--enabled-for-deployment", "true"], stdout=PIPE, stderr=PIPE)
+            keyvault_create_process = Popen(["az", "keyvault", "create", "--name", self.keyvault_name, "--resource-group", self.keyvault_resource_group, "--enabled-for-deployment", "true"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = keyvaultCreateProcess.communicate()
+            stdout, stderr = keyvault_create_process.communicate()
 
-            if keyvaultCreateProcess.wait() == 0:
+            if keyvault_create_process.wait() == 0:
                 print("Keyvault Resource Created")
             else:
                 sys.exit(stderr)
 
             # Keyvault DNS Population Takes 10 Secs
-            keyvaultShowProcess = Popen(["az", "keyvault", "show", "-n", self.keyvault_name, "-g", self.keyvault_resource_group], stdout=PIPE, stderr=PIPE)
+            keyvault_show_process = Popen(["az", "keyvault", "show", "-n", self.keyvault_name, "-g", self.keyvault_resource_group], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = keyvaultShowProcess.communicate()
+            stdout, stderr = keyvault_show_process.communicate()
 
-            if keyvaultShowProcess.wait() == 0:
+            if keyvault_show_process.wait() == 0:
                 print("Keyvault DNS has populated")
             else:
                 sys.exit(stderr)
 
             # Create Self Signed Certificate
             # Get Default Policy
-            defaultPolicyProcess = Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=PIPE, stderr=PIPE)
+            default_policy_process = Popen(["az", "keyvault", "certificate", "get-default-policy"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = defaultPolicyProcess.communicate()
+            stdout, stderr = default_policy_process.communicate()
 
-            if defaultPolicyProcess.wait() == 0:
-                defaultPolicyJson = json.loads(stdout.decode("utf-8"))
+            if default_policy_process.wait() == 0:
+                default_policy_json = json.loads(stdout.decode("utf-8"))
             else:
                 sys.exit(stderr)
 
             # Set Subject Name to FQDN
             # Browsers won't trust certificates with subject names that don't match FQDN
-            defaultPolicyJson['x509CertificateProperties']['subject'] = "CN=" + self.dns_name
-            defaultPolicyJson['x509CertificateProperties']['sans'] = {'dns_names': [self.dns_name], 'emails': [self.user_email], 'upns': [self.user_email]} 
-            policyFileName = "policy.json"
-            json.dump(defaultPolicyJson, open(policyFileName, 'w+'))
-            policyFileArgFormat = "@" + policyFileName
+            default_policy_json['x509CertificateProperties']['subject'] = "CN=" + self.dns_name
+            default_policy_json['x509CertificateProperties']['sans'] = {'dns_names': [self.dns_name], 'emails': [self.user_email], 'upns': [self.user_email]} 
+            policy_file_name = "policy.json"
+            json.dump(default_policy_json, open(policy_file_name, 'w+'))
 
-            certificateCreateProcess = Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policyFileArgFormat], stdout=PIPE, stderr=PIPE)
+            certificate_create_process = Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = certificateCreateProcess.communicate()
+            stdout, stderr = certificate_create_process.communicate()
 
-            if certificateCreateProcess.wait() == 0:
+            if certificate_create_process.wait() == 0:
                 print("Certificate Created")
             else:
                 sys.exit(stderr)
 
             # Get Keyvault Self Signed Certificate Properties
             # Get resource Id
-            resourceIdProcess = Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+            resource_id_process = Popen(["az", "keyvault", "show", "--name", self.keyvault_name, "--query", "id", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = resourceIdProcess.communicate()
+            stdout, stderr = resource_id_process.communicate()
 
-            if resourceIdProcess.wait() == 0:
+            if resource_id_process.wait() == 0:
                 self.source_vault_value = stdout.decode("utf-8").replace('\n', '')
             else:
                 sys.exit(stderr)
 
             # Get Certificate Url
-            urlProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+            url_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = urlProcess.communicate()
+            stdout, stderr = url_process.communicate()
 
             if urlProcess.wait() == 0:
                 self.certificate_url_value = stdout.decode("utf-8").replace('\n', '')
@@ -184,21 +183,21 @@ class ServiceFabricResourceDeclaration:
                 sys.exit(stderr)
 
             # Get Certificate Thumbprint
-            thumbprintProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+            thumbprint_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = thumbprintProcess.communicate()
+            stdout, stderr = thumbprint_process.communicate()
 
-            if thumbprintProcess.wait() == 0:
+            if thumbprint_process.wait() == 0:
                 self.certificate_thumbprint = stdout.decode("utf-8").replace('\n', '')
             else:
                 sys.exit(stderr)
 
             # Validate KeyVault Resource Availability
-            validateSourceVault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
+            validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = validateSourceVault.communicate()
+            stdout, stderr = validate_source_vault.communicate()
 
-            if validateSourceVault.wait() == 0:
+            if validate_source_vault.wait() == 0:
                 print("Source Vault Resource is Valid within subscription context")
             else:
                 sys.exit(stderr)
@@ -208,51 +207,51 @@ class ServiceFabricResourceDeclaration:
             self.keyvault_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
             self.certificate_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]
 
-            certUrlValidateProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+            cert_url_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = certUrlValidateProcess.communicate()
+            stdout, stderr = cert_url_validate_process.communicate()
 
-            if certUrlValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_url_value:
+            if cert_url_validate_process.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_url_value:
                 print("Certificate SID URL is valid within subscription context")
             else:
                 sys.exit(stderr)
 
             # Certificate Thumbprint
-            certThumbprintValidateProcess = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+            cert_thumbprint_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = certThumbprintValidateProcess.communicate()
+            stdout, stderr = cert_thumbprint_validate_process.communicate()
 
-            if certThumbprintValidateProcess.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_thumbprint:
+            if cert_thumbprint_validate_process.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_thumbprint:
                 print("Certificate Thumbprint is valid within subscription context")
             else:
                 print(stderr)
                 sys.exit("Certificate Thumbprint is invalid within subscription context")
 
             # Write Declarative Parameters File
-            parametersFileJson['parameters']['sourceVaultValue']['value'] = self.source_vault_value
-            parametersFileJson['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
-            parametersFileJson['parameters']['certificateUrlValue']['value'] = self.certificate_url_value
-            parametersFileJson['parameters']['clusterName']['value'] = self.cluster_name
-            parametersFileJson['parameters']['adminUserName']['value'] = self.admin_user_name
-            parametersFileJson['parameters']['adminPassword']['value'] = self.admin_password
-            parametersFileJson['parameters']['location']['value'] = self.location
+            parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
+            parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
+            parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificate_url_value
+            parameters_file_json['parameters']['clusterName']['value'] = self.cluster_name
+            parameters_file_json['parameters']['adminUserName']['value'] = self.admin_user_name
+            parameters_file_json['parameters']['adminPassword']['value'] = self.admin_password
+            parameters_file_json['parameters']['location']['value'] = self.location
 
             json.dump(parametersFileJson, open(self.parameters_file, 'w'))
 
             # Exists or Create Deployment Group - needed for validation
-            deploymentGroupExistsProcess = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+            deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = deploymentGroupExistsProcess.communicate()
+            stdout, stderr = deployment_group_exists_process.communicate()
 
-            if deploymentGroupExistsProcess.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
+            if deployment_group_exists_process.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
                 print("Deployment Group Exists")
                 # TODO: Validate Group Location
             else:
-                deploymentGroupCreateProcess = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+                deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
-                stdout, stderr = deploymentGroupCreateProcess.communicate()
+                stdout, stderr = deployment_group_create_process.communicate()
 
-                if deploymentGroupCreateProcess.wait() == 0:
+                if deployment_group_create_process.wait() == 0:
                     print("Deployment Group Created")
                 else:
                     sys.exit(stderr)
@@ -263,21 +262,21 @@ class ServiceFabricResourceDeclaration:
             else:
                 print("Using Tutorial Template File")
                 template = requests.get(template_uri)
-                templateBytes = template.content
-                templateFileJson = json.loads(templateBytes.decode("utf-8"))
-                templateFile = open(self.template_file, 'x')
-                json.dump(templateFileJson, templateFile)
-                templateFile.close()
+                template_bytes = template.content
+                template_file_json = json.loads(template_bytes.decode("utf-8"))
+                template_file = open(self.template_file, 'x')
+                json.dump(template_file_json, template_file)
+                template_file.close()
 
     def validateDeclaration(self):
         # Validate Deployment Declaration
         print("Validating Deployment Declaration")
 
-        deploymentValidationProcess = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
+        deployment_validation_process = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = deploymentValidationProcess.communicate()
+        stdout, stderr = deployment_validation_process.communicate()
 
-        if deploymentValidationProcess.wait() == 0:
+        if deployment_validation_process.wait() == 0:
             print("Your Deployment Declaration is Valid Syntactically")
         else:
             print(stderr)
@@ -286,11 +285,11 @@ class ServiceFabricResourceDeclaration:
     def deployResources(self):
         # Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
         print("Deploying Resources")
-        groupDeploymentCreateProcess = Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
+        group_deployment_create_process = Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = groupDeploymentCreateProcess.communicate()
+        stdout, stderr = group_deployment_create_process.communicate()
 
-        if groupDeploymentCreateProcess.wait() == 0:
+        if group_deployment_create_process.wait() == 0:
             print("Resource Deployment Successful")
         else:
             print(stderr)
@@ -299,22 +298,22 @@ class ServiceFabricResourceDeclaration:
         # Downloads client admin certificate
         # Convert to PEM format for linux compatibility
         print("Downloading Certificate file in base64 format")
-        certificateB64File = self.certificate_name + "64.pem"
-        downloadCertProcess = Popen(["az", "keyvault", "secret", "download", "--file", certificateB64File, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=PIPE, stderr=PIPE)
+        certificate_b64_file = self.certificate_name + "64.pem"
+        download_cert_process = Popen(["az", "keyvault", "secret", "download", "--file", certificate_b64_file, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = downloadCertProcess.communicate()
+        stdout, stderr = download_cert_process.communicate()
 
-        if downloadCertProcess.wait() == 0:
+        if download_cert_process.wait() == 0:
             print("Download of Certificate file in Base 64 Format Successful")
         else:
             print(stderr)
 
         print("Converting Base 64 Certificate File to PEM format")
-        convertCertProcess = Popen(["openssl", "pkcs12", "-in", certificateB64File, "-out", self.certificate_file_name, "-nodes", "-passin", "pass:"], stdout=PIPE, stderr=PIPE)
+        convert_cert_process = Popen(["openssl", "pkcs12", "-in", certificate_b64_file, "-out", self.certificate_file_name, "-nodes", "-passin", "pass:"], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = convertCertProcess.communicate()
+        stdout, stderr = convert_cert_process.communicate()
 
-        if convertCertProcess.wait() == 0:
+        if convert_cert_process.wait() == 0:
             print("Convert of base64 file to PEM format successful")
         else:
             print(stderr)
@@ -323,26 +322,26 @@ class ServiceFabricResourceDeclaration:
     def clusterConnectionValidation(self):
         endpoint = 'https://' + self.dns_name + ':19080'
 
-        notConnectedToCluster = True
+        not_connected_to_cluster = True
         print("Waiting For Cluster Provisioning To Complete")
-        while notConnectedToCluster:
+        while not_connected_to_cluster:
 
-            clusterConnectProcess = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
+            cluster_connect_process = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = clusterConnectProcess.communicate()
+            stdout, stderr = cluster_connect_process.communicate()
 
-            if clusterConnectProcess.wait() == 0:
-                notConnectedToCluster = False
+            if cluster_connect_process.wait() == 0:
+                not_connected_to_cluster = False
                 print("Connected to Cluster")
             else:
                 print("Unable to Connect to Deployed Cluster Resource... Trying again")
-                clusterConnectProcess.kill()
+                cluster_connect_process.kill()
 
-        clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout=PIPE, stderr=PIPE)
+        cluster_health_process = Popen(["sfctl", "cluster", "health"], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = clusterHealthProcess.communicate()
+        stdout, stderr = cluster_health_process.communicate()
 
-        if clusterHealthProcess.wait() == 0:
+        if cluster_health_process.wait() == 0:
             print("Securely Connected to Healthy Cluster")
         else:
             # Expect Warning Error message if using Self Signed Certificate
@@ -370,53 +369,53 @@ class ServiceFabricResourceDeclaration:
         print(self.poa_file_name + " Downloaded")
 
         # Create Storate
-        createStorageProcess = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-g", self.deployment_resource_group, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
+        create_storage_process = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-g", self.deployment_resource_group, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = createStorageProcess.communicate()
+        stdout, stderr = create_storage_process.communicate()
 
-        if createStorageProcess.wait() == 0:
+        if create_storage_process.wait() == 0:
             print("Storage Account Created")
         else:
             sys.exit(stderr)
 
         # Get Connection String
-        connectionStringProcess = Popen(["az", "storage", "account", "show-connection-string", "-g", self.deployment_resource_group, "-n", self.storage_account_name], stdout=PIPE, stderr=PIPE)
+        connection_string_process = Popen(["az", "storage", "account", "show-connection-string", "-g", self.deployment_resource_group, "-n", self.storage_account_name], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = connectionStringProcess.communicate()
+        stdout, stderr = connection_string_process.communicate()
 
-        if connectionStringProcess.wait() == 0:
-            connectionString = str(json.loads(stdout.decode("utf-8"))['connectionString'])
+        if connection_string_process.wait() == 0:
+            connection_string = str(json.loads(stdout.decode("utf-8"))['connectionString'])
             print("Got Storage Connection String")
         else:
             sys.exit(stderr)
 
         # Create Blob Container
-        createContainerProcess = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connectionString, "--public-access", "blob"], stdout=PIPE, stderr=PIPE)
+        create_container_process = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connectionString, "--public-access", "blob"], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = createContainerProcess.communicate()
+        stdout, stderr = create_container_process.communicate()
 
-        if createContainerProcess.wait() == 0:
+        if create_container_process.wait() == 0:
             print("Blob Container Created")
         else:
             sys.exit(stderr)
 
         # Upload SFPKG to Blob Container
-        uploadPOAProcess = Popen(["az", "storage", "blob", "upload", "--file", self.poa_file_name, "--name", poa_name, "--connection-string", connectionString, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
+        upload_poa_process = Popen(["az", "storage", "blob", "upload", "--file", self.poa_file_name, "--name", poa_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = uploadPOAProcess.communicate()
+        stdout, stderr = upload_poa_process.communicate()
 
-        if uploadPOAProcess.wait() == 0:
+        if upload_poa_process.wait() == 0:
             print("Uploaded POA PKG To Storage Account Blob Container")
         else:
             sys.exit(stderr)
 
         # Get URL for POA in Storage Account Blob Container
-        urlBlobProcess = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connectionString, "--name", poa_name], stdout=PIPE, stderr=PIPE)
+        url_blob_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", poa_name], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = urlBlobProcess.communicate()
+        stdout, stderr = url_blob_process.communicate()
 
-        if urlBlobProcess.wait() == 0:
-            poaPackageUrl = stdout.decode("utf-8").replace('\n', '')
+        if url_blob_process.wait() == 0:
+            poa_package_url = stdout.decode("utf-8").replace('\n', '')
             print("Got URL for POA file in Storage Account Blob")
         else:
             sys.exit(stderr)
@@ -424,51 +423,51 @@ class ServiceFabricResourceDeclaration:
         # Update Template
         # Enable or Validate RepairManager
         print("Enable or Validate Repair Manager")
-        templateFileJson = json.load(open(self.template_file, 'r'))
+        template_file_json = json.load(open(self.template_file, 'r'))
 
-        numberOfResource = len(templateFileJson["resources"])
+        number_of_resource = len(template_file_json["resources"])
 
-        for i in range(0, numberOfResource):
-            if templateFileJson["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters":
-                if (("addonFeatures" in templateFileJson["resources"][i]["properties"]) and ("RepairManager" in templateFileJson["resources"][i]["properties"]["addonFeatures"])):
+        for i in range(0, number_of_resource):
+            if template_file_json["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters":
+                if (("addonFeatures" in template_file_json["resources"][i]["properties"]) and ("RepairManager" in template_file_json["resources"][i]["properties"]["addonFeatures"])):
                     print('RepairManager already declared in Template')
-                elif "addonFeatures" in templateFileJson["resources"][i]["properties"]:
+                elif "addonFeatures" in template_file_json["resources"][i]["properties"]:
                     print('RepairManager enabled as add-on feature in Template')
-                    templateFileJson["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
+                    template_file_json["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
                 else:
                     print('Add-On Feature RepairManager declared in Template')
-                    templateFileJson["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
+                    template_file_json["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
 
         # Declare Patch Orchestration Application and Services as resources
         # Unzip SFPKG and Get Properties
-        poaSfpkg = zipfile.ZipFile(self.poa_file_name, "r")
-        poaSfpkg.extractall(poa_name)
-        applicationManifestPath = poa_name + "/ApplicationManifest.xml"
-        applicationManifest = xml.etree.ElementTree.parse(applicationManifestPath).getroot()
-        sfpkgApplicationTypeVersion = applicationManifest.attrib['ApplicationTypeVersion']
-        sfpkgApplicationTypeName = applicationManifest.attrib['ApplicationTypeName']
-        sfpkgApplicationName = poa_name
+        poa_sfpkg = zipfile.ZipFile(self.poa_file_name, "r")
+        poa_sfpkg.extractall(poa_name)
+        application_manifest_path = poa_name + "/ApplicationManifest.xml"
+        application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
+        sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
+        sfpkg_application_type_name = application_manifest.attrib['ApplicationTypeName']
+        sfpkg_application_name = poa_name
 
-        for i in range(len(applicationManifest)):
-            if applicationManifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices':
-                poaServices = applicationManifest[i].getchildren()
-                for j in range(len(poaServices)):
-                    if poaServices[j].attrib['Name'].lower().find("coordinator") > -1:
-                        sfpkgCoordinatorServiceName = poaServices[j].attrib['Name']
-                        sfpkgCoordinatorServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
-                    elif poaServices[j].attrib['Name'].lower().find("nodeagent") > -1:
-                        sfpkgNodeAgentServiceName = poaServices[j].attrib['Name']
-                        sfpkgNodeAgentServiceType = poaServices[j].getchildren()[0].attrib['ServiceTypeName']
+        for i in range(len(application_manifest)):
+            if application_manifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices':
+                poa_services = application_manifest[i].getchildren()
+                for j in range(len(poa_services)):
+                    if poa_services[j].attrib['Name'].lower().find("coordinator") > -1:
+                        sfpkg_coordinator_service_name = poa_services[j].attrib['Name']
+                        sfpkg_coordinator_service_type = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
+                    elif poa_services[j].attrib['Name'].lower().find("nodeagent") > -1:
+                        sfpkg_node_agent_service_name = poa_services[j].attrib['Name']
+                        sfpkg_node_agent_service_nype = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
                         sys.exit("couldn't find coordinator or nodeagent services properties in Application Manifest")
 
         # Declare POA ApplicationType
-        applicationTypeName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "')]"
-        templateFileJson["resources"] += [
+        application_type_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_type_name + "')]"
+        template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applicationTypes",
-                "name": applicationTypeName,
+                "name": application_type_name,
                 "location": "[variables('location')]",
                 "dependsOn": [],
                 "properties": {
@@ -477,40 +476,40 @@ class ServiceFabricResourceDeclaration:
             }
         ]
         # Declare POA ApplicationTypeVersion
-        applicationTypeVersion = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationTypeName + "', '/', '" + sfpkgApplicationTypeVersion + "')]"
-        applicationTypeVersiondependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "')]"
-        templateFileJson["resources"] += [
+        application_type_version = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_type_name + "', '/', '" + sfpkg_application_type_version + "')]"
+        application_type_version_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "')]"
+        template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
-                "name": applicationTypeVersion,
+                "name": application_type_version,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    applicationTypeVersiondependsOn
+                    application_type_version_depends_On
                 ],
                 "properties": {
                     "provisioningState": "Default",
-                    "appPackageUrl": poaPackageUrl
+                    "appPackageUrl": poa_package_url
                 }
             }
         ]
 
         # Declare POA Application
-        applicationName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "')]"
-        applicationNameDependendsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkgApplicationTypeName + "', '/versions/', '" + sfpkgApplicationTypeVersion + "')]"
-        templateFileJson["resources"] += [
+        application_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_name + "')]"
+        application_name_dependends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "', '/versions/', '" + sfpkg_application_type_version + "')]"
+        template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applications",
-                "name": applicationName,
+                "name": application_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    applicationNameDependendsOn
+                    application_name_dependends_on
                 ],
                 "properties": {
                     "provisioningState": "Default",
-                    "typeName": sfpkgApplicationTypeName,
-                    "typeVersion": sfpkgApplicationTypeVersion,
+                    "typeName": sfpkg_application_type_name,
+                    "typeVersion": sfpkg_application_type_version,
                     "parameters": {},
                     "upgradePolicy": {
                         "upgradeReplicaSetCheckTimeout": "01:00:00.0",
@@ -538,21 +537,21 @@ class ServiceFabricResourceDeclaration:
 
         # Declare POA Services
         # Declare POA Coordinator Service
-        coordinatorServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgCoordinatorServiceName + "')]"
-        coordinatorServiceDependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
-        templateFileJson["resources"] += [
+        coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_name + "', '/', '" + sfpkg_coordinator_service_name + "')]"
+        coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkg_application_name + "')]"
+        template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applications/services",
-                "name": coordinatorServiceName,
+                "name": coordinator_service_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    coordinatorServiceDependsOn
+                    coordinator_service_depends_nn
                 ],
                 "properties": {
                     "provisioningState": "Default",
                     "serviceKind": "Stateless",
-                    "serviceTypeName": sfpkgCoordinatorServiceType,
+                    "serviceTypeName": sfpkg_coordinator_service_type,
                     "instanceCount": "-1",
                     "partitionDescription": {
                         "partitionScheme": "Singleton"
@@ -564,21 +563,21 @@ class ServiceFabricResourceDeclaration:
             }
         ]
         # Declare POA NodeAgent Service
-        nodeAgentServiceName = "[concat(parameters('clusterName'), '/', '" + sfpkgApplicationName + "', '/', '" + sfpkgNodeAgentServiceName + "')]"
-        nodeAgentServiceDependsOn = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkgApplicationName + "')]"
-        templateFileJson["resources"] += [
+        node_agent_service_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_name + "', '/', '" + sfpkg_node_agent_service_name + "')]"
+        node_agent_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkg_application_name + "')]"
+        template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applications/services",
-                "name": nodeAgentServiceName,
+                "name": node_agent_service_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    nodeAgentServiceDependsOn
+                    node_agent_service_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default",
                     "serviceKind": "Stateful",
-                    "serviceTypeName": sfpkgNodeAgentServiceType,
+                    "serviceTypeName": sfpkg_node_agent_service_type,
                     "targetReplicaSetSize": "3",
                     "minReplicaSetSize": "2",
                     "replicaRestartWaitDuration": "00:01:00.0",
@@ -599,9 +598,9 @@ class ServiceFabricResourceDeclaration:
             }
         ]
         # Update Template File with POA Application
-        templateFile = open(self.template_file, 'w')
-        json.dump(templateFileJson, templateFile)
-        templateFile.close()
+        template_file = open(self.template_file, 'w')
+        json.dump(template_file_json, template_file)
+        template_file.close()
 
     def enableHostMSI(self):
         # Update template to enable host MSi and apply policies
@@ -612,31 +611,31 @@ class ServiceFabricResourceDeclaration:
         print("TODO: Apply Permissions to Resource for MSI")
 
 def main():
-    demoStart = datetime.now()
+    demo_start = datetime.now()
 
-    resourceDeclaration = ServiceFabricResourceDeclaration()
-    print("Resource Declaration Initilization Duration: " + str(datetime.now() - demoStart))
+    resource_declaration = ServiceFabricResourceDeclaration()
+    print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.validateDeclaration()
-    print("Resource Declaration Validation Duration: " + str(datetime.now() - demoStart))
+    resource_declaration.validateDeclaration()
+    print("Resource Declaration Validation Duration: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.deployResources()
-    print("Deploy Resources Duration: " + str(datetime.now() - demoStart))
+    resource_declaration.deployResources()
+    print("Deploy Resources Duration: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.setupClusterClient()
-    print("Client Setup Duration: " + str(datetime.now() - demoStart))
+    resource_declaration.setupClusterClient()
+    print("Client Setup Duration: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.clusterConnectionValidation()
-    print("Connected to cluster: " + str(datetime.now() - demoStart))
+    resource_declaration.clusterConnectionValidation()
+    print("Connected to cluster: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.patchOrchestrationApplicationDeclaration()
-    print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demoStart))
+    resource_declaration.patchOrchestrationApplicationDeclaration()
+    print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.validateDeclaration()
-    print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demoStart))
+    resource_declaration.validateDeclaration()
+    print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
 
-    resourceDeclaration.deployResources()
-    print("Deployed POA Resource Duration: " + str(datetime.now() - demoStart))
+    resource_declaration.deployResources()
+    print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
 
     #resourceDeclaration.enableHostMSI()
     #resourceDeclaration.setMSIPermissions()
