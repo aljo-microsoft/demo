@@ -338,15 +338,15 @@ class ServiceFabricResourceDeclaration:
                     stdout.kill()
                     stderr.kill()
 
-           clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
+            clusterHealthProcess = Popen(["sfctl", "cluster", "health"], stdout = PIPE, stderr = PIPE)
 
-           stdout, stderr = clusterHealthProcess.communicate()
+            stdout, stderr = clusterHealthProcess.communicate()
 
-           if clusterHealthProcess.wait() == 0:
-               print("Securely Connected to Healthy Cluster")
-           else:
-               # Expect Warning Error message if using Self Signed Certificate
-               print(stderr)
+            if clusterHealthProcess.wait() == 0:
+                print("Securely Connected to Healthy Cluster")
+            else:
+                # Expect Warning Error message if using Self Signed Certificate
+                print(stderr)
 
     def patchOrchestrationApplicationDeclaration(self):
             # Deploying Applications as Resources is a best practice for Production.
