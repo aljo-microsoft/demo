@@ -50,8 +50,8 @@ class ServiceFabricResourceDeclaration:
 
 	# Set Parameters
         self.subscription = subscription
-	self.parameters_uri = parameters_uri
-	self.template_uri = template_uri
+        self.parameters_uri = parameters_uri
+        self.template_uri = template_uri
         self.template_file = template_file
         self.parameters_file = parameters_file
         self.deployment_resource_group = deployment_resource_group
