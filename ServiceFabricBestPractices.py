@@ -69,19 +69,19 @@ class ServiceFabricResourceDeclaration:
         self.certificate_url_value = certificate_url_value
         self.user_email = user_email
         self.parameters_file_arg = "@" + self.parameters_file
-	
-	# Az CLI Client
-	accountSetProcess = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
 
-	stdout, stderr = accountSetProcess.communicate()
+        # Az CLI Client
+        accountSetProcess = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
 
-	if accountSetProcess.wait() == 0:
+        stdout, stderr = accountSetProcess.communicate()
+
+        if accountSetProcess.wait() == 0:
             print("Account Set to Deployment Subscription")
-	else:
+        else:
             sys.exit(stderr)
 
-	# Get Parameters
-	if (Path(self.parameters_file).exists()):
+        # Get Parameters
+        if (Path(self.parameters_file).exists()):
             print("Using local Parameter File")
             parametersFileJson = json.load(open(self.parameters_file, 'r'))
         else:
