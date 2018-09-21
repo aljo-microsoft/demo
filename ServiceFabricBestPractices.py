@@ -418,7 +418,7 @@ class ServiceFabricResourceDeclaration:
         stdout, stderr = url_blob_process.communicate()
 
         if url_blob_process.wait() == 0:
-            poa_package_url = stdout.decode("utf-8").replace('\n', '')
+            poa_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
             print("Got URL for POA file in Storage Account Blob")
         else:
             sys.exit(stderr)
