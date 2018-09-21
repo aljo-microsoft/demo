@@ -152,7 +152,7 @@ class ServiceFabricResourceDeclaration:
             default_policy_json['x509CertificateProperties']['subject'] = "CN=" + self.dns_name
             default_policy_json['x509CertificateProperties']['sans'] = {'dns_names': [self.dns_name], 'emails': [self.user_email], 'upns': [self.user_email]} 
             policy_file_name = "policy.json"
-	    policy_file_arg = "@" + policy_file_name
+            policy_file_arg = "@" + policy_file_name
             json.dump(default_policy_json, open(policy_file_name, 'w+'))
 
             certificate_create_process = Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policy_file_arg], stdout=PIPE, stderr=PIPE)
