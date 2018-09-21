@@ -363,7 +363,7 @@ class ServiceFabricResourceDeclaration:
         print("Updating Declaration with Patch Orchestration Application")
         poa_name = 'poa'
         self.poa_file_name = "POA_v2.0.2.sfpkg"
-        self.storage_account_name = 'bestpracticesstorage
+        self.storage_account_name = 'bestpracticesstorage'
         self.container_name = "bestpracticescontainer"
 
         # Download POA SFPKG
