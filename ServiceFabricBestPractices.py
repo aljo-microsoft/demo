@@ -25,29 +25,28 @@ class ServiceFabricResourceDeclaration:
     # This was tested September 19 2018 using Azure Cloud Shell.
     #
     # Arguments take precedence over declared values.
-
     def __init__(
-            self,
-	    subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
-	    template_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.json',
-	    parameters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
-	    template_file='AzureDeploy.json',
-	    parameters_file='AzureDeploy.Parameters.json',
-	    deployment_resource_group='bestpracticedeploymentresourceggroup',
-	    keyvault_resource_group='bestpracticekeyvaultresourcegroup',
-	    keyvault_name='bestpracticekeyvaultname',
-	    cluster_name='bestpracticecluster',
-	    admin_user_name='sudo',
-	    admin_password='Password#1234',
-	    location='westus',
-	    certificate_name='x509certificatename',
-	    certificate_thumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
-	    source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
-	    certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
-	    user_email='aljo-microsoft@github.com',
-            poa_file_name='POA_v2.0.2.sfpkg',
-            storage_account_name='bestpracticesstorage',
-            container_name='bestpracticescontainer'):
+        self,
+        subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
+        template_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.json',
+        parameters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
+        template_file='AzureDeploy.json',
+        parameters_file='AzureDeploy.Parameters.json',
+        deployment_resource_group='bestpracticedeploymentresourceggroup',
+        keyvault_resource_group='bestpracticekeyvaultresourcegroup',
+        keyvault_name='bestpracticekeyvaultname',
+        cluster_name='bestpracticecluster',
+        admin_user_name='sudo',
+        admin_password='Password#1234',
+        location='westus',
+        certificate_name='x509certificatename',
+        certificate_thumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
+        source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
+        certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
+        user_email='aljo-microsoft@github.com',
+        poa_file_name='POA_v2.0.2.sfpkg',
+        storage_account_name='bestpracticesstorage',
+        container_name='bestpracticescontainer'):
 
 	# Set Parameters
         self.subscription = subscription
