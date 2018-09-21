@@ -238,7 +238,7 @@ class ServiceFabricResourceDeclaration:
             parameters_file_json['parameters']['adminPassword']['value'] = self.admin_password
             parameters_file_json['parameters']['location']['value'] = self.location
 
-            json.dump(parametersFileJson, open(self.parameters_file, 'w'))
+            json.dump(parameters_file_json, open(self.parameters_file, 'w'))
 
             # Exists or Create Deployment Group - needed for validation
             deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
@@ -365,8 +365,8 @@ class ServiceFabricResourceDeclaration:
         poa_name = 'poa'
 
         # Download POA SFPKG
-        poaUrl = "https://aka.ms/POA/" + self.poa_file_name
-        r = requests.get(poaUrl)
+        poa_url = "https://aka.ms/POA/" + self.poa_file_name
+        r = requests.get(poa_url)
         open(self.poa_file_name, 'wb').write(r.content)
         print(self.poa_file_name + " Downloaded")
 
