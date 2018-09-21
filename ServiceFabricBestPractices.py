@@ -270,7 +270,7 @@ class ServiceFabricResourceDeclaration:
 
     def validateDeclaration(self):
         # Validate Deployment Declaration
-	print("Validating Deployment Declaration")
+        print("Validating Deployment Declaration")
 
         deploymentValidationProcess = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
