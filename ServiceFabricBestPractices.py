@@ -50,6 +50,8 @@ class ServiceFabricResourceDeclaration:
 
 	# Set Parameters
         self.subscription = subscription
+	self.parameters_uri = parameters_uri
+	self.template_uri = template_uri
         self.template_file = template_file
         self.parameters_file = parameters_file
         self.deployment_resource_group = deployment_resource_group
@@ -84,7 +86,7 @@ class ServiceFabricResourceDeclaration:
         # Get Parameters
         if Path(self.parameters_file).exists():
             print("Using local Parameter File")
-            parametersFileJson = json.load(open(self.parameters_file, 'r'))
+            parameters_file_json = json.load(open(self.parameters_file, 'r'))
         else:
             print("Using Tutorial Parameters File")
             parameters = requests.get(self.parameters_uri)
@@ -177,7 +179,7 @@ class ServiceFabricResourceDeclaration:
 
             stdout, stderr = url_process.communicate()
 
-            if urlProcess.wait() == 0:
+            if url_process.wait() == 0:
                 self.certificate_url_value = stdout.decode("utf-8").replace('\n', '')
             else:
                 sys.exit(stderr)
@@ -390,7 +392,7 @@ class ServiceFabricResourceDeclaration:
             sys.exit(stderr)
 
         # Create Blob Container
-        create_container_process = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connectionString, "--public-access", "blob"], stdout=PIPE, stderr=PIPE)
+        create_container_process = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connection_string, "--public-access", "blob"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = create_container_process.communicate()
 
@@ -457,7 +459,7 @@ class ServiceFabricResourceDeclaration:
                         sfpkg_coordinator_service_type = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
                     elif poa_services[j].attrib['Name'].lower().find("nodeagent") > -1:
                         sfpkg_node_agent_service_name = poa_services[j].attrib['Name']
-                        sfpkg_node_agent_service_nype = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
+                        sfpkg_node_agent_service_type = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
                         sys.exit("couldn't find coordinator or nodeagent services properties in Application Manifest")
 
@@ -485,7 +487,7 @@ class ServiceFabricResourceDeclaration:
                 "name": application_type_version,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    application_type_version_depends_On
+                    application_type_version_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default",
@@ -546,7 +548,7 @@ class ServiceFabricResourceDeclaration:
                 "name": coordinator_service_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    coordinator_service_depends_nn
+                    coordinator_service_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default",
