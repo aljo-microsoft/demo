@@ -3,14 +3,12 @@ __email__ = "aljo-microsoft@github.com"
 __status__ = "Development"
 
 from datetime import datetime
-import getpass
 import json
 from pathlib import Path
 import requests
 from subprocess import PIPE
 from subprocess import Popen
 import sys
-import time
 import xml.etree.ElementTree
 import zipfile
 
@@ -46,7 +44,10 @@ class ServiceFabricResourceDeclaration:
 	    certificate_thumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
 	    source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
 	    certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
-	    user_email='aljo-microsoft@github.com'):
+	    user_email='aljo-microsoft@github.com',
+            poa_file_name='POA_v2.0.2.sfpkg',
+            storage_account_name='bestpracticesstorage',
+            container_name='bestpracticescontainer'):
 
 	# Set Parameters
         self.subscription = subscription
@@ -67,6 +68,9 @@ class ServiceFabricResourceDeclaration:
         self.certificate_url_value = certificate_url_value
         self.user_email = user_email
         self.parameters_file_arg = "@" + self.parameters_file
+	self.poa_file_name = poa_file_name
+        self.storage_account_name = storage_account_name
+        self.container_name = container_name
 
         # Az CLI Client
         accountSetProcess = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
@@ -359,9 +363,6 @@ class ServiceFabricResourceDeclaration:
 
         print("Updating Declaration with Patch Orchestration Application")
         poa_name = 'poa'
-        self.poa_file_name = "POA_v2.0.2.sfpkg"
-        self.storage_account_name = 'bestpracticesstorage'
-        self.container_name = "bestpracticescontainer"
 
         # Download POA SFPKG
         poaUrl = "https://aka.ms/POA/" + self.poa_file_name
