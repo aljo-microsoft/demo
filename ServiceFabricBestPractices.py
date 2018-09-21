@@ -68,7 +68,7 @@ class ServiceFabricResourceDeclaration:
         self.certificate_url_value = certificate_url_value
         self.user_email = user_email
         self.parameters_file_arg = "@" + self.parameters_file
-	self.poa_file_name = poa_file_name
+        self.poa_file_name = poa_file_name
         self.storage_account_name = storage_account_name
         self.container_name = container_name
 
