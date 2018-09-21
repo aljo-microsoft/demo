@@ -51,24 +51,24 @@ class ServiceFabricResourceDeclaration:
 	    user_email='aljo-microsoft@github.com'):
 
 	# Set Parameters
-	self.subscription = subscription
-	self.template_file = template_file
-	self.parameters_file = parameters_file
-	self.deployment_resource_group = deployment_resource_group
-	self.keyvault_resource_group = keyvault_resource_group
-	self.keyvault_name = keyvault_name
-	self.cluster_name = cluster_name
-	self.admin_user_name = admin_user_name
-	self.admin_password = admin_password
-	self.location = location
-	self.dns_name = self.cluster_name + "." + self.location + ".cloudapp.azure.com"
-	self.certificate_name = certificate_name
-	self.certificate_file_name = certificate_name + ".pem"
-	self.certificate_thumbprint = certificate_thumbprint
-	self.source_vault_value = source_vault_value
-	self.certificate_url_value = certificate_url_value
-	self.user_email = user_email
-	self.parameters_file_arg = "@" + self.parameters_file
+        self.subscription = subscription
+        self.template_file = template_file
+        self.parameters_file = parameters_file
+        self.deployment_resource_group = deployment_resource_group
+        self.keyvault_resource_group = keyvault_resource_group
+        self.keyvault_name = keyvault_name
+        self.cluster_name = cluster_name
+        self.admin_user_name = admin_user_name
+        self.admin_password = admin_password
+        self.location = location
+        self.dns_name = self.cluster_name + "." + self.location + ".cloudapp.azure.com"
+        self.certificate_name = certificate_name
+        self.certificate_file_name = certificate_name + ".pem"
+        self.certificate_thumbprint = certificate_thumbprint
+        self.source_vault_value = source_vault_value
+        self.certificate_url_value = certificate_url_value
+        self.user_email = user_email
+        self.parameters_file_arg = "@" + self.parameters_file
 	
 	# Az CLI Client
 	accountSetProcess = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
