@@ -449,7 +449,6 @@ class ServiceFabricResourceDeclaration:
         application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
         sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
         sfpkg_application_type_name = application_manifest.attrib['ApplicationTypeName']
-        sfpkg_application_name = poa_name
 
         for i in range(len(application_manifest)):
             if application_manifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices':
@@ -498,7 +497,7 @@ class ServiceFabricResourceDeclaration:
         ]
 
         # Declare POA Application
-        application_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_name + "')]"
+        application_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "')]"
         application_name_dependends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "', '/versions/', '" + sfpkg_application_type_version + "')]"
         template_file_json["resources"] += [
             {
@@ -540,8 +539,8 @@ class ServiceFabricResourceDeclaration:
 
         # Declare POA Services
         # Declare POA Coordinator Service
-        coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_name + "', '/', '" + sfpkg_coordinator_service_name + "')]"
-        coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkg_application_name + "')]"
+        coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_coordinator_service_name + "')]"
+        coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
         template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
@@ -566,8 +565,8 @@ class ServiceFabricResourceDeclaration:
             }
         ]
         # Declare POA NodeAgent Service
-        node_agent_service_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_name + "', '/', '" + sfpkg_node_agent_service_name + "')]"
-        node_agent_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + sfpkg_application_name + "')]"
+        node_agent_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_node_agent_service_name + "')]"
+        node_agent_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
         template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
