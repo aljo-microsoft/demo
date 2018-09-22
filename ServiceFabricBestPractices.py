@@ -287,7 +287,7 @@ class ServiceFabricResourceDeclaration:
 
     def deployResources(self):
         # Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
-	deployment_name = "bestpracticedeployment"
+        deployment_name = "bestpracticedeployment"
 
         print("Deploying Resources")
         group_deployment_create_process = Popen(["az", "group", "deployment", "create", "-g", self.deployment_resource_group, "--name", deployment_name, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
