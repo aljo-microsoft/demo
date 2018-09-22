@@ -350,6 +350,29 @@ class ServiceFabricResourceDeclaration:
             # Expect Warning Error message if using Self Signed Certificate
             print(stderr)
 
+    def repairManagerDeclaration(self):
+        # Update Template
+        # Enable or Validate RepairManager
+        print("Enable or Validate Repair Manager")
+        template_file_json = json.load(open(self.template_file, 'r'))
+
+        number_of_resource = len(template_file_json["resources"])
+
+        for i in range(0, number_of_resource):
+            if template_file_json["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters":
+                if (("addonFeatures" in template_file_json["resources"][i]["properties"]) and ("RepairManager" in template_file_json["resources"][i]["properties"]["addonFeatures"])):
+                    print('RepairManager already declared in Template')
+                elif "addonFeatures" in template_file_json["resources"][i]["properties"]:
+                    print('RepairManager enabled as add-on feature in Template')
+                    template_file_json["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
+                else:
+                    print('Add-On Feature RepairManager declared in Template')
+                    template_file_json["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
+        # Update Template File with Repair Manager
+        template_file = open(self.template_file, 'w')
+        json.dump(template_file_json, template_file)
+        template_file.close()
+        
     def patchOrchestrationApplicationDeclaration(self):
         # Deploying Applications as Resources is a best practice for Production.
         # To demonstrate this, this will deploy the Patch Orchestration Application.
@@ -425,21 +448,8 @@ class ServiceFabricResourceDeclaration:
 
         # Update Template
         # Enable or Validate RepairManager
-        print("Enable or Validate Repair Manager")
+        print("Declaring POA in template")
         template_file_json = json.load(open(self.template_file, 'r'))
-
-        number_of_resource = len(template_file_json["resources"])
-
-        for i in range(0, number_of_resource):
-            if template_file_json["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters":
-                if (("addonFeatures" in template_file_json["resources"][i]["properties"]) and ("RepairManager" in template_file_json["resources"][i]["properties"]["addonFeatures"])):
-                    print('RepairManager already declared in Template')
-                elif "addonFeatures" in template_file_json["resources"][i]["properties"]:
-                    print('RepairManager enabled as add-on feature in Template')
-                    template_file_json["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
-                else:
-                    print('Add-On Feature RepairManager declared in Template')
-                    template_file_json["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
 
         # Declare Patch Orchestration Application and Services as resources
         # Unzip SFPKG and Get Properties
@@ -629,9 +639,16 @@ def main():
 
     resource_declaration.clusterConnectionValidation()
     print("Connected to cluster: " + str(datetime.now() - demo_start))
-    # Validate RepairManager Service not enabled: sfctl service list --application-id System
-    resource_declaration.patchOrchestrationApplicationDeclaration()
+
+    resource_declaration.repairManagerDeclaration()
+    print("Declared RepairManager as Add-on Feature: " + str(datetime.now() - demo_start))
+
+    resource_declaration.deployResources()
+    print("Updating Cluster Configuration to enable RepairManager Duration: " + str(datetime.now() - demo_start))
+
+    # Validate What System Services Are Enabled: sfctl service list --application-id System
     # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
+    resource_declaration.patchOrchestrationApplicationDeclaration()
     print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
     resource_declaration.validateDeclaration()
