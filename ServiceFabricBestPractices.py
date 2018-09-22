@@ -629,8 +629,9 @@ def main():
 
     resource_declaration.clusterConnectionValidation()
     print("Connected to cluster: " + str(datetime.now() - demo_start))
-
+    # Validate RepairManager Service not enabled: sfctl service list --application-id System
     resource_declaration.patchOrchestrationApplicationDeclaration()
+    # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
     print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
     resource_declaration.validateDeclaration()
