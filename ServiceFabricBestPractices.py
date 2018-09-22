@@ -393,7 +393,7 @@ class ServiceFabricResourceDeclaration:
             sys.exit(stderr)
 
         # Create Blob Container
-        create_container_process = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connection_string, "--public-access", "blob"], stdout=PIPE, stderr=PIPE)
+        create_container_process = Popen(["az", "storage", "container", "create", "--name", self.container_name, "--connection-string", connection_string, "--public-access", "container"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = create_container_process.communicate()
 
