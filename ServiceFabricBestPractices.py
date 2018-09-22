@@ -387,7 +387,10 @@ class ServiceFabricResourceDeclaration:
 
         print("Updating Declaration with Patch Orchestration Application")
         poa_name = 'poa'
-
+        poa_package_url = "https://aka.ms/POA/" + self.poa_file_name
+        """
+        TODO: Using Storage Blob as either public Container or Blob failed
+              Using Pulblic Url until fixed
         # Download POA SFPKG
         poa_url = "https://aka.ms/POA/" + self.poa_file_name
         r = requests.get(poa_url)
@@ -445,7 +448,7 @@ class ServiceFabricResourceDeclaration:
             print("Got URL for POA file in Storage Account Blob")
         else:
             sys.exit(stderr)
-
+        """
         # Update Template
         # Enable or Validate RepairManager
         print("Declaring POA in template")
