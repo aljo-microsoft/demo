@@ -388,17 +388,17 @@ class ServiceFabricResourceDeclaration:
         # 7. Declare Application and Services as Resources in Template
 
         print("Updating Declaration with Patch Orchestration Application")
-        poa_name = 'poa'
-        poa_package_url = "https://aka.ms/POA/" + self.poa_file_name
-        """
-        TODO: Using Storage Blob as either public Container or Blob failed
-              Using Pulblic Url until fixed
+        poa_name = 'PatchOrchestrationApplication'
+
         # Download POA SFPKG
         poa_url = "https://aka.ms/POA/" + self.poa_file_name
         r = requests.get(poa_url)
         open(self.poa_file_name, 'wb').write(r.content)
         print(self.poa_file_name + " Downloaded")
 
+        # Use Public Url or Delete following line and uncomment next section to create storage blob
+        poa_package_url = poa_url
+        """
         # Create Storate
         create_storage_process = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-g", self.deployment_resource_group, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
 
