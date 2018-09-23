@@ -305,7 +305,7 @@ class Resource_Declaration:
 
         stdout, stderr = cluster_health_process.communicate()
         print(stdout)
-	print(stderr)
+        print(stderr)
 
     def Repair_Manager_Declaration(self):
         # Update Template
