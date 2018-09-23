@@ -170,8 +170,7 @@ class Resource_Declaration:
                 sys.exit(stderr)
 
         # Validate KeyVault Resource Availability
-        print("Checking Keyvault Availability") 
-        validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
+        validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value])
 
         if validate_source_vault.wait() != 0:
             sys.exit()
@@ -180,17 +179,18 @@ class Resource_Declaration:
         self.keyvault_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
         self.certificate_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]
 
-        cert_url_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+        cert_url_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"])
 
         if cert_url_validate_process.wait() != 0:
             sys.exit()
 
         # Certificate Thumbprint
-        cert_thumbprint_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+        cert_thumbprint_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"])
 
         if cert_thumbprint_validate_process.wait() != 0:
             sys.exit()
 
+        print("Checked Cert")
         # Declare Certificate
         parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
         parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
