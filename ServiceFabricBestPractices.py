@@ -227,7 +227,7 @@ class ServiceFabricResourceDeclaration:
             sys.exit(stderr)
 
         # Get Template
-        if Path(self.template_file).exists() == False:
+        if not Path(self.template_file).exists():
             print("Using Template File")
             print(template_uri)
             template = requests.get(template_uri)
