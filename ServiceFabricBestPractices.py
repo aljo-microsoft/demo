@@ -571,32 +571,28 @@ def main():
     demo_start = datetime.now()
 
     resource_declaration = Resource_Declaration()
-    print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
+
+    resource_declaration.Repair_Manager_Declaration()
+
     resource_declaration.Validate_Declaration()
+    print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.Deploy_Resources()
     print("Duration: " + str(datetime.now() - demo_start))
-
-    resource_declaration.Setup_Cluster_Client()
 
     resource_declaration.Cluster_Connection_Validation()
     print("Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.Repair_Manager_Declaration()
-
-    print("Updating Cluster Configuration to enable RepairManager Duration: " + str(datetime.now() - demo_start))
-    resource_declaration.Deploy_Resources()
-
     # Validate What System Services Are Enabled: sfctl service list --application-id System
     # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
-    # resource_declaration.Patch_Orchestration_Application_Declaration()
-    # print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
+    resource_declaration.Patch_Orchestration_Application_Declaration()
+    print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
-    # resource_declaration.Validate_Declaration()
-    # print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
+    resource_declaration.Validate_Declaration()
+    print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
 
-    # resource_declaration.Deploy_Resources()
-    # print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
+    resource_declaration.Deploy_Resources()
+    print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
 
     #resourceDeclaration.Enable_Host_MSI()
     #resourceDeclaration.Set_MSI_Permissions()
