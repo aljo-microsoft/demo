@@ -13,18 +13,15 @@ import zipfile
 import requests
 
 class ServiceFabricResourceDeclaration:
-    # Microservice development Best Practice in Azure, is Reliable Service Fabric Applications,
-    # that leverage Azure Resource Manager API. Initialization of a deployment includes authoring
-    # a declarative model in JSON format; that represents your goal state. As a demostration this
-    # will succeed at provisioning it's goals state that, and can be built upon for deploying your
-    # Application.
+    # Microservice development Best Practice in Azure, is Service Fabric Applications, that are managed by
+    # Azure Resource Manager.
     #
     # A vital component of success in delivering your SLA/O's will require you to make decisions.
-    # E.G. may include using a x509 certificates issued by an accessible Certificate Authority.
+    # E.G. may include using a x509 certificates issued by a trusted Certificate Authority.
     #
     # This was tested September 19 2018 using Azure Cloud Shell.
     #
-    # Arguments take precedence over declared values.
+    # Declared Arguments overwrite template values.
     def __init__(
         self,
         subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
