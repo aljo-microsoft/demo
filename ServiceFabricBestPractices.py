@@ -169,45 +169,40 @@ class ServiceFabricResourceDeclaration:
             else:
                 sys.exit(stderr)
 
-            # Validate KeyVault Resource Availability
-            validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
+        # Validate KeyVault Resource Availability
+        validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = validate_source_vault.communicate()
+        stdout, stderr = validate_source_vault.communicate()
 
-            if validate_source_vault.wait() == 0:
-                print("Source Vault Resource is Valid within subscription context")
-            else:
-                sys.exit(stderr)
+        if validate_source_vault.wait() != 0:
+            print(stdout)
+            sys.exit(stderr)
 
-            # Validate KeyVault Certificate
-            # Certificate URL
-            self.keyvault_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
-            self.certificate_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]
+        # Certificate URL
+        self.keyvault_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[0]
+        self.certificate_name = self.certificate_url_value.rsplit("//", 1)[1].rsplit(".vault.", 1)[1].rsplit("/", 3)[2]
 
-            cert_url_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+        cert_url_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = cert_url_validate_process.communicate()
+        stdout, stderr = cert_url_validate_process.communicate()
 
-            if cert_url_validate_process.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_url_value:
-                print("Certificate SID URL is valid within subscription context")
-            else:
-                sys.exit(stderr)
+        if cert_url_validate_process.wait() != 0:
+            print(stdout)
+            sys.exit(stderr)
 
-            # Certificate Thumbprint
-            cert_thumbprint_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
+        # Certificate Thumbprint
+        cert_thumbprint_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = cert_thumbprint_validate_process.communicate()
+        stdout, stderr = cert_thumbprint_validate_process.communicate()
 
-            if cert_thumbprint_validate_process.wait() == 0 and stdout.decode("utf-8").replace('\n', '') == self.certificate_thumbprint:
-                print("Certificate Thumbprint is valid within subscription context")
-            else:
-                print(stderr)
-                sys.exit("Certificate Thumbprint is invalid within subscription context")
+        if cert_thumbprint_validate_process.wait() != 0:
+            print(stdout)
+            sys.exit(stderr)
 
-            # Declare Certificate
-            parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
-            parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
-            parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificate_url_value
+        # Declare Certificate
+        parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
+        parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
+        parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificate_url_value
 
         # Prefer Arguments
         parameters_file_json['parameters']['clusterName']['value'] = self.cluster_name
