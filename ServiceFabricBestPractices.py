@@ -190,7 +190,6 @@ class Resource_Declaration:
         if cert_thumbprint_validate_process.wait() != 0:
             sys.exit()
 
-        print("Checked Cert")
         # Declare Certificate
         parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
         parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
@@ -214,8 +213,10 @@ class Resource_Declaration:
             deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
             if deployment_group_create_process.wait() != 0:
+                print("Deployment Create failed")
                 sys.exit(stderr)
         else:
+            print("Deployment exists exception")
             sys.exit(stderr)
 
         # Get Template
