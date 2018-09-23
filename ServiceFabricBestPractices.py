@@ -174,8 +174,9 @@ class Resource_Declaration:
 
         stdout, stderr = validate_source_vault.communicate()
 
-        if validate_source_vault.wait() != 0:
+        if validate_source_vault.wait() == 0:
             print(stdout)
+        else:
             sys.exit(stderr)
 
         # Certificate URL
