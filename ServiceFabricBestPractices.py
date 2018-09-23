@@ -292,9 +292,7 @@ class ServiceFabricResourceDeclaration:
         print("Waiting For Cluster Provisioning To Complete")
         while not_connected_to_cluster:
 
-            cluster_connect_process = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"], stdout=PIPE, stderr=PIPE)
-
-            stdout, stderr = cluster_connect_process.communicate()
+            cluster_connect_process = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"])
 
             if cluster_connect_process.wait() == 0:
                 not_connected_to_cluster = False
@@ -303,9 +301,7 @@ class ServiceFabricResourceDeclaration:
                 print("Unable to Connect to Deployed Cluster Resource... Trying again")
                 cluster_connect_process.kill()
 
-        cluster_health_process = Popen(["sfctl", "cluster", "health"], stdout=PIPE, stderr=PIPE)
-
-        stdout, stderr = cluster_health_process.communicate()
+        cluster_health_process = Popen(["sfctl", "cluster", "health"])
 
         if cluster_health_process.wait() == 0:
             print("Securely Connected to Healthy Cluster")
