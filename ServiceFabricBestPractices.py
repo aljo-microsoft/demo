@@ -580,6 +580,8 @@ def main():
     resource_declaration.Deploy_Resources()
     print("Duration: " + str(datetime.now() - demo_start))
 
+    resource_declaration.Setup_Cluster_Client()
+
     resource_declaration.Cluster_Connection_Validation()
     print("Duration: " + str(datetime.now() - demo_start))
 
