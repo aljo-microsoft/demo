@@ -301,13 +301,11 @@ class ServiceFabricResourceDeclaration:
                 print("Unable to Connect to Deployed Cluster Resource... Trying again")
                 cluster_connect_process.kill()
 
-        cluster_health_process = Popen(["sfctl", "cluster", "health"])
+        cluster_health_process = Popen(["sfctl", "cluster", "health"], stdout=PIPE, stderr=PIPE)
 
-        if cluster_health_process.wait() == 0:
-            print("Securely Connected to Healthy Cluster")
-        else:
-            # Expect Warning Error message if using Self Signed Certificate
-            print(stderr)
+        stdout, stderr = cluster_health_process.communicate()
+        print(stdout)
+	print(stderr)
 
     def repairManagerDeclaration(self):
         # Update Template
