@@ -208,9 +208,9 @@ class ServiceFabricResourceDeclaration:
             parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
             parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
             parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificate_url_value
-        
+
 	# Prefer Arguments
-	parameters_file_json['parameters']['clusterName']['value'] = self.cluster_name
+        parameters_file_json['parameters']['clusterName']['value'] = self.cluster_name
         parameters_file_json['parameters']['adminUserName']['value'] = self.admin_user_name
         parameters_file_json['parameters']['adminPassword']['value'] = self.admin_password
         parameters_file_json['parameters']['location']['value'] = self.location
