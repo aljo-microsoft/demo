@@ -262,7 +262,7 @@ class ServiceFabricResourceDeclaration:
             print(stdout)
             print(stderr)
 	
-        print("Resource Deployment Successful")'
+        print("Resource Deployment Successful")
 
     def setupClusterClient(self):
         # Downloads client admin certificate
