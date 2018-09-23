@@ -71,67 +71,48 @@ class ServiceFabricResourceDeclaration:
         self.container_name = container_name
 
         # Az CLI Client
-        account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription], stdout=PIPE, stderr=PIPE)
+        account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
 
-        stdout, stderr = account_set_process.communicate()
-
-        if account_set_process.wait() == 0:
-            print("Account Set to Deployment Subscription")
-        else:
-            sys.exit(stderr)
-
-        # Get Parameters
+        if account_set_process.wait() != 0:
+            sys.exit()
+        
+        print("Deployment Subscription Valid")
+        
+        # Get Parameter Values
         if Path(self.parameters_file).exists():
-            print("Using local Parameter File")
             parameters_file_json = json.load(open(self.parameters_file, 'r'))
         else:
-            print("Using Tutorial Parameters File")
+            print(self.parameters_uri)
             parameters = requests.get(self.parameters_uri)
             parameters_bytes = parameters.content
             parameters_file_json = json.loads(parameters_bytes.decode("utf-8"))
 
-        # Keyvault Cluster Certificate Exist or Create
+        # Secrets are passed in as arguments, or fetched from Managed Service
         if self.source_vault_value.find('/subscriptions/') >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find('vault.azure.net') != -1:
-            # Use Keyvault Certificate Arguments for resource Validation
-            print('Validating Keyvault Certificate Deployment Arguments')
-        else:
+            print('Validating Secret Arguments')
+        elif parameters_file_json['parameters']['sourceVaultValue']['value'] >= 0 and len(parameters_file_json['parameters']['certificateThumbprint']['value']) > 36 and parameters_file_json['parameters']['certificateUrlValue']['value'].find('vault.azure.net') != -1:
+            print('Validating Secret in Parameters File')
             self.source_vault_value = parameters_file_json['parameters']['sourceVaultValue']['value']
             self.certificate_thumbprint = parameters_file_json['parameters']['certificateThumbprint']['value']
             self.certificate_url_value = parameters_file_json['parameters']['certificateUrlValue']['value']
-
-        if self.source_vault_value.find("/subscriptions/") >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find("vault.azure.net") >= 0:
-            # Use Parameters File Keyvault Certificate Declarations for resource Validation
-            print('Validating Keyvault Certificate Parameters File Declarations')
         else:
-            # Create KeyVault
-            print('Creating Deployment Keyvault Self Signed Certificate')
-            keyvault_group_create_process = Popen(["az", "group", "create", "--name", self.keyvault_resource_group, "--location", self.location], stdout=PIPE, stderr=PIPE)
+            # Get Secrets from KeyVault
+            print('Making Keyvault Certificate')
+            keyvault_group_create_process = Popen(["az", "group", "create", "--name", self.keyvault_resource_group, "--location", self.location])
 
-            stdout, stderr = keyvault_group_create_process.communicate()
+            if keyvault_group_create_process.wait() != 0:
+                sys.exit()
 
-            if keyvault_group_create_process.wait() == 0:
-                print("Resource Group for KeyVault Created")
-            else:
-                sys.exit(stderr)
+            keyvault_create_process = Popen(["az", "keyvault", "create", "--name", self.keyvault_name, "--resource-group", self.keyvault_resource_group, "--enabled-for-deployment", "true"])
 
-            keyvault_create_process = Popen(["az", "keyvault", "create", "--name", self.keyvault_name, "--resource-group", self.keyvault_resource_group, "--enabled-for-deployment", "true"], stdout=PIPE, stderr=PIPE)
-
-            stdout, stderr = keyvault_create_process.communicate()
-
-            if keyvault_create_process.wait() == 0:
-                print("Keyvault Resource Created")
-            else:
-                sys.exit(stderr)
+            if keyvault_create_process.wait() != 0:
+                sys.exit()
 
             # Keyvault DNS Population Takes 10 Secs
-            keyvault_show_process = Popen(["az", "keyvault", "show", "-n", self.keyvault_name, "-g", self.keyvault_resource_group], stdout=PIPE, stderr=PIPE)
+            keyvault_show_process = Popen(["az", "keyvault", "show", "-n", self.keyvault_name, "-g", self.keyvault_resource_group])
 
-            stdout, stderr = keyvault_show_process.communicate()
-
-            if keyvault_show_process.wait() == 0:
-                print("Keyvault DNS has populated")
-            else:
-                sys.exit(stderr)
+            if keyvault_show_process.wait() != 0:
+                sys.exit()
 
             # Create Self Signed Certificate
             # Get Default Policy
@@ -154,12 +135,8 @@ class ServiceFabricResourceDeclaration:
 
             certificate_create_process = Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policy_file_arg], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = certificate_create_process.communicate()
-
-            if certificate_create_process.wait() == 0:
-                print("Certificate Created")
-            else:
-                sys.exit(stderr)
+            if certificate_create_process.wait() != 0:
+                sys.exit()
 
             # Get Keyvault Self Signed Certificate Properties
             # Get resource Id
@@ -227,51 +204,46 @@ class ServiceFabricResourceDeclaration:
                 print(stderr)
                 sys.exit("Certificate Thumbprint is invalid within subscription context")
 
-            # Write Declarative Parameters File
+            # Declare Certificate
             parameters_file_json['parameters']['sourceVaultValue']['value'] = self.source_vault_value
             parameters_file_json['parameters']['certificateThumbprint']['value'] = self.certificate_thumbprint
             parameters_file_json['parameters']['certificateUrlValue']['value'] = self.certificate_url_value
-            parameters_file_json['parameters']['clusterName']['value'] = self.cluster_name
-            parameters_file_json['parameters']['adminUserName']['value'] = self.admin_user_name
-            parameters_file_json['parameters']['adminPassword']['value'] = self.admin_password
-            parameters_file_json['parameters']['location']['value'] = self.location
+        
+	# Prefer Arguments
+	parameters_file_json['parameters']['clusterName']['value'] = self.cluster_name
+        parameters_file_json['parameters']['adminUserName']['value'] = self.admin_user_name
+        parameters_file_json['parameters']['adminPassword']['value'] = self.admin_password
+        parameters_file_json['parameters']['location']['value'] = self.location
 
-            json.dump(parameters_file_json, open(self.parameters_file, 'w'))
+        # Write Template
+        json.dump(parameters_file_json, open(self.parameters_file, 'w'))
 
-            # Exists or Create Deployment Group - needed for validation
-            deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+        # Exists or Create Deployment Group - needed for validation
+        deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
-            stdout, stderr = deployment_group_exists_process.communicate()
+        stdout, stderr = deployment_group_exists_process.communicate()
 
-            if deployment_group_exists_process.wait() == 0 and stdout.decode('utf-8').replace('\n', '') == 'true':
-                print("Deployment Group Exists")
-                # TODO: Validate Group Location
-            else:
-                deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+        if deployment_group_exists_process.wait() != 0 and stdout.decode('utf-8').replace('\n', '') != 'true':
+            deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
-                stdout, stderr = deployment_group_create_process.communicate()
+            if deployment_group_create_process.wait() != 0:
+                sys.exit(stderr)
+        else:
+            sys.exit(stderr)
 
-                if deployment_group_create_process.wait() == 0:
-                    print("Deployment Group Created")
-                else:
-                    sys.exit(stderr)
-
-            # Get Template
-            if Path(self.template_file).exists():
-                print("Using local template File Found")
-            else:
-                print("Using Tutorial Template File")
-                template = requests.get(template_uri)
-                template_bytes = template.content
-                template_file_json = json.loads(template_bytes.decode("utf-8"))
-                template_file = open(self.template_file, 'x')
-                json.dump(template_file_json, template_file)
-                template_file.close()
+        # Get Template
+        if !(Path(self.template_file).exists()):
+            print("Using Template File")
+            print(template_uri)
+            template = requests.get(template_uri)
+            template_bytes = template.content
+            template_file_json = json.loads(template_bytes.decode("utf-8"))
+            template_file = open(self.template_file, 'x')
+            json.dump(template_file_json, template_file)
+            template_file.close()
 
     def validateDeclaration(self):
         # Validate Deployment Declaration
-        print("Validating Deployment Declaration")
-
         deployment_validation_process = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = deployment_validation_process.communicate()
@@ -279,8 +251,8 @@ class ServiceFabricResourceDeclaration:
         if deployment_validation_process.wait() == 0:
             print("Your Deployment Declaration is Valid Syntactically")
         else:
+            print(stdout)
             print(stderr)
-            print("Your Deployment Declaration is Invalid Syntactically")
 
     def deployResources(self):
         # Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
@@ -291,35 +263,32 @@ class ServiceFabricResourceDeclaration:
 
         stdout, stderr = group_deployment_create_process.communicate()
 
-        if group_deployment_create_process.wait() == 0:
-            print("Resource Deployment Successful")
-        else:
+        if group_deployment_create_process.wait() != 0:
+            print(stdout)
             print(stderr)
+	
+        print("Resource Deployment Successful")'
 
     def setupClusterClient(self):
         # Downloads client admin certificate
         # Convert to PEM format for linux compatibility
-        print("Downloading Certificate file in base64 format")
+        print("Downloading Certificate")
         certificate_b64_file = self.certificate_name + "64.pem"
         download_cert_process = Popen(["az", "keyvault", "secret", "download", "--file", certificate_b64_file, "--encoding", "base64", "--name", self.certificate_name, "--vault-name", self.keyvault_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = download_cert_process.communicate()
 
-        if download_cert_process.wait() == 0:
-            print("Download of Certificate file in Base 64 Format Successful")
-        else:
+        if download_cert_process.wait() != 0:
+            print(stdout)
             print(stderr)
 
-        print("Converting Base 64 Certificate File to PEM format")
         convert_cert_process = Popen(["openssl", "pkcs12", "-in", certificate_b64_file, "-out", self.certificate_file_name, "-nodes", "-passin", "pass:"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = convert_cert_process.communicate()
 
-        if convert_cert_process.wait() == 0:
-            print("Convert of base64 file to PEM format successful")
-        else:
+        if convert_cert_process.wait() != 0:
+            print(stdout)
             print(stderr)
-            print("Converting base64 file to PEM format failed")
 
     def clusterConnectionValidation(self):
         endpoint = 'https://' + self.dns_name + ':19080'
@@ -448,13 +417,10 @@ class ServiceFabricResourceDeclaration:
         else:
             sys.exit(stderr)
         """
-        # Update Template
-        # Enable or Validate RepairManager
-        print("Declaring POA in template")
-        template_file_json = json.load(open(self.template_file, 'r'))
-
         # Declare Patch Orchestration Application and Services as resources
         # Unzip SFPKG and Get Properties
+        print("Declaring POA in template")
+        template_file_json = json.load(open(self.template_file, 'r'))
         poa_sfpkg = zipfile.ZipFile(self.poa_file_name, "r")
         poa_sfpkg.extractall(poa_name)
         application_manifest_path = poa_name + "/ApplicationManifest.xml"
@@ -475,7 +441,7 @@ class ServiceFabricResourceDeclaration:
                     else:
                         sys.exit("couldn't find coordinator or nodeagent services properties in Application Manifest")
 
-        # Declare POA ApplicationType
+        # ApplicationType
         application_type_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_type_name + "')]"
         template_file_json["resources"] += [
             {
@@ -489,7 +455,7 @@ class ServiceFabricResourceDeclaration:
                 }
             }
         ]
-        # Declare POA ApplicationTypeVersion
+        # ApplicationTypeVersion
         application_type_version = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_type_name + "', '/', '" + sfpkg_application_type_version + "')]"
         application_type_version_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "')]"
         template_file_json["resources"] += [
@@ -508,7 +474,7 @@ class ServiceFabricResourceDeclaration:
             }
         ]
 
-        # Declare POA Application
+        # Application
         application_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "')]"
         application_name_dependends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "', '/versions/', '" + sfpkg_application_type_version + "')]"
         template_file_json["resources"] += [
@@ -549,8 +515,7 @@ class ServiceFabricResourceDeclaration:
             }
         ]
 
-        # Declare POA Services
-        # Declare POA Coordinator Service
+        # Coordinator Service
         coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_coordinator_service_name + "')]"
         coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
         template_file_json["resources"] += [
@@ -576,7 +541,7 @@ class ServiceFabricResourceDeclaration:
                 }
             }
         ]
-        # Declare POA NodeAgent Service
+        # NodeAgent Service
         node_agent_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_node_agent_service_name + "')]"
         node_agent_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
         template_file_json["resources"] += [
@@ -611,7 +576,7 @@ class ServiceFabricResourceDeclaration:
                 }
             }
         ]
-        # Update Template File with POA Application
+        # Update Template File
         template_file = open(self.template_file, 'w')
         json.dump(template_file_json, template_file)
         template_file.close()
@@ -629,35 +594,31 @@ def main():
 
     resource_declaration = ServiceFabricResourceDeclaration()
     print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
-
     resource_declaration.validateDeclaration()
-    print("Resource Declaration Validation Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.deployResources()
-    print("Deploy Resources Duration: " + str(datetime.now() - demo_start))
+    print("Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.setupClusterClient()
-    print("Client Setup Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.clusterConnectionValidation()
-    print("Connected to cluster: " + str(datetime.now() - demo_start))
+    print("Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.repairManagerDeclaration()
-    print("Declared RepairManager as Add-on Feature: " + str(datetime.now() - demo_start))
 
-    resource_declaration.deployResources()
     print("Updating Cluster Configuration to enable RepairManager Duration: " + str(datetime.now() - demo_start))
+    resource_declaration.deployResources()
 
     # Validate What System Services Are Enabled: sfctl service list --application-id System
     # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
-    resource_declaration.patchOrchestrationApplicationDeclaration()
-    print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
+    # resource_declaration.patchOrchestrationApplicationDeclaration()
+    # print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
-    resource_declaration.validateDeclaration()
-    print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
+    # resource_declaration.validateDeclaration()
+    # print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.deployResources()
-    print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
+    # resource_declaration.deployResources()
+    # print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
 
     #resourceDeclaration.enableHostMSI()
     #resourceDeclaration.setMSIPermissions()
