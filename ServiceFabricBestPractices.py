@@ -90,7 +90,7 @@ class Resource_Declaration:
         # Secrets are passed in as arguments, or fetched from Managed Service
         if self.source_vault_value.find('/subscriptions/') >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find('vault.azure.net') > -1:
             print('Validating Secret Arguments')
-        elif parameters_file_json['parameters']['sourceVaultValue']['value'] >= 0 and len(parameters_file_json['parameters']['certificateThumbprint']['value']) > 36 and parameters_file_json['parameters']['certificateUrlValue']['value'].find('vault.azure.net') > -1:
+        elif parameters_file_json['parameters']['sourceVaultValue']['value'].find('/subscriptions/') >= 0 and len(parameters_file_json['parameters']['certificateThumbprint']['value']) > 36 and parameters_file_json['parameters']['certificateUrlValue']['value'].find('vault.azure.net') > -1:
             print('Validating Secret in Parameters File')
             self.source_vault_value = parameters_file_json['parameters']['sourceVaultValue']['value']
             self.certificate_thumbprint = parameters_file_json['parameters']['certificateThumbprint']['value']
