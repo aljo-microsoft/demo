@@ -12,7 +12,7 @@ import sys
 import zipfile
 import requests
 
-class ServiceFabricResourceDeclaration:
+class Resource_Declaration:
     # Microservice development Best Practice in Azure, is Service Fabric Applications, that are managed by
     # Azure Resource Manager.
     #
@@ -237,7 +237,7 @@ class ServiceFabricResourceDeclaration:
             json.dump(template_file_json, template_file)
             template_file.close()
 
-    def validateDeclaration(self):
+    def Validate_Declaration(self):
         # Validate Deployment Declaration
         deployment_validation_process = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
@@ -249,7 +249,7 @@ class ServiceFabricResourceDeclaration:
             print(stdout)
             print(stderr)
 
-    def deployResources(self):
+    def Deploy_Resources(self):
         # Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
         deployment_name = "bestpracticedeployment"
 
@@ -264,7 +264,7 @@ class ServiceFabricResourceDeclaration:
 	
         print("Resource Deployment Successful")
 
-    def setupClusterClient(self):
+    def Setup_Cluster_Client(self):
         # Downloads client admin certificate
         # Convert to PEM format for linux compatibility
         print("Downloading Certificate")
@@ -285,7 +285,7 @@ class ServiceFabricResourceDeclaration:
             print(stdout)
             print(stderr)
 
-    def clusterConnectionValidation(self):
+    def Cluster_Connection_Validation(self):
         endpoint = 'https://' + self.dns_name + ':19080'
 
         not_connected_to_cluster = True
@@ -307,7 +307,7 @@ class ServiceFabricResourceDeclaration:
         print(stdout)
 	print(stderr)
 
-    def repairManagerDeclaration(self):
+    def Repair_Manager_Declaration(self):
         # Update Template
         # Enable or Validate RepairManager
         print("Enable or Validate Repair Manager")
@@ -330,7 +330,7 @@ class ServiceFabricResourceDeclaration:
         json.dump(template_file_json, template_file)
         template_file.close()
         
-    def patchOrchestrationApplicationDeclaration(self):
+    def Patch_Orchestration_Application_Declaration(self):
         # Deploying Applications as Resources is a best practice for Production.
         # To demonstrate this, this will deploy the Patch Orchestration Application.
         # Steps to be performed to achieve this are:
@@ -570,47 +570,47 @@ class ServiceFabricResourceDeclaration:
         json.dump(template_file_json, template_file)
         template_file.close()
 
-    def enableHostMSI(self):
+    def Enable_Host_MSI(self):
         # Update template to enable host MSi and apply policies
         print("TODO: Enable Host MSI")
 
-    def setMSIPermissions(self):
+    def Set_MSI_Permissions(self):
         # grant AAD permissions to MSI for resource such as Cosmos DB
         print("TODO: Apply Permissions to Resource for MSI")
 
 def main():
     demo_start = datetime.now()
 
-    resource_declaration = ServiceFabricResourceDeclaration()
+    resource_declaration = Resource_Declaration()
     print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
-    resource_declaration.validateDeclaration()
+    resource_declaration.Validate_Declaration()
 
-    resource_declaration.deployResources()
+    resource_declaration.Deploy_Resources()
     print("Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.setupClusterClient()
+    resource_declaration.Setup_Cluster_Client()
 
-    resource_declaration.clusterConnectionValidation()
+    resource_declaration.Cluster_Connection_Validation()
     print("Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.repairManagerDeclaration()
+    resource_declaration.Repair_Manager_Declaration()
 
     print("Updating Cluster Configuration to enable RepairManager Duration: " + str(datetime.now() - demo_start))
-    resource_declaration.deployResources()
+    resource_declaration.Deploy_Resources()
 
     # Validate What System Services Are Enabled: sfctl service list --application-id System
     # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
-    # resource_declaration.patchOrchestrationApplicationDeclaration()
+    # resource_declaration.Patch_Orchestration_Application_Declaration()
     # print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
-    # resource_declaration.validateDeclaration()
+    # resource_declaration.Validate_Declaration()
     # print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
 
-    # resource_declaration.deployResources()
+    # resource_declaration.Deploy_Resources()
     # print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
 
-    #resourceDeclaration.enableHostMSI()
-    #resourceDeclaration.setMSIPermissions()
+    #resourceDeclaration.Enable_Host_MSI()
+    #resourceDeclaration.Set_MSI_Permissions()
 
 if __name__ == '__main__':
     main()
