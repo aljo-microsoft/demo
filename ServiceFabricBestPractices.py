@@ -209,15 +209,11 @@ class Resource_Declaration:
 
         stdout, stderr = deployment_group_exists_process.communicate()
 
-        if deployment_group_exists_process.wait() != 0 and stdout.decode('utf-8').replace('\n', '') != 'true':
+        if stdout.decode('utf-8').replace('\n', '') != 'true':
             deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
             if deployment_group_create_process.wait() != 0:
-                print("Deployment Create failed")
                 sys.exit(stderr)
-        else:
-            print("Deployment exists exception")
-            sys.exit(stderr)
 
         # Get Template
         if not Path(self.template_file).exists():
