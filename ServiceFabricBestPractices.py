@@ -170,7 +170,7 @@ class Resource_Declaration:
                 sys.exit(stderr)
 
         # Validate KeyVault Resource Availability
-	print("Checking Keyvault Availability") 
+        print("Checking Keyvault Availability") 
         validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
 
         if validate_source_vault.wait() != 0:
