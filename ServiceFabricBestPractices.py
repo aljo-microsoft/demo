@@ -135,7 +135,7 @@ class Resource_Declaration:
 
             certificate_create_process = Popen(["az", "keyvault", "certificate", "create", "--vault-name", self.keyvault_name, "-n", self.certificate_name, "-p", policy_file_arg], stdout=PIPE, stderr=PIPE)
 
-            if certificate_create_process.wait() not 0:
+            if certificate_create_process.wait() != 0:
                 sys.exit()
 
             # Get Keyvault Self Signed Certificate Properties
@@ -173,7 +173,7 @@ class Resource_Declaration:
 	print("Checking Keyvault Availability") 
         validate_source_vault = Popen(["az", "resource", "show", "--ids", self.source_vault_value], stdout=PIPE, stderr=PIPE)
 
-        if validate_source_vault.wait() not 0:
+        if validate_source_vault.wait() != 0:
             sys.exit()
 
         # Certificate URL
@@ -182,13 +182,13 @@ class Resource_Declaration:
 
         cert_url_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "sid", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-        if cert_url_validate_process.wait() not 0:
+        if cert_url_validate_process.wait() != 0:
             sys.exit()
 
         # Certificate Thumbprint
         cert_thumbprint_validate_process = Popen(["az", "keyvault", "certificate", "show", "--vault-name", self.keyvault_name, "--name", self.certificate_name, "--query", "x509ThumbprintHex", "-o", "tsv"], stdout=PIPE, stderr=PIPE)
 
-        if cert_thumbprint_validate_process.wait() not 0:
+        if cert_thumbprint_validate_process.wait() != 0:
             sys.exit()
 
         # Declare Certificate
