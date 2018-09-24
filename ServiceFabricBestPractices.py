@@ -554,7 +554,7 @@ class Resource_Declaration:
                 }
             }
         ]
-        """"
+        """
         # Update Template File
         template_file = open(self.template_file, 'w')
         json.dump(template_file_json, template_file)
