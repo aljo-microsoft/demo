@@ -226,7 +226,7 @@ class Resource_Declaration:
             json.dump(template_file_json, template_file)
             template_file.close()
 
-    def Validate_Declaration(self):
+    def validate_declaration(self):
         # Validate Deployment Declaration
         deployment_validation_process = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
@@ -238,7 +238,7 @@ class Resource_Declaration:
             print(stdout)
             print(stderr)
 
-    def Deploy_Resources(self):
+    def deploy_resources(self):
         # Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
         deployment_name = "bestpracticedeployment"
 
@@ -253,7 +253,7 @@ class Resource_Declaration:
 	
         print("Resource Deployment Successful")
 
-    def Setup_Cluster_Client(self):
+    def setup_cluster_client(self):
         # Downloads client admin certificate
         # Convert to PEM format for linux compatibility
         print("Downloading Certificate")
@@ -296,7 +296,7 @@ class Resource_Declaration:
         print(stdout)
         print(stderr)
 
-    def Repair_Manager_Declaration(self):
+    def repair_manager_declaration(self):
         # Update Template
         # Enable or Validate RepairManager
         print("Enable or Validate Repair Manager")
@@ -319,7 +319,7 @@ class Resource_Declaration:
         json.dump(template_file_json, template_file)
         template_file.close()
         
-    def Patch_Orchestration_Application_Declaration(self):
+    def patch_orchestration_application_declaration(self):
         # Deploying Applications as Resources is a best practice for Production.
         # To demonstrate this, this will deploy the Patch Orchestration Application.
         # Steps to be performed to achieve this are:
@@ -569,28 +569,28 @@ def main():
 
     resource_declaration = Resource_Declaration()
 
-    resource_declaration.Repair_Manager_Declaration()
+    resource_declaration.repair_manager_declaration()
 
-    resource_declaration.Validate_Declaration()
+    resource_declaration.validate_declaration()
     print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.Deploy_Resources()
+    resource_declaration.deploy_resources()
     print("Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.Setup_Cluster_Client()
+    resource_declaration.setup_cluster_client()
 
     resource_declaration.cluster_provisioning_wait()
     print("Duration: " + str(datetime.now() - demo_start))
 
     # Validate What System Services Are Enabled: sfctl service list --application-id System
     # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
-    resource_declaration.Patch_Orchestration_Application_Declaration()
+    resource_declaration.patch_orchestration_application_declaration()
     print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
 
-    resource_declaration.Validate_Declaration()
+    resource_declaration.validate_declaration()
     print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
 
-    resource_declaration.Deploy_Resources()
+    resource_declaration.deploy_resources()
     print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
 
     #resourceDeclaration.Enable_Host_MSI()
