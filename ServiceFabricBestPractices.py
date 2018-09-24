@@ -571,27 +571,17 @@ def main():
 
     resource_declaration.repair_manager_declaration()
 
+    resource_declaration.patch_orchestration_application_declaration()
+
     resource_declaration.validate_declaration()
-    print("Resource Declaration Initilization Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.deploy_resources()
-    print("Duration: " + str(datetime.now() - demo_start))
+    print("Deployed SF Cluster with POA Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.setup_cluster_client()
 
-    resource_declaration.cluster_provisioning_wait()
-    print("Duration: " + str(datetime.now() - demo_start))
-
-    # Validate What System Services Are Enabled: sfctl service list --application-id System
-    # Validate RepairManager Enabled: sfctl service info --service-id System~RepairManagerService --application-id System
-    resource_declaration.patch_orchestration_application_declaration()
-    print("Declared Patch Orchestration Application as Azure Resource: " + str(datetime.now() - demo_start))
-
-    resource_declaration.validate_declaration()
-    print("Resource Declaration Updated with POA Validation Duration: " + str(datetime.now() - demo_start))
-
-    resource_declaration.deploy_resources()
-    print("Deployed POA Resource Duration: " + str(datetime.now() - demo_start))
+    #resource_declaration.cluster_provisioning_wait()
+    #print("Duration: " + str(datetime.now() - demo_start))
 
     #resourceDeclaration.Enable_Host_MSI()
     #resourceDeclaration.Set_MSI_Permissions()
