@@ -492,7 +492,7 @@ class Resource_Declaration:
                 }
             }
         ]
-
+        """
         # Coordinator Service
         coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_coordinator_service_name + "')]"
         coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
@@ -554,6 +554,7 @@ class Resource_Declaration:
                 }
             }
         ]
+        """"
         # Update Template File
         template_file = open(self.template_file, 'w')
         json.dump(template_file_json, template_file)
