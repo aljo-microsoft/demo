@@ -274,7 +274,7 @@ class Resource_Declaration:
             print(stdout)
             print(stderr)
 
-    def Cluster_Connection_Validation(self):
+    def cluster_provisioning_wait(self):
         endpoint = 'https://' + self.dns_name + ':19080'
 
         not_connected_to_cluster = True
@@ -579,7 +579,7 @@ def main():
 
     resource_declaration.Setup_Cluster_Client()
 
-    resource_declaration.Cluster_Connection_Validation()
+    resource_declaration.cluster_provisioning_wait()
     print("Duration: " + str(datetime.now() - demo_start))
 
     # Validate What System Services Are Enabled: sfctl service list --application-id System
