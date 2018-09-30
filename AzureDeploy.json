@@ -536,6 +536,19 @@
               }
             },
             {
+              "name": "allowImageStoreServiceFabricSMB",
+              "properties": {
+                "access": "Allow",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "445",
+                "direction": "Outbound",
+                "priority": 3950,
+                "protocol": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*"
+              }
+            },
+            {
               "name": "allowServiceFabricCluser",
               "properties": {
                 "access": "Allow",
