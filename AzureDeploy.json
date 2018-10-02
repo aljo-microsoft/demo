@@ -542,7 +542,7 @@
                 "destinationAddressPrefix": "VirtualNetwork",
                 "destinationPortRange": "*",
                 "direction": "Inbound",
-                "priority": 3950,
+                "priority": 3949,
                 "protocol": "*",
                 "sourceAddressPrefix": "Storage",
                 "sourcePortRange": "*"
