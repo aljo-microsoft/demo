@@ -549,6 +549,32 @@
               }
             },
             {
+              "name": "allowOutboundSFRP",
+              "properties": {
+                "access": "Allow",
+                "destinationAddressPrefix": "ServiceFabric",
+                "destinationPortRange": "*",
+                "direction": "Inbound",
+                "priority": 3949,
+                "protocol": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*"
+              }
+            },
+            {
+              "name": "allowInboundSFRP",
+              "properties": {
+                "access": "Allow",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "destinationPortRange": "*",
+                "direction": "Inbound",
+                "priority": 3949,
+                "protocol": "*",
+                "sourceAddressPrefix": "ServiceFabric",
+                "sourcePortRange": "*"
+              }
+            },
+            {
               "name": "allowOutboundStorageAccessForAppPackage",
               "properties": {
                 "access": "Allow",
