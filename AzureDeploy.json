@@ -536,11 +536,11 @@
               }
             },
             {
-              "name": "allowImageStoreServiceFabricSMB",
+              "name": "allowStorageAccessForAppPackage",
               "properties": {
                 "access": "Allow",
-                "destinationAddressPrefix": "*",
-                "destinationPortRange": "445",
+                "destinationAddressPrefix": "Storage",
+                "destinationPortRange": "*",
                 "direction": "Outbound",
                 "priority": 3950,
                 "protocol": "*",
