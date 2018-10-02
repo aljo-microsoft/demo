@@ -492,33 +492,7 @@ class Resource_Declaration:
                 }
             }
         ]
-        """
-        # Coordinator Service
-        coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_coordinator_service_name + "')]"
-        coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
-        template_file_json["resources"] += [
-            {
-                "apiVersion": "2017-07-01-preview",
-                "type": "Microsoft.ServiceFabric/clusters/applications/services",
-                "name": coordinator_service_name,
-                "location": "[variables('location')]",
-                "dependsOn": [
-                    coordinator_service_depends_on
-                ],
-                "properties": {
-                    "provisioningState": "Default",
-                    "serviceKind": "Stateless",
-                    "serviceTypeName": sfpkg_coordinator_service_type,
-                    "instanceCount": "-1",
-                    "partitionDescription": {
-                        "partitionScheme": "Singleton"
-                    },
-                    "correlationScheme": [],
-                    "serviceLoadMetrics": [],
-                    "servicePlacementPolicies": []
-                }
-            }
-        ]
+
         # NodeAgent Service
         node_agent_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_node_agent_service_name + "')]"
         node_agent_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
@@ -533,8 +507,34 @@ class Resource_Declaration:
                 ],
                 "properties": {
                     "provisioningState": "Default",
-                    "serviceKind": "Stateful",
+                    "serviceKind": "Stateless",
                     "serviceTypeName": sfpkg_node_agent_service_type,
+                    "instanceCount": "-1",
+                    "partitionDescription": {
+                        "partitionScheme": "Singleton"
+                    },
+                    "correlationScheme": [],
+                    "serviceLoadMetrics": [],
+                    "servicePlacementPolicies": []
+                }
+            }
+        ]
+        # Coordinator Service
+        coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_coordinator_service_name + "')]"
+        coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
+        template_file_json["resources"] += [
+            {
+                "apiVersion": "2017-07-01-preview",
+                "type": "Microsoft.ServiceFabric/clusters/applications/services",
+                "name": coordinator_service_name,
+                "location": "[variables('location')]",
+                "dependsOn": [
+                    coordinator_service_depends_on
+                ],
+                "properties": {
+                    "provisioningState": "Default",
+                    "serviceKind": "Stateful",
+                    "serviceTypeName": sfpkg_coordinator_service_type,
                     "targetReplicaSetSize": "3",
                     "minReplicaSetSize": "2",
                     "replicaRestartWaitDuration": "00:01:00.0",
@@ -554,7 +554,7 @@ class Resource_Declaration:
                 }
             }
         ]
-        """
+
         # Update Template File
         template_file = open(self.template_file, 'w')
         json.dump(template_file_json, template_file)
