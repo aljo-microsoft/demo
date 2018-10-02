@@ -341,8 +341,6 @@ class Resource_Declaration:
         print(self.poa_file_name + " Downloaded")
 
         # Use Public URL instead of creating one
-        poa_package_url = poa_url
-        """
         # Create Storate
         create_storage_process = Popen(["az", "storage", "account", "create", "-n", self.storage_account_name, "-g", self.deployment_resource_group, "-l", self.location, "--sku", "Standard_LRS"], stdout=PIPE, stderr=PIPE)
 
@@ -394,8 +392,8 @@ class Resource_Declaration:
             print("Got URL for POA file in Storage Account Blob")
         else:
             sys.exit(stderr)
-        """
-        # Declare Patch Orchestration Application and Services as resources
+
+	# Declare Patch Orchestration Application and Services as resources
         # Unzip SFPKG and Get Properties
         print("Declaring POA in template")
         template_file_json = json.load(open(self.template_file, 'r'))
@@ -429,7 +427,7 @@ class Resource_Declaration:
                 "name": application_type_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    application_type_name_depends_on
+                    application_type_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default"
