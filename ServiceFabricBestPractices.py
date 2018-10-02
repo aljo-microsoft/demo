@@ -420,6 +420,7 @@ class Resource_Declaration:
                         sys.exit("couldn't find coordinator or nodeagent services properties in Application Manifest")
 
         # ApplicationType
+        application_type_depends_on = "[concat('Microsoft.ServiceFabric/clusters', parameters('clusterName'))]"
         application_type_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_type_name + "')]"
         template_file_json["resources"] += [
             {
@@ -427,7 +428,9 @@ class Resource_Declaration:
                 "type": "Microsoft.ServiceFabric/clusters/applicationTypes",
                 "name": application_type_name,
                 "location": "[variables('location')]",
-                "dependsOn": [],
+                "dependsOn": [
+                    application_type_name_depends_on
+                ],
                 "properties": {
                     "provisioningState": "Default"
                 }
