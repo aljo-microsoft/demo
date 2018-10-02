@@ -536,7 +536,20 @@
               }
             },
             {
-              "name": "allowStorageAccessForAppPackage",
+              "name": "allowInboundStorageAccessForAppPackage",
+              "properties": {
+                "access": "Allow",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "destinationPortRange": "*",
+                "direction": "Inbound",
+                "priority": 3950,
+                "protocol": "*",
+                "sourceAddressPrefix": "Storage",
+                "sourcePortRange": "*"
+              }
+            },
+            {
+              "name": "allowOutboundStorageAccessForAppPackage",
               "properties": {
                 "access": "Allow",
                 "destinationAddressPrefix": "Storage",
