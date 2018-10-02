@@ -53,7 +53,7 @@
       },
       "vnetVersion": {
         "type": "string",
-        "defaultValue": "2017-03-01",
+        "defaultValue": "2017-06-01",
         "metadata": {
           "description": "The version of the VNET resource to which the subnet belongs as defined by the subnetName parameter."
         }
@@ -74,7 +74,7 @@
       },
       "networkSecurityGroupVersion": {
         "type": "string",
-        "defaultValue": "2017-03-01",
+        "defaultValue": "2017-06-01",
         "metadata": {
           "description": "The version of the Network Security Group resource."
         }
@@ -204,8 +204,8 @@
     },
     "variables": {
       "location": "[parameters('location')]",
-      "vnetApiVersion": "2017-03-01",
-      "sgApiVersion": "2017-03-01",
+      "vnetApiVersion": "2017-06-01",
+      "sgApiVersion": "2017-06-01",
       "dnsName": "[parameters('clusterName')]",
       "vmStorageAccountName": "[toLower(concat(uniqueString(resourceGroup().id), '1' ))]",
       "vmName": "vm",
