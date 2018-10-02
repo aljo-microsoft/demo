@@ -554,7 +554,7 @@
                 "access": "Allow",
                 "destinationAddressPrefix": "ServiceFabric",
                 "destinationPortRange": "*",
-                "direction": "Inbound",
+                "direction": "Outbound",
                 "priority": 3949,
                 "protocol": "*",
                 "sourceAddressPrefix": "VirtualNetwork",
