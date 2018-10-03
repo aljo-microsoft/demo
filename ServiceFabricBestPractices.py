@@ -29,7 +29,7 @@ class Resource_Declaration:
         parameters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
         template_file='AzureDeploy.json',
         parameters_file='AzureDeploy.Parameters.json',
-        deployment_resource_group='bestpracticedeploymentresourceggroup',
+        deployment_resource_group='bestpracticedeploymentresourcegroup',
         keyvault_resource_group='bestpracticekeyvaultresourcegroup',
         keyvault_name='bestpracticekeyvaultname',
         cluster_name='bestpracticecluster',
