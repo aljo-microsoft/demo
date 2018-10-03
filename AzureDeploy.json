@@ -568,7 +568,7 @@
                 "destinationAddressPrefix": "VirtualNetwork",
                 "destinationPortRange": "*",
                 "direction": "Inbound",
-                "priority": 3949,
+                "priority": 3948,
                 "protocol": "*",
                 "sourceAddressPrefix": "ServiceFabric",
                 "sourcePortRange": "*"
