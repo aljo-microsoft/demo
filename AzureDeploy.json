@@ -161,6 +161,7 @@
     }
   },
   "variables": {
+    "location": "[parameters('location')]",
     "computeLocation": "[parameters('location')]",
     "dnsName": "[parameters('clusterName')]",
     "vmStorageAccountName": "[toLower(concat( 'sflogs', uniqueString(resourceGroup().id), '1' ))]",
