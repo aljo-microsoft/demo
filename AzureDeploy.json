@@ -2,7 +2,7 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "clusterLocation": {
+    "location": {
       "type": "string",
       "defaultValue": "westus",
       "metadata": {
@@ -161,7 +161,7 @@
     }
   },
   "variables": {
-    "computeLocation": "[parameters('clusterLocation')]",
+    "computeLocation": "[parameters('location')]",
     "dnsName": "[parameters('clusterName')]",
     "vmStorageAccountName": "[toLower(concat( 'sflogs', uniqueString(resourceGroup().id), '1' ))]",
     "vmName": "vm",
@@ -586,7 +586,7 @@
       "apiVersion": "[variables('sfrpApiVersion')]",
       "type": "Microsoft.ServiceFabric/clusters",
       "name": "[parameters('clusterName')]",
-      "location": "[parameters('clusterLocation')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('supportLogStorageAccountName'))]"
       ],
