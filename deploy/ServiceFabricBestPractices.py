@@ -19,21 +19,19 @@ class Resource_Declaration:
     # A vital component of success in delivering your SLA/O's will require you to make decisions.
     # E.G. may include using a x509 certificates issued by a trusted Certificate Authority.
     #
-    # This was tested September 19 2018 using Azure Cloud Shell.
+    # This was tested October 5 2018 using Azure Cloud Shell.
     #
     # Declared Arguments overwrite template values.
     def __init__(
         self,
-        subscription='33bd304f-367f-4b72-a3ea-7d3576781ceb',
-        template_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.json',
-        parameters_uri='https://raw.githubusercontent.com/Microsoft/service-fabric-scripts-and-templates/master/templates/cluster-tutorial/vnet-linuxcluster.parameters.json',
+        subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
         template_file='AzureDeploy.json',
         parameters_file='AzureDeploy.Parameters.json',
-        deployment_resource_group='bestpracticedeploymentresourcegroup',
-        keyvault_resource_group='bestpracticekeyvaultresourcegroup',
-        keyvault_name='bestpracticekeyvaultname',
-        cluster_name='bestpracticecluster',
-        admin_user_name='sudo',
+        deployment_resource_group='demobpdeployrg',
+        keyvault_resource_group='demobpkeyvaultrg',
+        keyvault_name='demobpkeyvault',
+        cluster_name='demobpcluster',
+        admin_user_name='demo',
         admin_password='Password#1234',
         location='westus',
         certificate_name='x509certificatename',
@@ -41,14 +39,13 @@ class Resource_Declaration:
         source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
         certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
         user_email='aljo-microsoft@github.com',
-        poa_file_name='POA_v2.0.2.sfpkg',
-        storage_account_name='bestpracticesstorage',
-        container_name='bestpracticescontainer'):
+        go_app_package_name='GoApp.sfpkg',
+        storage_account_name='demobpstorage',
+        container_name='demobpscontainer',
+        go_app_source_path='../build'):
 
 	# Set Parameters
         self.subscription = subscription
-        self.parameters_uri = parameters_uri
-        self.template_uri = template_uri
         self.template_file = template_file
         self.parameters_file = parameters_file
         self.deployment_resource_group = deployment_resource_group
@@ -66,9 +63,10 @@ class Resource_Declaration:
         self.certificate_url_value = certificate_url_value
         self.user_email = user_email
         self.parameters_file_arg = "@" + self.parameters_file
-        self.poa_file_name = poa_file_name
+        self.go_app_package_name = go_app_package_name
         self.storage_account_name = storage_account_name
         self.container_name = container_name
+        self.go_app_source_path = go_app_source_path
 
         # Az CLI Client
         account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
@@ -82,14 +80,12 @@ class Resource_Declaration:
         if Path(self.parameters_file).exists():
             parameters_file_json = json.load(open(self.parameters_file, 'r'))
         else:
-            print(self.parameters_uri)
-            parameters = requests.get(self.parameters_uri)
-            parameters_bytes = parameters.content
-            parameters_file_json = json.loads(parameters_bytes.decode("utf-8"))
+            sys.exit("Parameters Not Found")
 
         # Secrets are passed in as arguments, or fetched from Managed Service
         if self.source_vault_value.find('/subscriptions/') >= 0 and len(self.certificate_thumbprint) > 36 and self.certificate_url_value.find('vault.azure.net') > -1:
             print('Validating Secret Arguments')
+        # Demo only - allow redeployment using declared secret values
         elif parameters_file_json['parameters']['sourceVaultValue']['value'].find('/subscriptions/') >= 0 and len(parameters_file_json['parameters']['certificateThumbprint']['value']) > 36 and parameters_file_json['parameters']['certificateUrlValue']['value'].find('vault.azure.net') > -1:
             print('Validating Secret in Parameters File')
             self.source_vault_value = parameters_file_json['parameters']['sourceVaultValue']['value']
@@ -215,16 +211,9 @@ class Resource_Declaration:
             if deployment_group_create_process.wait() != 0:
                 sys.exit(stderr)
 
-        # Get Template
+        # Resource Declaration
         if not Path(self.template_file).exists():
-            print("Using Template File")
-            print(template_uri)
-            template = requests.get(template_uri)
-            template_bytes = template.content
-            template_file_json = json.loads(template_bytes.decode("utf-8"))
-            template_file = open(self.template_file, 'x')
-            json.dump(template_file_json, template_file)
-            template_file.close()
+            sys.exit("Template File Not Found")
 
     def validate_declaration(self):
         # Validate Deployment Declaration
@@ -236,7 +225,7 @@ class Resource_Declaration:
             print("Your Deployment Declaration is Valid Syntactically")
         else:
             print(stdout)
-            print(stderr)
+            sys.exit(stderr)
 
     def deploy_resources(self):
         # Reduce LiveSite issues by deploying Azure Resources in a Declarative way as a group
@@ -274,56 +263,39 @@ class Resource_Declaration:
             print(stdout)
             print(stderr)
 
-    def cluster_provisioning_wait(self):
+    def cluster_connection(self):
         endpoint = 'https://' + self.dns_name + ':19080'
 
-        not_connected_to_cluster = True
-        print("Waiting For Cluster Provisioning To Complete")
-        while not_connected_to_cluster:
+        cluster_connect_process = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"])
 
-            cluster_connect_process = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"])
+        if not cluster_connect_process.wait() == 0:
+            sys.exit("Unable to Connect to Cluster")
 
-            if cluster_connect_process.wait() == 0:
-                not_connected_to_cluster = False
-                print("Connected to Cluster")
-            else:
-                print("Unable to Connect to Deployed Cluster Resource... Trying again")
-                cluster_connect_process.kill()
+    def go_app_build(self):
+        # TODO: aljo-microsoft
+        # - Build Container
+        # docker build ./ --tag goapp:1.0
+        # - Create ACR Registry
+        # az acr create --name <acr name> --resource-group <rg name> --sku Basic --admin-enabled true
+        # - Get ACR Registry Credentials
+        # az acr credential show -n <acr name> --query username
+        # az acr credential show -n <acr name> --query passwords[0].value
+        # - Login to Registry
+        # docker login <acr name>.azurecr.io -u <acr user name> -p <acr password>
+        # - Push Image to Registry
+        # docker push <acr name>.azurecr.io/goapp:1.0
 
-        cluster_health_process = Popen(["sfctl", "cluster", "health"], stdout=PIPE, stderr=PIPE)
+    def cosmos_db_creation(self):
+        # az cosmosdb create --name <mongodb account name> --resource-group <rg name> --kind MongoDB
+        # az cosmosdb database create --db-name <db name> --name <mongodb account name> --resource-group
 
-        stdout, stderr = cluster_health_process.communicate()
-        print(stdout)
-        print(stderr)
-
-    def repair_manager_declaration(self):
-        # Update Template
-        # Enable or Validate RepairManager
-        print("Enable or Validate Repair Manager")
-        template_file_json = json.load(open(self.template_file, 'r'))
-
-        number_of_resource = len(template_file_json["resources"])
-
-        for i in range(0, number_of_resource):
-            if template_file_json["resources"][i]["type"] == "Microsoft.ServiceFabric/clusters":
-                if (("addonFeatures" in template_file_json["resources"][i]["properties"]) and ("RepairManager" in template_file_json["resources"][i]["properties"]["addonFeatures"])):
-                    print('RepairManager already declared in Template')
-                elif "addonFeatures" in template_file_json["resources"][i]["properties"]:
-                    print('RepairManager enabled as add-on feature in Template')
-                    template_file_json["resources"][i]["properties"]["addonFeatures"] += ["RepairManager"]
-                else:
-                    print('Add-On Feature RepairManager declared in Template')
-                    template_file_json["resources"][i]["properties"]["addonFeatures"] = ["RepairManager"]
-        # Update Template File with Repair Manager
-        template_file = open(self.template_file, 'w')
-        json.dump(template_file_json, template_file)
-        template_file.close()
-        
-    def patch_orchestration_application_declaration(self):
+    def classic_application_declaration(self):
         # Deploying Applications as Resources is a best practice for Production.
-        # To demonstrate this, this will deploy the Patch Orchestration Application.
+        # When classic Applicaitons haven't been containerized yet, we need to make
+        # them accessible to ARM from an REST endpoint. To demonstrate this, this will
+        # deploy a non containerized Java Application. TODO: create JavaApp
         # Steps to be performed to achieve this are:
-        # 1. Download POA SFPKG
+        # 1. Build Java Application
         # 2. Create Storage Account
         # 3. Get the Connection String to Storage Account
         # 4. Create Storage Account Blob Container
@@ -331,14 +303,9 @@ class Resource_Declaration:
         # 6. Get public URL to File in Storage Account Blob
         # 7. Declare Application and Services as Resources in Template
 
-        print("Updating Declaration with Patch Orchestration Application")
-        poa_name = 'PatchOrchestrationApplication'
-
-        # Download POA SFPKG
-        poa_url = "https://aka.ms/POA/" + self.poa_file_name
-        r = requests.get(poa_url)
-        open(self.poa_file_name, 'wb').write(r.content)
-        print(self.poa_file_name + " Downloaded")
+        print("Updating Declaration with Class JavaApp")
+        classic_app_name = 'JavaApp'
+        classic_app_package = 'JavaApp.sfpkg'
 
         # Use Public URL instead of creating one
         # Create Storate
@@ -373,33 +340,35 @@ class Resource_Declaration:
             sys.exit(stderr)
 
         # Upload SFPKG to Blob Container
-        upload_poa_process = Popen(["az", "storage", "blob", "upload", "--file", self.poa_file_name, "--name", poa_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
+        upload_classic_process = Popen(["az", "storage", "blob", "upload", "--file", self.classic_app_package, "--name", classic_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = upload_poa_process.communicate()
 
         if upload_poa_process.wait() == 0:
-            print("Uploaded POA PKG To Storage Account Blob Container")
+            print("Uploaded Classic PKG To Storage Account Blob Container")
         else:
             sys.exit(stderr)
 
         # Get URL for POA in Storage Account Blob Container
-        url_blob_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", poa_name], stdout=PIPE, stderr=PIPE)
+        url_blob_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", classic_app_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = url_blob_process.communicate()
 
         if url_blob_process.wait() == 0:
-            poa_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-            print("Got URL for POA file in Storage Account Blob")
+            classic_app_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+            print("Got URL for Classic file in Storage Account Blob")
         else:
             sys.exit(stderr)
 
-	# Declare Patch Orchestration Application and Services as resources
+        # TODO: Below needs to be updated to only append Service to Application type
+        #       Will delcare Type with GoApp.
+	# Declare Classic App Services as resources that is apart of microservices Application
         # Unzip SFPKG and Get Properties
-        print("Declaring POA in template")
+        print("Declaring classic app in template")
         template_file_json = json.load(open(self.template_file, 'r'))
-        poa_sfpkg = zipfile.ZipFile(self.poa_file_name, "r")
-        poa_sfpkg.extractall(poa_name)
-        application_manifest_path = poa_name + "/ApplicationManifest.xml"
+        classic_app_sfpkg = zipfile.ZipFile(self.classic_app_name, "r")
+        classic_app_sfpkg.extractall(classic_app_name)
+        application_manifest_path = classic_app_name + "/ApplicationManifest.xml"
         application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
         sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
         sfpkg_application_type_name = application_manifest.attrib['ApplicationTypeName']
@@ -574,20 +543,15 @@ def main():
 
     resource_declaration = Resource_Declaration()
 
-    resource_declaration.repair_manager_declaration()
-
-    resource_declaration.patch_orchestration_application_declaration()
+    # TODO: Build Go App, build classic App, update resource declaratino for both
+    # resource_declaration.classic_application_declaration()
 
     resource_declaration.validate_declaration()
 
     resource_declaration.deploy_resources()
-    print("Deployed SF Cluster with POA Duration: " + str(datetime.now() - demo_start))
+    print("Deployed SF Cluster with modern microservices Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.setup_cluster_client()
-
-    #resource_declaration.cluster_provisioning_wait()
-    #print("Duration: " + str(datetime.now() - demo_start))
-
     #resourceDeclaration.Enable_Host_MSI()
     #resourceDeclaration.Set_MSI_Permissions()
 
