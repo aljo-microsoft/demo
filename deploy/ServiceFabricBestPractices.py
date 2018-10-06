@@ -39,13 +39,18 @@ class Resource_Declaration:
         source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
         certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
         user_email='aljo-microsoft@github.com',
-        go_app_package_name='GoApp.sfpkg',
+        microservice_app_package_name='MicroserviceApp.sfpkg',
         storage_account_name='demobpstorage',
         container_name='demobpscontainer',
-        go_app_source_path='../build'
-        go_app_image_tag = "goapp:1.0"):
+        go_service_source_path='../build',
+        go_service_image_tag = "goservice:1.0",
+        go_service_mongo_db_account_name = "goserviceuser",
+        go_service_mongo_db_name = "goservicemongodb",
+        go_service_acr_name = "goserviceacr"):
 
-	# Set Parameters
+        # Set Parameters
+        self.acregistry = go_service_acr_name + ".azurecr.io"
+        self.acregistry_image_tag = self.acregistry + "/" + go_service_image_tag
         self.subscription = subscription
         self.template_file = template_file
         self.parameters_file = parameters_file
@@ -64,11 +69,13 @@ class Resource_Declaration:
         self.certificate_url_value = certificate_url_value
         self.user_email = user_email
         self.parameters_file_arg = "@" + self.parameters_file
-        self.go_app_package_name = go_app_package_name
+        self.go_service_package_name = go_service_package_name
         self.storage_account_name = storage_account_name
         self.container_name = container_name
-        self.go_app_source_path = go_app_source_path
-	self.go_app_image_tag = go_app_image_tag
+        self.go_service_source_path = go_service_source_path
+	self.go_service_image_tag = go_service_image_tag
+        self.go_service_mongo_db_account_name = go_service_mongo_db_account_name
+        self.go_service_mongo_db_name = go_service_mongo_db_name
 
         # Az CLI Client
         account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
@@ -274,19 +281,18 @@ class Resource_Declaration:
             sys.exit("Unable to Connect to Cluster")
 
     def go_service_build(self):
-        # TODO: aljo-microsoft
-        # Build GoApp Container Image
-        go_app_build_process = Popen(["docker", "build", "../build/goapp/", "--tag", self.go_app_image_tag])
+        # Build GoService Container Image
+        go_service_build_process = Popen(["docker", "build", "../build/goservice/", "--tag", self.go_service_image_tag])
 	
-	if not go_app_build_process.wait() == 0:
-            sys.exit("couldn't build GoApp Docker Image")
-        # Create ACR go GoApp
-        acr_create_process = Popen(["az", "acr", "create", "--name", self.goapp_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
+	if not go_service_build_process.wait() == 0:
+            sys.exit("couldn't build GoService Docker Image")
+        # Create ACR go GoService
+        acr_create_process = Popen(["az", "acr", "create", "--name", self.goservice_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
 
         if not acr_create_process.wait() == 0:
             sys.exit("Couldn't create ACR")
         # Get ACR User Name
-        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.goapp_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.goservice_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = acr_username_process.communicate()
 
@@ -295,7 +301,7 @@ class Resource_Declaration:
         else:
             sys.exit(stderr)
         # Get ACR Password
-        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.goapp_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.goservice_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = acr_password_process.communicate()
 
@@ -304,29 +310,27 @@ class Resource_Declaration:
         else:
             sys.exit(stderr)
         # Login to ACR
-        registry = self.goapp_acr_name + ".azurecr.io"
+        registry = self.goservice_acr_name + ".azurecr.io"
         acr_login_process = Popen(["docker", "login", registry, "-u", acr_username, "-p", acr_password])
 
         if not acr_login_process.wait() == 0:
             sys.exit("Couldn't login into ACR")
 
         # Push Image to ACR
-        registry_image_tag = registry + "/" + self.go_app_image_tag
+        registry_image_tag = registry + "/" + self.go_service_image_tag
         push_image_process = Popen(["docker", "push", registry_image_tag])
 
         if not push_image_process.wait() == 0:
             sys.exit("Couldn't push Image")
 
     def go_service_cosmos_db_creation(self):
-        go_app_mongo_db_account_name = "goappuser"
-        go_app_mongo_db_name = "goappmongodb"
         # Craete Cosmos DB Account
-        cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.go_app_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
+        cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
 
         if not cosmos_account_create_process.wait() == 0:
             sys.exit("couldn't create GoApp Cosmos DB User")
 
-        cosmos_database_create_process = Popen(["az", "cosmosdb", "database", "create", "--db-name", self.go_app_mongo_db_name, "--name", self.go_app_mongo_db_account_name, "--resource-group", self.deployment_resource_group])
+        cosmos_database_create_process = Popen(["az", "cosmosdb", "database", "create", "--db-name", self.go_service_mongo_db_name, "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group])
 
         if not cosmos_database_create_process.wait() == 0:
             sys.exit("Couldn't crate Go App Cosmos Mongo DB")
