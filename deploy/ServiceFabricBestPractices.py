@@ -42,7 +42,8 @@ class Resource_Declaration:
         go_app_package_name='GoApp.sfpkg',
         storage_account_name='demobpstorage',
         container_name='demobpscontainer',
-        go_app_source_path='../build'):
+        go_app_source_path='../build'
+        go_app_image_tag = "goapp:1.0"):
 
 	# Set Parameters
         self.subscription = subscription
@@ -67,6 +68,7 @@ class Resource_Declaration:
         self.storage_account_name = storage_account_name
         self.container_name = container_name
         self.go_app_source_path = go_app_source_path
+	self.go_app_image_tag = go_app_image_tag
 
         # Az CLI Client
         account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
@@ -271,41 +273,89 @@ class Resource_Declaration:
         if not cluster_connect_process.wait() == 0:
             sys.exit("Unable to Connect to Cluster")
 
-    def go_app_build(self):
+    def go_service_build(self):
         # TODO: aljo-microsoft
-        # - Build Container
-        # docker build ./ --tag goapp:1.0
-        # - Create ACR Registry
-        # az acr create --name <acr name> --resource-group <rg name> --sku Basic --admin-enabled true
-        # - Get ACR Registry Credentials
-        # az acr credential show -n <acr name> --query username
-        # az acr credential show -n <acr name> --query passwords[0].value
-        # - Login to Registry
-        # docker login <acr name>.azurecr.io -u <acr user name> -p <acr password>
-        # - Push Image to Registry
-        # docker push <acr name>.azurecr.io/goapp:1.0
+        # Build GoApp Container Image
+        go_app_build_process = Popen(["docker", "build", "../build/goapp/", "--tag", self.go_app_image_tag])
+	
+	if not go_app_build_process.wait() == 0:
+            sys.exit("couldn't build GoApp Docker Image")
+        # Create ACR go GoApp
+        acr_create_process = Popen(["az", "acr", "create", "--name", self.goapp_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
 
-    def cosmos_db_creation(self):
-        # az cosmosdb create --name <mongodb account name> --resource-group <rg name> --kind MongoDB
-        # az cosmosdb database create --db-name <db name> --name <mongodb account name> --resource-group
+        if not acr_create_process.wait() == 0:
+            sys.exit("Couldn't create ACR")
+        # Get ACR User Name
+        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.goapp_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
 
-    def classic_application_declaration(self):
-        # Deploying Applications as Resources is a best practice for Production.
-        # When classic Applicaitons haven't been containerized yet, we need to make
-        # them accessible to ARM from an REST endpoint. To demonstrate this, this will
-        # deploy a non containerized Java Application. TODO: create JavaApp
-        # Steps to be performed to achieve this are:
-        # 1. Build Java Application
-        # 2. Create Storage Account
-        # 3. Get the Connection String to Storage Account
-        # 4. Create Storage Account Blob Container
-        # 5. Upload File to Storage Account Blob Container
-        # 6. Get public URL to File in Storage Account Blob
-        # 7. Declare Application and Services as Resources in Template
+        stdout, stderr = acr_username_process.communicate()
 
-        print("Updating Declaration with Class JavaApp")
+        if acr_username_process.wait() == 0:
+            acr_username = stdout.decode("utf-8").replace('\n', '')
+        else:
+            sys.exit(stderr)
+        # Get ACR Password
+        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.goapp_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = acr_password_process.communicate()
+
+        if acr_password_process.wait() == 0:
+            acr_password = stdout.decode("utf-8").replace('\n', '')
+        else:
+            sys.exit(stderr)
+        # Login to ACR
+        registry = self.goapp_acr_name + ".azurecr.io"
+        acr_login_process = Popen(["docker", "login", registry, "-u", acr_username, "-p", acr_password])
+
+        if not acr_login_process.wait() == 0:
+            sys.exit("Couldn't login into ACR")
+
+        # Push Image to ACR
+        registry_image_tag = registry + "/" + self.go_app_image_tag
+        push_image_process = Popen(["docker", "push", registry_image_tag])
+
+        if not push_image_process.wait() == 0:
+            sys.exit("Couldn't push Image")
+
+    def go_service_cosmos_db_creation(self):
+        go_app_mongo_db_account_name = "goappuser"
+        go_app_mongo_db_name = "goappmongodb"
+        # Craete Cosmos DB Account
+        cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.go_app_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
+
+        if not cosmos_account_create_process.wait() == 0:
+            sys.exit("couldn't create GoApp Cosmos DB User")
+
+        cosmos_database_create_process = Popen(["az", "cosmosdb", "database", "create", "--db-name", self.go_app_mongo_db_name, "--name", self.go_app_mongo_db_account_name, "--resource-group", self.deployment_resource_group])
+
+        if not cosmos_database_create_process.wait() == 0:
+            sys.exit("Couldn't crate Go App Cosmos Mongo DB")
+
+    def go_service_sfpkg_declaration(self):
+        # Get ACR URL
+        # Get Cosmos DB Password
+        # Update SF Package with: acr_username, acr_password, go_app_mongo_db_account_name, go_app_mongo_db_password
+        # Get Package Properties for RM Template
+
+    def classic_java_service_build(self):
+        # javac ./javapp/JavaApp.java
+
+    def classic_java_service_sfpkg_declaration(self):
+        # copy ./javaapp/JavaApp.class to ./javapp/javacode/
+        # Update SF Packge with: Service Version, JavaApp.class 
+        # Get Package Properties for RM Template
         classic_app_name = 'JavaApp'
         classic_app_package = 'JavaApp.sfpkg'
+
+    def microservices_app_sfpkg(self):
+        # 
+	# Create solution_v1.0.sfpkg
+        # Create Storage Account
+        # Get Connection String to Storage Account
+        # Create Storage Account Blob Container
+        # Upload SF Packge to Account blob
+        # Get Public url to file in storage account blob
+        print("Packing Microservices Solution")
 
         # Use Public URL instead of creating one
         # Create Storate
@@ -349,7 +399,7 @@ class Resource_Declaration:
         else:
             sys.exit(stderr)
 
-        # Get URL for POA in Storage Account Blob Container
+        # Get URL for Solution in Storage Account Blob Container
         url_blob_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", classic_app_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = url_blob_process.communicate()
@@ -359,6 +409,11 @@ class Resource_Declaration:
             print("Got URL for Classic file in Storage Account Blob")
         else:
             sys.exit(stderr)
+
+    def microservices_app_resource_declaration(self):
+        # Update Template with Application, App Type, App Version, Service Type's (go app, and classic java)
+
+        print("Updating Resource Declaration Microservices SolutionJavaApp")
 
         # TODO: Below needs to be updated to only append Service to Application type
         #       Will delcare Type with GoApp.
@@ -543,13 +598,17 @@ def main():
 
     resource_declaration = Resource_Declaration()
 
-    # TODO: Build Go App, build classic App, update resource declaratino for both
-    # resource_declaration.classic_application_declaration()
+    resource_declaration.go_service_build()
+    resource_declaration.classic_java_service_build()
+    resource_declaration.go_service_sfpkg_declaration()
+    resource_declaration.classic_java_service_sfpkg_declaration()
+    resource_declaration.microservices_app_sfpkg()
+    resource_declaration.microservices_app_resource_declaration()
 
     resource_declaration.validate_declaration()
 
     resource_declaration.deploy_resources()
-    print("Deployed SF Cluster with modern microservices Duration: " + str(datetime.now() - demo_start))
+    print("Deployed Modern Microservices solution on SF Cluster Duration: " + str(datetime.now() - demo_start))
 
     resource_declaration.setup_cluster_client()
     #resourceDeclaration.Enable_Host_MSI()
