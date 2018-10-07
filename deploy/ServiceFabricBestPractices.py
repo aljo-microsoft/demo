@@ -68,7 +68,7 @@ class Resource_Declaration:
 	
         # Default values for JavaService
         self.java_service_source_path = '../build/javaservice'
-	self.java_service_name = 'JavaService'
+        self.java_service_name = 'JavaService'
 
         # Az CLI Client
         account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
