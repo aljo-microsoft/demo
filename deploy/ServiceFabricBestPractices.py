@@ -50,13 +50,13 @@ class Resource_Declaration:
         self.certificate_file_name = self.certificate_name + ".pem"
         self.parameters_file_arg = "@" + self.parameters_file
 
-        # Default Values for Microservices App 
+        # Default Values for Microservices App
         self.microservice_app_package_name = 'MicroserviceApp.sfpkg'
         self.storage_account_name = 'demobpstorage'
         self.container_name = 'demobpscontainer'
 
 	# Default Valyes for GoService
-	self.go_service_source_path = '../build/goservice'
+        self.go_service_source_path = '../build/goservice'
         self.go_service_image_tag = "goservice:1.0"
         self.go_service_mongo_db_account_name = "goserviceuser"
         self.go_service_mongo_db_name = "goservicemongodb"
