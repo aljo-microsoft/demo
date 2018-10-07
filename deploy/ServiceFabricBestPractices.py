@@ -344,9 +344,9 @@ class Resource_Declaration:
         classic_app_name = 'JavaApp'
         classic_app_package = 'JavaApp.sfpkg'
 
-    def microservices_app_sfpkg(self):
+    def microservices_app_sfpkg_declaration(self):
         # 
-	# Create solution_v1.0.sfpkg
+	# Create microservices_app_v1.0.sfpkg
         # Create Storage Account
         # Get Connection String to Storage Account
         # Create Storage Account Blob Container
@@ -592,24 +592,26 @@ class Resource_Declaration:
 
 def main():
     demo_start = datetime.now()
-
+    # Initial Resource Declaration with minimum for Cluster
     resource_declaration = Resource_Declaration()
-
+    # Build Demo Microservices - For production use CI
     resource_declaration.go_service_build()
     resource_declaration.classic_java_service_build()
+    # Configure Pre-Package Demo Dependency's
+    #resourceDeclaration.enable_host_msi()
+    #resourceDeclaration.set_msi_permissions()
+    resource_declaration.go_service_cosmos_db_creation()
+    # Package Demo Microservices
     resource_declaration.go_service_sfpkg_declaration()
     resource_declaration.classic_java_service_sfpkg_declaration()
-    resource_declaration.microservices_app_sfpkg()
+    resource_declaration.microservices_app_sfpkg_declaration()
     resource_declaration.microservices_app_resource_declaration()
-
+    # Deploy Demo Microservices
     resource_declaration.validate_declaration()
-
     resource_declaration.deploy_resources()
     print("Deployed Modern Microservices solution on SF Cluster Duration: " + str(datetime.now() - demo_start))
-
+    # Operate Demo Microservices
     resource_declaration.setup_cluster_client()
-    #resourceDeclaration.Enable_Host_MSI()
-    #resourceDeclaration.Set_MSI_Permissions()
 
 if __name__ == '__main__':
     main()
