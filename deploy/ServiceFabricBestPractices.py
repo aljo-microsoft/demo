@@ -24,57 +24,51 @@ class Resource_Declaration:
     def __init__(
         self,
         subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
-        template_file='AzureDeploy.json',
-        parameters_file='AzureDeploy.Parameters.json',
-        deployment_resource_group='demobpdeployrg',
-        keyvault_resource_group='demobpkeyvaultrg',
-        keyvault_name='demobpkeyvault',
-        cluster_name='demobpcluster',
-        admin_user_name='demo',
-        admin_password='Password#1234',
-        location='westus',
-        certificate_name='x509certificatename',
-        certificate_thumbprint='GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT',
-        source_vault_value='GEN-KEYVAULT-RESOURCE-ID',
-        certificate_url_value='GEN-KEYVAULT-SSL-SECRET-URI',
-        user_email='aljo-microsoft@github.com',
-        microservice_app_package_name='MicroserviceApp.sfpkg',
-        storage_account_name='demobpstorage',
-        container_name='demobpscontainer',
-        go_service_source_path='../build',
-        go_service_image_tag = "goservice:1.0",
-        go_service_mongo_db_account_name = "goserviceuser",
-        go_service_mongo_db_name = "goservicemongodb",
-        go_service_acr_name = "goserviceacr"):
+        ):
 
-        # Set Parameters
-        self.acregistry = go_service_acr_name + ".azurecr.io"
-        self.acregistry_image_tag = self.acregistry + "/" + go_service_image_tag
+        # Owner
         self.subscription = subscription
-        self.template_file = template_file
-        self.parameters_file = parameters_file
-        self.deployment_resource_group = deployment_resource_group
-        self.keyvault_resource_group = keyvault_resource_group
-        self.keyvault_name = keyvault_name
-        self.cluster_name = cluster_name
-        self.admin_user_name = admin_user_name
-        self.admin_password = admin_password
-        self.location = location
+
+	# Minimum Service Fabric Cluster Values
+        self.template_file = 'AzureDeploy.json'
+        self.parameters_file = 'AzureDeploy.Parameters.json'
+        self.deployment_resource_group = 'demobpdeployrg'
+        self.keyvault_resource_group = 'demobpkeyvaultrg'
+        self.keyvault_name = 'demobpkeyvault'
+        self.cluster_name = 'demobpcluster'
+        self.admin_user_name = 'demo'
+        self.admin_password = 'Password#1234'
+        self.location = 'westus'
+        self.certificate_name = 'x509certificatename'
+        self.certificate_thumbprint = 'GEN-CUSTOM-DOMAIN-SSLCERT-THUMBPRINT'
+        self.source_vault_value = 'GEN-KEYVAULT-RESOURCE-ID'
+        self.certificate_url_value = 'GEN-KEYVAULT-SSL-SECRET-URI'
+        self.user_email = 'aljo-microsoft@github.com'
+
+        # Default Values for Program
         self.dns_name = self.cluster_name + "." + self.location + ".cloudapp.azure.com"
-        self.certificate_name = certificate_name
-        self.certificate_file_name = certificate_name + ".pem"
-        self.certificate_thumbprint = certificate_thumbprint
-        self.source_vault_value = source_vault_value
-        self.certificate_url_value = certificate_url_value
-        self.user_email = user_email
+        self.certificate_file_name = self.certificate_name + ".pem"
         self.parameters_file_arg = "@" + self.parameters_file
-        self.go_service_package_name = go_service_package_name
-        self.storage_account_name = storage_account_name
-        self.container_name = container_name
-        self.go_service_source_path = go_service_source_path
-	self.go_service_image_tag = go_service_image_tag
-        self.go_service_mongo_db_account_name = go_service_mongo_db_account_name
-        self.go_service_mongo_db_name = go_service_mongo_db_name
+
+        # Default Values for Microservices App 
+        self.microservice_app_package_name = 'MicroserviceApp.sfpkg'
+        self.storage_account_name = 'demobpstorage'
+        self.container_name = 'demobpscontainer'
+
+	# Default Valyes for GoService
+	self.go_service_source_path = '../build/goservice'
+        self.go_service_image_tag = "goservice:1.0"
+        self.go_service_mongo_db_account_name = "goserviceuser"
+        self.go_service_mongo_db_name = "goservicemongodb"
+        self.go_service_acr_name = "goserviceacr"
+	self.acr_username = self.go_service_mongo_db_name
+        self.acr_password = 'GEN-UNIQUE-PASSWORD'
+        self.acregistry = self.go_service_acr_name + ".azurecr.io"
+        self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
+	
+        # Default values for JavaService
+        self.java_service_source_path = '../build/javaservice'
+	self.java_service_name = 'JavaService'
 
         # Az CLI Client
         account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
@@ -286,38 +280,36 @@ class Resource_Declaration:
 	if not go_service_build_process.wait() == 0:
             sys.exit("couldn't build GoService Docker Image")
         # Create ACR go GoService
-        acr_create_process = Popen(["az", "acr", "create", "--name", self.goservice_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
+        acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
 
         if not acr_create_process.wait() == 0:
             sys.exit("Couldn't create ACR")
         # Get ACR User Name
-        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.goservice_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = acr_username_process.communicate()
 
         if acr_username_process.wait() == 0:
-            acr_username = stdout.decode("utf-8").replace('\n', '')
+            self.acr_username = stdout.decode("utf-8").replace('\n', '')
         else:
             sys.exit(stderr)
         # Get ACR Password
-        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.goservice_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = acr_password_process.communicate()
 
         if acr_password_process.wait() == 0:
-            acr_password = stdout.decode("utf-8").replace('\n', '')
+            self.acr_password = stdout.decode("utf-8").replace('\n', '')
         else:
             sys.exit(stderr)
         # Login to ACR
-        registry = self.goservice_acr_name + ".azurecr.io"
-        acr_login_process = Popen(["docker", "login", registry, "-u", acr_username, "-p", acr_password])
+        acr_login_process = Popen(["docker", "login", self.acregistry, "-u", self.acr_username, "-p", self.acr_password])
 
         if not acr_login_process.wait() == 0:
             sys.exit("Couldn't login into ACR")
 
         # Push Image to ACR
-        registry_image_tag = registry + "/" + self.go_service_image_tag
-        push_image_process = Popen(["docker", "push", registry_image_tag])
+        push_image_process = Popen(["docker", "push", self.acregistry_image_tag])
 
         if not push_image_process.wait() == 0:
             sys.exit("Couldn't push Image")
@@ -342,6 +334,8 @@ class Resource_Declaration:
 
     def classic_java_service_build(self):
         # javac ./javapp/JavaApp.java
+        self.java_service_source_path = '../build/javaservice'
+	self.java_service_name = 'JavaService'
 
     def classic_java_service_sfpkg_declaration(self):
         # copy ./javaapp/JavaApp.class to ./javapp/javacode/
