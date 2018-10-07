@@ -61,7 +61,7 @@ class Resource_Declaration:
         self.go_service_mongo_db_account_name = "goserviceuser"
         self.go_service_mongo_db_name = "goservicemongodb"
         self.go_service_acr_name = "goserviceacr"
-	self.acr_username = self.go_service_mongo_db_name
+        self.acr_username = self.go_service_mongo_db_name
         self.acr_password = 'GEN-UNIQUE-PASSWORD'
         self.acregistry = self.go_service_acr_name + ".azurecr.io"
         self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
