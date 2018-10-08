@@ -25,16 +25,8 @@ var (
 // ENVIRONMENT_DATABASE_NAME is a parameterized EnvironmentOverride defined within ApplicationManifest.xml 
 func init() {
 	database = os.Getenv("DATABASE_NAME")
-
-	dbPassword, err := ioutil.ReadFile(os.Getenv("SECRETS_PATH") + "\\DBPassword.txt")
-	
-	if err != nil{
-	  //TODO: Implement Error Handling
-	}
-	
-	password = string(dbPassword)
-	
-	port = ":" + os.Getenv("Fabric_Endpoint_GoServiceTypeEndpoint")
+	username = os.Getenv("DB_USER_NAME")
+	password = os.Getenv("DB_PASSWORD")
 }
 
 func insert(w http.ResponseWriter, r *http.Request, session *mgo.Session) {
@@ -61,10 +53,10 @@ func insertDocument(name string, number string, description string, count string
 
 	// insert Document in collection
 	err := collection.Insert(&Package{
-		Name:         name,
+		Name:        name,
 		Number:      number,
 		Description: description,
-		Count:         count,
+		Count:       count,
 	})
 
 	if err != nil {
@@ -75,11 +67,11 @@ func insertDocument(name string, number string, description string, count string
 	
 // Package represents a document in the collection
 type Package struct {
-	Id              bson.ObjectId `bson:"_id,omitempty"`
-	Name         string
+	Id          bson.ObjectId `bson:"_id,omitempty"`
+	Name        string
 	Number      string
 	Description string
-	Count         string
+	Count       string
 }
 
 func main() {
@@ -87,9 +79,9 @@ func main() {
 	dialInfo := &mgo.DialInfo{
 		Addrs:    []string{fmt.Sprintf("%s.documents.azure.com:10255", database)}, // Get HOST + PORT
 		Timeout:  60 * time.Second,
-		Database: database, // It can be anything
-		Username: database, // Username
-		Password: password, // PASSWORD
+		Database: database, // Database Name
+		Username: username, // DB Username
+		Password: password, // DB Password
 		DialServer: func(addr *mgo.ServerAddr) (net.Conn, error) {
 			return tls.Dial("tcp", addr.String(), &tls.Config{})
 		},
