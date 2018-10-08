@@ -8,7 +8,7 @@
   <CodePackage Name="GoCode" Version="1.0.0">
     <EntryPoint>
       <ContainerHost>
-        <!--Replace [myrepo] to be the name of your repo on https://hub.docker.com -->
+        <!-- TODO: Update To Environment Variable -->
         <ImageName>demosfbp/goservice:1.0.0</ImageName>
         <Commands></Commands>
       </ContainerHost>
