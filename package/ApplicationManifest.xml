@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="MicroserviceType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
     <Parameters>
-        <Parameter Name="ENVIRONMENT_DATABASE_NAME" DefaultValue="localhost" />
+        <Parameter Name="ENV_DATABASE_NAME" DefaultValue="localhost" />
+        <Parameter Name="ENV_DB_USER_NAME" DefaultValue="myuser" />
+        <Parameter Name="ENV_DB_PASSWORD" DefaultValue="mypassword" />
+        <Parameter Name="ENV_ACR_USERNAME" DefaultValue="myacr" />
+        <Parameter Name="ENV_ACR_PASSWORD" DefaultValue="myacrpassword" />
     </Parameters>
     <ServiceManifestImport>
         <ServiceManifestRef ServiceManifestName="GoService" ServiceManifestVersion="1.0.0" />
         <EnvironmentOverrides CodePackageRef="GoCode">
-            <EnvironmentVariable Name="DATABASE_NAME" Value="[ENVIRONMENT_DATABASE_NAME]" />
+            <EnvironmentVariable Name="DATABASE_NAME" Value="[ENV_DATABASE_NAME]" />
+            <EnvironmentVariable Name="DB_USER_NAME" Value="[ENV_DB_USER_NAME]" />
+            <EnvironmentVariable Name="DB_PASSWORD" Value="[ENV_DB_PASSWORD]" />
         </EnvironmentOverrides>
 	<!-- Applying Settings.xml GoSecrets to GoService, and defining distination to deliver Secrets-->
 	<Policies>
@@ -14,7 +20,7 @@
                 <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
             </ConfigPackagePolicies>
             <ContainerHostPolicies CodePackageRef="Code">
-                <RepositoryCredentials AccountName="<acr_username>" Password="<acr_password>" PasswordEncrypted="false"/>
+                <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
                 <PortBinding ContainerPort="80" EndpointRef="GoServiceTypeEndpoint"/>
             </ContainerHostPolicies>
         </Policies>
