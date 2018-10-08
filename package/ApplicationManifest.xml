@@ -2,24 +2,28 @@
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="MicroserviceType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
     <Parameters>
         <Parameter Name="ENVIRONMENT_DATABASE_NAME" DefaultValue="localhost" />
-	</Parameters>
-	<ServiceManifestImport>
+    </Parameters>
+    <ServiceManifestImport>
         <ServiceManifestRef ServiceManifestName="GoService" ServiceManifestVersion="1.0.0" />
-		<EnvironmentOverrides CodePackageRef="GoCode">
-	         <EnvironmentVariable Name="DATABASE_NAME" Value="[ENVIRONMENT_DATABASE_NAME]" />
-	    </EnvironmentOverrides>
-	    <!-- Applying Settings.xml GoSecrets to GoService, and defining distination to deliver Secrets-->
-	    <Policies>
-	        <ConfigPackagePolicies CodePackageRef="GoCode">
-		        <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
-		    </ConfigPackagePolicies>
-	    </Policies>
+        <EnvironmentOverrides CodePackageRef="GoCode">
+            <EnvironmentVariable Name="DATABASE_NAME" Value="[ENVIRONMENT_DATABASE_NAME]" />
+        </EnvironmentOverrides>
+	<!-- Applying Settings.xml GoSecrets to GoService, and defining distination to deliver Secrets-->
+	<Policies>
+	    <ConfigPackagePolicies CodePackageRef="GoCode">
+                <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
+            </ConfigPackagePolicies>
+            <ContainerHostPolicies CodePackageRef="Code">
+                <RepositoryCredentials AccountName="<acr_username>" Password="<acr_password>" PasswordEncrypted="false"/>
+                <PortBinding ContainerPort="80" EndpointRef="GoServiceTypeEndpoint"/>
+            </ContainerHostPolicies>
+        </Policies>
     </ServiceManifestImport>
     <DefaultServices>
         <Service Name="GoService">
-	        <StatelessService ServiceTypeName="GoServiceType" InstanceCount="-1" >
-			    <SingletonPartition />
-			</StatelessService>
-	    </Service>
+            <StatelessService ServiceTypeName="GoServiceType" InstanceCount="-1" >
+                <SingletonPartition />
+            </StatelessService>
+	</Service>
    </DefaultServices>
 </ApplicationManifest>
