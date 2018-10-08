@@ -25,8 +25,8 @@ var (
 // ENVIRONMENT_DATABASE_NAME is a parameterized EnvironmentOverride defined within ApplicationManifest.xml 
 func init() {
 	database = os.Getenv("DATABASE_NAME")
-	
-	dbPassword, err := ioutil.ReadFile(os.Getenv("SECURE_STORE_SERVICE_DISTINATION") + "\\DBPassword.txt")
+
+	dbPassword, err := ioutil.ReadFile(os.Getenv("SECRETS_PATH") + "\\DBPassword.txt")
 	
 	if err != nil{
 	  //TODO: Implement Error Handling
