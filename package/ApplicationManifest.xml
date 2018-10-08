@@ -11,7 +11,7 @@
 	    <!-- Applying Settings.xml GoSecrets to GoService, and defining distination to deliver Secrets-->
 	    <Policies>
 	        <ConfigPackagePolicies CodePackageRef="GoCode">
-		        <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secretsDistination"  EnvironmentVariableName="SECURE_STORE_SERVICE_DISTINATION" />
+		        <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
 		    </ConfigPackagePolicies>
 	    </Policies>
     </ServiceManifestImport>
