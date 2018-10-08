@@ -275,8 +275,8 @@ class Resource_Management_Client:
     def go_service_build(self):
         # Build GoService Container Image
         go_service_build_process = Popen(["docker", "build", "../build/goservice/", "--tag", self.go_service_image_tag])
-	
-	if not go_service_build_process.wait() == 0:
+
+        if not go_service_build_process.wait() == 0:
             sys.exit("couldn't build GoService Docker Image")
         # Create ACR go GoService
         acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
