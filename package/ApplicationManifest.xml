@@ -4,11 +4,11 @@
         <Parameter Name="ENVIRONMENT_DATABASE_NAME" DefaultValue="localhost" />
 	</Parameters>
 	<ServiceManifestImport>
-        <ServiceManifestRef ServiceManifestName="GoApp" ServiceManifestVersion="1.0.0" />
+        <ServiceManifestRef ServiceManifestName="GoService" ServiceManifestVersion="1.0.0" />
 		<EnvironmentOverrides CodePackageRef="GoCode">
 	         <EnvironmentVariable Name="DATABASE_NAME" Value="[ENVIRONMENT_DATABASE_NAME]" />
 	    </EnvironmentOverrides>
-	    <!-- Applying Settings.xml GoSecrets to GoApp, and defining distination to deliver Secrets-->
+	    <!-- Applying Settings.xml GoSecrets to GoService, and defining distination to deliver Secrets-->
 	    <Policies>
 	        <ConfigPackagePolicies CodePackageRef="GoCode">
 		        <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secretsDistination"  EnvironmentVariableName="SECURE_STORE_SERVICE_DISTINATION" />
@@ -16,8 +16,8 @@
 	    </Policies>
     </ServiceManifestImport>
     <DefaultServices>
-        <Service Name="GoAppService">
-	        <StatelessService ServiceTypeName="GoAppServiceType" InstanceCount="-1" >
+        <Service Name="GoService">
+	        <StatelessService ServiceTypeName="GoServiceType" InstanceCount="-1" >
 			    <SingletonPartition />
 			</StatelessService>
 	    </Service>
