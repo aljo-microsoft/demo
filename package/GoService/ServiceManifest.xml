@@ -8,8 +8,8 @@
   <CodePackage Name="GoCode" Version="1.0.0">
     <EntryPoint>
       <ContainerHost>
-        <!-- Replace repo/name:version -->
-        <ImageName>[IMAGE_REPO/IMAGE_NAME:IMAGE_VERSION]</ImageName>
+        <!-- repo/name:version -->
+            <ImageName>demosfbp.azurecr.io/goservice:1.0.0</ImageName>
         <Commands></Commands>
       </ContainerHost>
     </EntryPoint>
