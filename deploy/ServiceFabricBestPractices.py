@@ -11,7 +11,7 @@ from subprocess import Popen
 import sys
 import zipfile
 
-class Resource_Declaration:
+class Resource_Management_Client:
     # Microservice development Best Practice in Azure, is Service Fabric Applications, that are managed by
     # Azure Resource Manager.
     #
@@ -19,8 +19,6 @@ class Resource_Declaration:
     # E.G. may include using a x509 certificates issued by a trusted Certificate Authority.
     #
     # This was tested October 5 2018 using Azure Cloud Shell.
-    #
-    # Declared Arguments overwrite template values.
     def __init__(
         self,
         subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
@@ -28,6 +26,14 @@ class Resource_Declaration:
 
         # Owner
         self.subscription = subscription
+        
+	# Az CLI Client
+        account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
+
+        if account_set_process.wait() != 0:
+            sys.exit()
+
+        print("Deployment Subscription Valid")
 
 	# Minimum Service Fabric Cluster Values
         self.template_file = 'AzureDeploy.json'
@@ -49,11 +55,11 @@ class Resource_Declaration:
         self.dns_name = self.cluster_name + "." + self.location + ".cloudapp.azure.com"
         self.certificate_file_name = self.certificate_name + ".pem"
         self.parameters_file_arg = "@" + self.parameters_file
-
+        self.microservices_app_package_url = "https://demobpstorage.blob.core.windows.net/demobpcontainer<ID>/MicroservicesApp.sfpkg"
         # Default Values for Microservices App
         self.microservice_app_package_name = 'MicroserviceApp.sfpkg'
         self.storage_account_name = 'demobpstorage'
-        self.container_name = 'demobpscontainer'
+        self.container_name = 'demobpcontainer'
 
 	# Default Valyes for GoService
         self.go_service_source_path = '../build/goservice'
@@ -70,14 +76,11 @@ class Resource_Declaration:
         self.java_service_source_path = '../build/javaservice'
         self.java_service_name = 'JavaService'
 
-        # Az CLI Client
-        account_set_process = Popen(["az", "account", "set", "--subscription", self.subscription])
+        # Resource Declaration
+        if not Path(self.template_file).exists():
+            sys.exit("Template File Not Found")
 
-        if account_set_process.wait() != 0:
-            sys.exit()
-        
-        print("Deployment Subscription Valid")
-        
+    def declare_secret_parameter_values(self):
         # Get Parameter Values
         if Path(self.parameters_file).exists():
             parameters_file_json = json.load(open(self.parameters_file, 'r'))
@@ -202,6 +205,7 @@ class Resource_Declaration:
         # Write Template
         json.dump(parameters_file_json, open(self.parameters_file, 'w'))
 
+    def validate_declaration(self):
         # Exists or Create Deployment Group - needed for validation
         deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
@@ -213,11 +217,6 @@ class Resource_Declaration:
             if deployment_group_create_process.wait() != 0:
                 sys.exit(stderr)
 
-        # Resource Declaration
-        if not Path(self.template_file).exists():
-            sys.exit("Template File Not Found")
-
-    def validate_declaration(self):
         # Validate Deployment Declaration
         deployment_validation_process = Popen(["az", "group", "deployment", "validate", "--resource-group", self.deployment_resource_group, "--template-file", self.template_file, "--parameters", self.parameters_file_arg], stdout=PIPE, stderr=PIPE)
 
@@ -336,26 +335,14 @@ class Resource_Declaration:
             sys.exit(stderr)
 
     def go_service_sfpkg_declaration(self):
-        # Set SF Package to acregistry_image_tag
+        # - Set SF Package to acregistry_image_tag
 	# service_manifest = xml.etree.ElementTree.parse(goservice_service_manifest_path).getroot()
         # service_manifest.getchildren()[0].attrib['ImageName'] = self.acregistry_image_tag
-        # Set Environment variable DATABASE_NAME variable to self.go_service_mongo_db_name
-	# Set Environment variable DB_ACCOUNT_NAME to self.go_app_mongo_db_account_name
-        # Set Environment variable DB_PASSWORD to self.go_app_mongo_db_password
+        # - Set Environment variable DATABASE_NAME variable to self.go_service_mongo_db_name
+	# - Set Environment variable DB_ACCOUNT_NAME to self.go_app_mongo_db_account_name
+        # - Set Environment variable DB_PASSWORD to self.go_app_mongo_db_password
         # TODO: Upload go_app_mongo_db_password to Keyvault, update to use HOST MSI to authenticate to KV, and retrive password.
 	# Get Package Properties for RM Template
-	
-    def classic_java_service_build(self):
-        # javac ./javapp/JavaApp.java
-        self.java_service_source_path = '../build/javaservice'
-	self.java_service_name = 'JavaService'
-
-    def classic_java_service_sfpkg_declaration(self):
-        # copy ./javaapp/JavaApp.class to ./javapp/javacode/
-        # Update SF Packge with: Service Version, JavaApp.class 
-        # Get Package Properties for RM Template
-        classic_app_name = 'JavaApp'
-        classic_app_package = 'JavaApp.sfpkg'
 
     def microservices_app_sfpkg_declaration(self):
         # 
@@ -400,22 +387,22 @@ class Resource_Declaration:
             sys.exit(stderr)
 
         # Upload SFPKG to Blob Container
-        upload_classic_process = Popen(["az", "storage", "blob", "upload", "--file", self.classic_app_package, "--name", classic_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
+        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.classic_app_package, "--name", classic_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = upload_poa_process.communicate()
+        stdout, stderr = upload_sfpkg_process.communicate()
 
-        if upload_poa_process.wait() == 0:
+        if upload_sfpkg_process.wait() == 0:
             print("Uploaded Classic PKG To Storage Account Blob Container")
         else:
             sys.exit(stderr)
 
-        # Get URL for Solution in Storage Account Blob Container
-        url_blob_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", classic_app_name], stdout=PIPE, stderr=PIPE)
+        # Get URL for SFPKG in Storage Account Blob Container
+        url_sfpkg_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", classic_app_name], stdout=PIPE, stderr=PIPE)
 
-        stdout, stderr = url_blob_process.communicate()
+        stdout, stderr = url_sfpkg_process.communicate()
 
-        if url_blob_process.wait() == 0:
-            classic_app_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        if url_sfpkg_process.wait() == 0:
+            self.microservices_app_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
             print("Got URL for Classic file in Storage Account Blob")
         else:
             sys.exit(stderr)
@@ -605,26 +592,26 @@ class Resource_Declaration:
 
 def main():
     demo_start = datetime.now()
-    # Initial Resource Declaration with minimum for Cluster
-    resource_declaration = Resource_Declaration()
+    # Intialize RM Client
+    rmc = Resource_Manager_Client()
+    # Declare Secret Parameter Values
+    rmc.declare_secret_parameter_values()
     # Build Demo Microservices - For production use CI
-    resource_declaration.go_service_build()
-    resource_declaration.classic_java_service_build()
+    rmc.go_service_build()
     # Configure Pre-Package Demo Dependency's
-    #resourceDeclaration.enable_host_msi()
-    #resourceDeclaration.set_msi_permissions()
-    resource_declaration.go_service_cosmos_db_creation()
+    #rmc.enable_host_msi()
+    #rmc.set_msi_permissions()
+    rmc.go_service_cosmos_db_creation()
     # Package Demo Microservices
-    resource_declaration.go_service_sfpkg_declaration()
-    resource_declaration.classic_java_service_sfpkg_declaration()
-    resource_declaration.microservices_app_sfpkg_declaration()
-    resource_declaration.microservices_app_resource_declaration()
+    rmc.go_service_sfpkg_declaration()
+    rmc.microservices_app_sfpkg_declaration()
+    rmc.microservices_app_resource_declaration()
     # Deploy Demo Microservices
-    resource_declaration.validate_declaration()
-    resource_declaration.deploy_resources()
+    rmc.validate_declaration()
+    rmc.deploy_resources()
     print("Deployed Modern Microservices solution on SF Cluster Duration: " + str(datetime.now() - demo_start))
     # Operate Demo Microservices
-    resource_declaration.setup_cluster_client()
+    rmc.setup_cluster_client()
 
 if __name__ == '__main__':
     main()
