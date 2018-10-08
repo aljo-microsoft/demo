@@ -34,7 +34,7 @@ func init() {
 	
 	password = string(dbPassword)
 	
-	port = ":" + os.Getenv("Fabric_Endpoint_GoAppTypeEndpoint")
+	port = ":" + os.Getenv("Fabric_Endpoint_GoServiceTypeEndpoint")
 }
 
 func insert(w http.ResponseWriter, r *http.Request, session *mgo.Session) {
