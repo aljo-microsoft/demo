@@ -8,8 +8,8 @@
   <CodePackage Name="GoCode" Version="1.0.0">
     <EntryPoint>
       <ContainerHost>
-        <!-- TODO: Update To Environment Variable -->
-        <ImageName>demosfbp/goservice:1.0.0</ImageName>
+        <!-- Replace repo/name:version -->
+        <ImageName>[IMAGE_REPO/IMAGE_NAME:IMAGE_VERSION]</ImageName>
         <Commands></Commands>
       </ContainerHost>
     </EntryPoint>
