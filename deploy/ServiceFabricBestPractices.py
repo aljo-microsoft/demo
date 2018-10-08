@@ -63,7 +63,7 @@ class Resource_Management_Client:
 
 	# Default Valyes for GoService
         self.go_service_source_path = '../build/goservice'
-        self.go_service_image_tag = "goservice:1.0"
+        self.go_service_image_tag = "goservice:1.0.0"
         self.go_service_mongo_db_account_name = "goserviceuser"
         self.go_service_mongo_db_name = "goservicemongodb"
         self.go_service_acr_name = "demosfbp"
