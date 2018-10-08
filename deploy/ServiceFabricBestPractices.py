@@ -326,12 +326,25 @@ class Resource_Declaration:
         if not cosmos_database_create_process.wait() == 0:
             sys.exit("Couldn't crate Go App Cosmos Mongo DB")
 
-    def go_service_sfpkg_declaration(self):
-        # Get ACR URL
-        # Get Cosmos DB Password
-        # Update SF Package with: acr_username, acr_password, go_app_mongo_db_account_name, go_app_mongo_db_password
-        # Get Package Properties for RM Template
+        cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
+        stdout, stderr = cosmos_db_password_process.communicate()
+
+        if cosmos_db_password_process.wait() == 0:
+            self.cosmos_db_password = stdout.decode("utf-8").replace('\n', '')
+        else:
+            sys.exit(stderr)
+
+    def go_service_sfpkg_declaration(self):
+        # Set SF Package to acregistry_image_tag
+	# service_manifest = xml.etree.ElementTree.parse(goservice_service_manifest_path).getroot()
+        # service_manifest.getchildren()[0].attrib['ImageName'] = self.acregistry_image_tag
+        # Set Environment variable DATABASE_NAME variable to self.go_service_mongo_db_name
+	# Set Environment variable DB_ACCOUNT_NAME to self.go_app_mongo_db_account_name
+        # Set Environment variable DB_PASSWORD to self.go_app_mongo_db_password
+        # TODO: Upload go_app_mongo_db_password to Keyvault, update to use HOST MSI to authenticate to KV, and retrive password.
+	# Get Package Properties for RM Template
+	
     def classic_java_service_build(self):
         # javac ./javapp/JavaApp.java
         self.java_service_source_path = '../build/javaservice'
