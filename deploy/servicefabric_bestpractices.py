@@ -11,7 +11,7 @@ from subprocess import Popen
 import sys
 import zipfile
 
-class Resource_Management_Client:
+class ResourceManagerClient:
     # Microservice development Best Practice in Azure, is Service Fabric Applications, that are managed by
     # Azure Resource Manager.
     #
@@ -56,8 +56,11 @@ class Resource_Management_Client:
         self.certificate_file_name = self.certificate_name + ".pem"
         self.parameters_file_arg = "@" + self.parameters_file
         self.microservices_app_package_url = "https://demobpstorage.blob.core.windows.net/demobpcontainer<ID>/MicroservicesApp.sfpkg"
+
         # Default Values for Microservices App
-        self.microservice_app_package_name = 'MicroserviceApp.sfpkg'
+        self.microservices_package_path = '../package'
+        self.microservices_app_name = 'microservicesapp'
+        self.microservices_app_package_name = 'MicroserviceApp.sfpkg'
         self.storage_account_name = 'demobpstorage'
         self.container_name = 'demobpcontainer'
 
@@ -269,19 +272,19 @@ class Resource_Management_Client:
 
         cluster_connect_process = Popen(["sfctl", "cluster", "select", "--endpoint", endpoint, "--pem", self.certificate_file_name, "--no-verify"])
 
-        if not cluster_connect_process.wait() == 0:
+        if cluster_connect_process.wait() != 0:
             sys.exit("Unable to Connect to Cluster")
 
     def go_service_build(self):
         # Build GoService Container Image
         go_service_build_process = Popen(["docker", "build", "../build/goservice/", "--tag", self.go_service_image_tag])
 
-        if not go_service_build_process.wait() == 0:
+        if go_service_build_process.wait() != 0:
             sys.exit("couldn't build GoService Docker Image")
         # Create ACR go GoService
         acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
 
-        if not acr_create_process.wait() == 0:
+        if acr_create_process.wait() != 0:
             sys.exit("Couldn't create ACR")
         # Get ACR User Name
         acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
@@ -304,25 +307,25 @@ class Resource_Management_Client:
         # Login to ACR
         acr_login_process = Popen(["docker", "login", self.acregistry, "-u", self.acr_username, "-p", self.acr_password])
 
-        if not acr_login_process.wait() == 0:
+        if acr_login_process.wait() != 0:
             sys.exit("Couldn't login into ACR")
 
         # Push Image to ACR
         push_image_process = Popen(["docker", "push", self.acregistry_image_tag])
 
-        if not push_image_process.wait() == 0:
+        if push_image_process.wait() != 0:
             sys.exit("Couldn't push Image")
 
     def go_service_cosmos_db_creation(self):
         # Craete Cosmos DB Account
         cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
 
-        if not cosmos_account_create_process.wait() == 0:
+        if cosmos_account_create_process.wait() != 0:
             sys.exit("couldn't create GoApp Cosmos DB User")
 
         cosmos_database_create_process = Popen(["az", "cosmosdb", "database", "create", "--db-name", self.go_service_mongo_db_name, "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group])
 
-        if not cosmos_database_create_process.wait() == 0:
+        if cosmos_database_create_process.wait() != 0:
             sys.exit("Couldn't crate Go App Cosmos Mongo DB")
 
         cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
@@ -336,17 +339,17 @@ class Resource_Management_Client:
 
     def go_service_sfpkg_declaration(self):
         # - Set SF Package to acregistry_image_tag
-	# service_manifest = xml.etree.ElementTree.parse(goservice_service_manifest_path).getroot()
+        # service_manifest = xml.etree.ElementTree.parse(goservice_service_manifest_path).getroot()
         # service_manifest.getchildren()[0].attrib['ImageName'] = self.acregistry_image_tag
         # - Set Environment variable DATABASE_NAME variable to self.go_service_mongo_db_name
-	# - Set Environment variable DB_ACCOUNT_NAME to self.go_app_mongo_db_account_name
+        # - Set Environment variable DB_ACCOUNT_NAME to self.go_app_mongo_db_account_name
         # - Set Environment variable DB_PASSWORD to self.go_app_mongo_db_password
         # TODO: Upload go_app_mongo_db_password to Keyvault, update to use HOST MSI to authenticate to KV, and retrive password.
-	# Get Package Properties for RM Template
+        # Get Package Properties for RM Template
+        print("Declared Go Service")
 
-    def microservices_app_sfpkg_declaration(self):
-        # 
-	# Create microservices_app_v1.0.sfpkg
+    def microservices_app_sfpkg_declaration(self): 
+        # Create microservices_app_v1.0.sfpkg
         # Create Storage Account
         # Get Connection String to Storage Account
         # Create Storage Account Blob Container
@@ -386,8 +389,17 @@ class Resource_Management_Client:
         else:
             sys.exit(stderr)
 
+        # Zip SFPKG to Upload to Blob Container
+        microservices_sfpkg = zipfile.ZipFile(self.microservices_app_package_name, 'w', zipfile.ZIP_DEFLATED)
+        # Add each package element to zip file
+        for root, dirs, files in os.walk(self.microservices_app_package_path):
+            for file in files:
+                microservices_sfpkg.write(os.path.join(root, file))
+        # Close zip file
+        microservice_sfpkg.close()
+
         # Upload SFPKG to Blob Container
-        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.classic_app_package, "--name", classic_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
+        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.microservices_app_package_name, "--name", microservices_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = upload_sfpkg_process.communicate()
 
@@ -417,26 +429,23 @@ class Resource_Management_Client:
 	# Declare Classic App Services as resources that is apart of microservices Application
         # Unzip SFPKG and Get Properties
         print("Declaring classic app in template")
-        template_file_json = json.load(open(self.template_file, 'r'))
-        classic_app_sfpkg = zipfile.ZipFile(self.classic_app_name, "r")
-        classic_app_sfpkg.extractall(classic_app_name)
-        application_manifest_path = classic_app_name + "/ApplicationManifest.xml"
+        application_manifest_path = self.microservice_package_path + "/ApplicationManifest.xml"
         application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
         sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
         sfpkg_application_type_name = application_manifest.attrib['ApplicationTypeName']
 
         for i in range(len(application_manifest)):
             if application_manifest[i].tag == '{http://schemas.microsoft.com/2011/01/fabric}DefaultServices':
-                poa_services = application_manifest[i].getchildren()
-                for j in range(len(poa_services)):
-                    if poa_services[j].attrib['Name'].lower().find("coordinator") > -1:
-                        sfpkg_coordinator_service_name = poa_services[j].attrib['Name']
-                        sfpkg_coordinator_service_type = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
-                    elif poa_services[j].attrib['Name'].lower().find("nodeagent") > -1:
-                        sfpkg_node_agent_service_name = poa_services[j].attrib['Name']
-                        sfpkg_node_agent_service_type = poa_services[j].getchildren()[0].attrib['ServiceTypeName']
+                microservices = application_manifest[i].getchildren()
+                for j in range(len(microservices)):
+                    if microservices[j].attrib['Name'].lower().find("go") > -1:
+                        go_service_name = microservices[j].attrib['Name']
+                        go_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
+                    elif poa_services[j].attrib['Name'].lower().find("java") > -1:
+                        java_service_name = microservices[j].attrib['Name']
+                        java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
-                        sys.exit("couldn't find coordinator or nodeagent services properties in Application Manifest")
+                        sys.exit("couldn't find ApplicationManifest Services")
 
         # ApplicationType
         application_type_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'))]"
@@ -469,7 +478,7 @@ class Resource_Management_Client:
                 ],
                 "properties": {
                     "provisioningState": "Default",
-                    "appPackageUrl": poa_package_url
+                    "appPackageUrl": self.microservices_app_package_url
                 }
             }
         ]
@@ -515,22 +524,22 @@ class Resource_Management_Client:
             }
         ]
 
-        # NodeAgent Service
-        node_agent_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_node_agent_service_name + "')]"
-        node_agent_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
+        # Go Service
+        go_service_name = "[concat(parameters('clusterName'), '/', '" + microservices_app_name + "', '/', '" + microservice_app_name + "~" + sfpkg_go_service_name + "')]"
+        go_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + microservices_app_name_name + "')]"
         template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applications/services",
-                "name": node_agent_service_name,
+                "name": go_service_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    node_agent_service_depends_on
+                    go_service_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default",
                     "serviceKind": "Stateless",
-                    "serviceTypeName": sfpkg_node_agent_service_type,
+                    "serviceTypeName": sfpkg_go_service_type,
                     "instanceCount": "-1",
                     "partitionDescription": {
                         "partitionScheme": "Singleton"
@@ -541,22 +550,22 @@ class Resource_Management_Client:
                 }
             }
         ]
-        # Coordinator Service
-        coordinator_service_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "', '/', '" + poa_name + "~" + sfpkg_coordinator_service_name + "')]"
-        coordinator_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + poa_name + "')]"
+        # Java Service
+        java_service_name = "[concat(parameters('clusterName'), '/', '" + microservices_app_name + "', '/', '" + microservices_app_name + "~" + sfpkg_java_service_name + "')]"
+        java_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + microservices_app_name + "')]"
         template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
                 "type": "Microsoft.ServiceFabric/clusters/applications/services",
-                "name": coordinator_service_name,
+                "name": java_service_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    coordinator_service_depends_on
+                    java_service_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default",
                     "serviceKind": "Stateful",
-                    "serviceTypeName": sfpkg_coordinator_service_type,
+                    "serviceTypeName": sfpkg_java_service_type,
                     "targetReplicaSetSize": "3",
                     "minReplicaSetSize": "2",
                     "replicaRestartWaitDuration": "00:01:00.0",
@@ -582,18 +591,18 @@ class Resource_Management_Client:
         json.dump(template_file_json, template_file)
         template_file.close()
 
-    def Enable_Host_MSI(self):
+    def enable_host_msi(self):
         # Update template to enable host MSi and apply policies
-        print("TODO: Enable Host MSI")
+        print("Enable Host MSI")
 
-    def Set_MSI_Permissions(self):
+    def set_msi_permissions(self):
         # grant AAD permissions to MSI for resource such as Cosmos DB
-        print("TODO: Apply Permissions to Resource for MSI")
+        print("Apply Permissions to Resource for MSI")
 
 def main():
     demo_start = datetime.now()
     # Intialize RM Client
-    rmc = Resource_Manager_Client()
+    rmc = ResourceManagerClient()
     # Declare Secret Parameter Values
     rmc.declare_secret_parameter_values()
     # Build Demo Microservices - For production use CI
