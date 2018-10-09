@@ -52,26 +52,24 @@ class ResourceManagerClient:
         self.certificate_url_value = 'GEN-KEYVAULT-SSL-SECRET-URI'
         self.user_email = 'aljo-microsoft@github.com'
 
-        # Default Values for Program
+        # Default Values for Microservices App
         self.dns_name = self.cluster_name + "." + self.location + ".cloudapp.azure.com"
         self.certificate_file_name = self.certificate_name + ".pem"
         self.parameters_file_arg = "@" + self.parameters_file
         self.microservices_app_package_url = "https://demobpstorage.blob.core.windows.net/demobpcontainer<ID>/MicroservicesApp.sfpkg"
-
-        # Default Values for Microservices App
         self.microservices_app_package_path = '../package'
         self.microservices_app_name = 'microservicesapp'
         self.microservices_app_package_name = 'MicroserviceApp.sfpkg'
         self.storage_account_name = 'demobpstorage'
         self.container_name = 'demobpcontainer'
+        self.microservices_mongo_db_account_name = 'microservicesuser'
+        self.microservices_mongo_db_name = 'microservicemongodb'
 
 	# Default Valyes for GoService
         self.go_service_source_path = '../build/goservice'
         self.go_service_image_tag = "goservice:1.0.0"
-        self.go_service_mongo_db_account_name = "goserviceuser"
-        self.go_service_mongo_db_name = "goservicemongodb"
         self.go_service_acr_name = "demosfbp"
-        self.acr_username = self.go_service_mongo_db_name
+        self.acr_username = self.microservices_mongo_db_name
         self.acr_password = 'GEN-UNIQUE-PASSWORD'
         self.acregistry = self.go_service_acr_name + ".azurecr.io"
         self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
@@ -79,7 +77,7 @@ class ResourceManagerClient:
 	
         # Default values for JavaService
         self.java_service_source_path = '../build/javaservice'
-        self.java_service_name = 'JavaService'
+        self.java_service_name = 'javaservice'
 
         # Resource Declaration
         if not Path(self.template_file).exists():
@@ -318,19 +316,19 @@ class ResourceManagerClient:
         if push_image_process.wait() != 0:
             sys.exit("Couldn't push Image")
 
-    def go_service_cosmos_db_creation(self):
+    def microservices_cosmos_db_creation(self):
         # Craete Cosmos DB Account
-        cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
+        cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
 
         if cosmos_account_create_process.wait() != 0:
             sys.exit("couldn't create GoApp Cosmos DB User")
 
-        cosmos_database_create_process = Popen(["az", "cosmosdb", "database", "create", "--db-name", self.go_service_mongo_db_name, "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group])
+        cosmos_database_create_process = Popen(["az", "cosmosdb", "database", "create", "--db-name", self.microservices_mongo_db_name, "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group])
 
         if cosmos_database_create_process.wait() != 0:
             sys.exit("Couldn't crate Go App Cosmos Mongo DB")
 
-        cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.go_service_mongo_db_account_name, "--resource-group", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+        cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = cosmos_db_password_process.communicate()
 
@@ -343,12 +341,20 @@ class ResourceManagerClient:
         # - Set SF Package to acregistry_image_tag
         # service_manifest = xml.etree.ElementTree.parse(goservice_service_manifest_path).getroot()
         # service_manifest.getchildren()[0].attrib['ImageName'] = self.acregistry_image_tag
-        # - Set Environment variable DATABASE_NAME variable to self.go_service_mongo_db_name
-        # - Set Environment variable DB_ACCOUNT_NAME to self.go_app_mongo_db_account_name
-        # - Set Environment variable DB_PASSWORD to self.go_app_mongo_db_password
+        # - Set Environment variable DATABASE_NAME variable to self.microservices_mongo_db_name
+        # - Set Environment variable DB_ACCOUNT_NAME to self.microservices_mongo_db_account_name
+        # - Set Environment variable DB_PASSWORD to self.microservices_mongo_db_password
         # TODO: Upload go_app_mongo_db_password to Keyvault, update to use HOST MSI to authenticate to KV, and retrive password.
         # Get Package Properties for RM Template
         print("Declared Go Service")
+
+    def java_service_build(self):
+        # Build Java class that uses VMSS MSI to write to cosmos_db
+        print("build JavaService.java")
+
+    def java_service_sfpkg_declaration(self):
+        # Set service name
+        print("Declare Java Service")
 
     def microservices_app_sfpkg_staging(self): 
         # Create microservices_app_v1.0.sfpkg
@@ -431,7 +437,7 @@ class ResourceManagerClient:
 	# Declare Classic App Services as resources that is apart of microservices Application
         # Unzip SFPKG and Get Properties
         print("Declaring classic app in template")
-        application_manifest_path = self.microservices_package_path + "/ApplicationManifest.xml"
+        application_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
         application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
         sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
         sfpkg_application_type_name = application_manifest.attrib['ApplicationTypeName']
@@ -441,11 +447,11 @@ class ResourceManagerClient:
                 microservices = application_manifest[i].getchildren()
                 for j in range(len(microservices)):
                     if microservices[j].attrib['Name'].lower().find("go") > -1:
-                        go_service_name = microservices[j].attrib['Name']
-                        go_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
+                        sfpkg_go_service_name = microservices[j].attrib['Name']
+                        sfpkg_go_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
                     elif microservices[j].attrib['Name'].lower().find("java") > -1:
-                        java_service_name = microservices[j].attrib['Name']
-                        java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
+                        sfpkg_java_service_name = microservices[j].attrib['Name']
+                        sfpkg_java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
                         sys.exit("couldn't find ApplicationManifest Services")
 
@@ -486,7 +492,7 @@ class ResourceManagerClient:
         ]
 
         # Application
-        application_name = "[concat(parameters('clusterName'), '/', '" + microservices_app_name + "')]"
+        application_name = "[concat(parameters('clusterName'), '/', '" + self.microservices_app_name + "')]"
         application_name_dependends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "', '/versions/', '" + sfpkg_application_type_version + "')]"
         template_file_json["resources"] += [
             {
