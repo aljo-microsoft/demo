@@ -5,6 +5,7 @@ __status__ = "Development"
 from datetime import datetime
 import xml.etree.ElementTree
 import json
+import os
 from pathlib import Path
 from subprocess import PIPE
 from subprocess import Popen
@@ -58,7 +59,7 @@ class ResourceManagerClient:
         self.microservices_app_package_url = "https://demobpstorage.blob.core.windows.net/demobpcontainer<ID>/MicroservicesApp.sfpkg"
 
         # Default Values for Microservices App
-        self.microservices_package_path = '../package'
+        self.microservices_app_package_path = '../package'
         self.microservices_app_name = 'microservicesapp'
         self.microservices_app_package_name = 'MicroserviceApp.sfpkg'
         self.storage_account_name = 'demobpstorage'
@@ -74,6 +75,7 @@ class ResourceManagerClient:
         self.acr_password = 'GEN-UNIQUE-PASSWORD'
         self.acregistry = self.go_service_acr_name + ".azurecr.io"
         self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
+        self.cosmos_db_password = 'GEN-UNIQUE-PASSWORD'
 	
         # Default values for JavaService
         self.java_service_source_path = '../build/javaservice'
@@ -348,7 +350,7 @@ class ResourceManagerClient:
         # Get Package Properties for RM Template
         print("Declared Go Service")
 
-    def microservices_app_sfpkg_declaration(self): 
+    def microservices_app_sfpkg_staging(self): 
         # Create microservices_app_v1.0.sfpkg
         # Create Storage Account
         # Get Connection String to Storage Account
@@ -396,15 +398,15 @@ class ResourceManagerClient:
             for file in files:
                 microservices_sfpkg.write(os.path.join(root, file))
         # Close zip file
-        microservice_sfpkg.close()
+        microservices_sfpkg.close()
 
         # Upload SFPKG to Blob Container
-        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.microservices_app_package_name, "--name", microservices_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
+        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.microservices_app_package_name, "--name", self.microservices_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = upload_sfpkg_process.communicate()
 
         if upload_sfpkg_process.wait() == 0:
-            print("Uploaded Classic PKG To Storage Account Blob Container")
+            print("Uploaded SFPKG To Storage Account Blob Container")
         else:
             sys.exit(stderr)
 
@@ -415,21 +417,21 @@ class ResourceManagerClient:
 
         if url_sfpkg_process.wait() == 0:
             self.microservices_app_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-            print("Got URL for Classic file in Storage Account Blob")
+            print("Got URL for SFPKG in Storage Account Blob")
         else:
             sys.exit(stderr)
 
     def microservices_app_resource_declaration(self):
         # Update Template with Application, App Type, App Version, Service Type's (go app, and classic java)
-
         print("Updating Resource Declaration Microservices SolutionJavaApp")
+        template_file_json = json.load(open(self.template_file, 'r'))
 
         # TODO: Below needs to be updated to only append Service to Application type
         #       Will delcare Type with GoApp.
 	# Declare Classic App Services as resources that is apart of microservices Application
         # Unzip SFPKG and Get Properties
         print("Declaring classic app in template")
-        application_manifest_path = self.microservice_package_path + "/ApplicationManifest.xml"
+        application_manifest_path = self.microservices_package_path + "/ApplicationManifest.xml"
         application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
         sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
         sfpkg_application_type_name = application_manifest.attrib['ApplicationTypeName']
@@ -441,7 +443,7 @@ class ResourceManagerClient:
                     if microservices[j].attrib['Name'].lower().find("go") > -1:
                         go_service_name = microservices[j].attrib['Name']
                         go_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
-                    elif poa_services[j].attrib['Name'].lower().find("java") > -1:
+                    elif microservices[j].attrib['Name'].lower().find("java") > -1:
                         java_service_name = microservices[j].attrib['Name']
                         java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
@@ -484,7 +486,7 @@ class ResourceManagerClient:
         ]
 
         # Application
-        application_name = "[concat(parameters('clusterName'), '/', '" + poa_name + "')]"
+        application_name = "[concat(parameters('clusterName'), '/', '" + microservices_app_name + "')]"
         application_name_dependends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', '" + sfpkg_application_type_name + "', '/versions/', '" + sfpkg_application_type_version + "')]"
         template_file_json["resources"] += [
             {
@@ -525,8 +527,8 @@ class ResourceManagerClient:
         ]
 
         # Go Service
-        go_service_name = "[concat(parameters('clusterName'), '/', '" + microservices_app_name + "', '/', '" + microservice_app_name + "~" + sfpkg_go_service_name + "')]"
-        go_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + microservices_app_name_name + "')]"
+        go_service_name = "[concat(parameters('clusterName'), '/', '" + self.microservices_app_name + "', '/', '" + self.microservice_app_name + "~" + sfpkg_go_service_name + "')]"
+        go_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + self.microservices_app_name + "')]"
         template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
@@ -551,8 +553,8 @@ class ResourceManagerClient:
             }
         ]
         # Java Service
-        java_service_name = "[concat(parameters('clusterName'), '/', '" + microservices_app_name + "', '/', '" + microservices_app_name + "~" + sfpkg_java_service_name + "')]"
-        java_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + microservices_app_name + "')]"
+        java_service_name = "[concat(parameters('clusterName'), '/', '" + self.microservices_app_name + "', '/', '" + self.microservices_app_name + "~" + sfpkg_java_service_name + "')]"
+        java_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + self.microservices_app_name + "')]"
         template_file_json["resources"] += [
             {
                 "apiVersion": "2017-07-01-preview",
@@ -607,14 +609,16 @@ def main():
     rmc.declare_secret_parameter_values()
     # Build Demo Microservices - For production use CI
     rmc.go_service_build()
+    #rmc.java_service_build()
     # Configure Pre-Package Demo Dependency's
     #rmc.enable_host_msi()
     #rmc.set_msi_permissions()
     rmc.go_service_cosmos_db_creation()
     # Package Demo Microservices
     rmc.go_service_sfpkg_declaration()
-    rmc.microservices_app_sfpkg_declaration()
+    #rmc.java_service_sfpkg_declaration()
     rmc.microservices_app_resource_declaration()
+    rmc.microservices_app_sfpkg_staging()
     # Deploy Demo Microservices
     rmc.validate_declaration()
     rmc.deploy_resources()
