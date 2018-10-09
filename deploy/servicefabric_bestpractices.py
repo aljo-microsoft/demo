@@ -276,16 +276,18 @@ class ResourceManagerClient:
             sys.exit("Unable to Connect to Cluster")
 
     def go_service_build(self):
-        # Build GoService Container Image
-        go_service_build_process = Popen(["docker", "build", "../build/goservice/", "--tag", self.go_service_image_tag])
-
-        if go_service_build_process.wait() != 0:
-            sys.exit("couldn't build GoService Docker Image")
-        # Create ACR go GoService
+        # Create ACR for goservice Container
         acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
 
         if acr_create_process.wait() != 0:
             sys.exit("Couldn't create ACR")
+
+        # Build GoService Container Image
+        go_service_build_process = Popen(["az", "acr", "build", "--os", "Linux", "registry", self.go_service_acr_name, "--image", self.go_service_image_tag, "../build/goservice/"])
+
+        if go_service_build_process.wait() != 0:
+            sys.exit("couldn't build GoService Docker Image")
+
         # Get ACR User Name
         acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
 
@@ -304,17 +306,6 @@ class ResourceManagerClient:
             self.acr_password = stdout.decode("utf-8").replace('\n', '')
         else:
             sys.exit(stderr)
-        # Login to ACR
-        acr_login_process = Popen(["docker", "login", self.acregistry, "-u", self.acr_username, "-p", self.acr_password])
-
-        if acr_login_process.wait() != 0:
-            sys.exit("Couldn't login into ACR")
-
-        # Push Image to ACR
-        push_image_process = Popen(["docker", "push", self.acregistry_image_tag])
-
-        if push_image_process.wait() != 0:
-            sys.exit("Couldn't push Image")
 
     def microservices_cosmos_db_creation(self):
         # Craete Cosmos DB Account

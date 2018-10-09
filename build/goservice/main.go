@@ -7,7 +7,6 @@ import (
 	"net"
 	"os"
 	"time"
-	"io/ioutil"
     "html/template"
 	"net/http"
 	"gopkg.in/mgo.v2"
@@ -18,6 +17,7 @@ var (
 	database string
 	password string
 	port string
+	username string
 )
 
 // DBPassword.txt file name is defined within packages configuration
