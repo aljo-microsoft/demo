@@ -319,7 +319,7 @@ class ResourceManagerClient:
         if cosmos_database_create_process.wait() != 0:
             sys.exit("Couldn't crate Go App Cosmos Mongo DB")
 
-        cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+        cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--query", "primaryMasterKey"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = cosmos_db_password_process.communicate()
 
