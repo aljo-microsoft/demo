@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-    <!--Declare your Services Configuration Values-->
-	<!-- Example: Parameter Name becomes a file name, and value is the versioned reference key to SecureStoreService secret
+    <!--Declare your Services Configuration Values -->
+        <!-- Example:
 	<Section Name="GoSecrets">
 	  <Parameter Name="DBPassword.txt" Value="DBPassword:1.0" Type="SecretsStoreRef" />
 	</Section>
