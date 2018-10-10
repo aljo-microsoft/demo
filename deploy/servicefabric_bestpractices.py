@@ -307,6 +307,10 @@ class ResourceManagerClient:
         else:
             sys.exit(stderr)
 
+    def java_service_build(self):
+        # Build Java class that uses VMSS MSI to write to cosmos_db
+        print("build JavaService.java")
+
     def microservices_cosmos_db_creation(self):
         # Craete Cosmos DB Account
         cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
@@ -328,24 +332,34 @@ class ResourceManagerClient:
         else:
             sys.exit(stderr)
 
-    def go_service_sfpkg_declaration(self):
-        # - Set SF Package to acregistry_image_tag
-        # service_manifest = xml.etree.ElementTree.parse(goservice_service_manifest_path).getroot()
-        # service_manifest.getchildren()[0].attrib['ImageName'] = self.acregistry_image_tag
-        # - Set Environment variable DATABASE_NAME variable to self.microservices_mongo_db_name
-        # - Set Environment variable DB_ACCOUNT_NAME to self.microservices_mongo_db_account_name
-        # - Set Environment variable DB_PASSWORD to self.microservices_mongo_db_password
-        # TODO: Upload go_app_mongo_db_password to Keyvault, update to use HOST MSI to authenticate to KV, and retrive password.
-        # Get Package Properties for RM Template
-        print("Declared Go Service")
+    def microservices_app_sfpkg_declaration(self):
+        # Set ApplicationManifest DefaultValues
+        app_manifest = xml.etree.ElementTree.parse("../package/ApplicationManifest.xml")
+        app_manifest_root = app_manifest.getroot()
+        app_manifest_params_parent = app_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}Parameters')
+        app_manifest_parameters = app_manifest_params_parent.findall('{http://schemas.microsoft.com/2011/01/fabric}Parameter')
+        for parameter in app_manifest_parameters:
+            parameter_name = parameter.get('Name')
+            if parameter_name == 'ENV_DATABASE_NAME':
+                parameter.set('DefaultValue', self.microservices_mongo_db_name)
+            elif parameter_name == 'ENV_DB_USER_NAME':
+                parameter.set('DefaultValue', self.microservices_mongo_db_account_name)
+            elif parameter_name == 'ENV_DB_PASSWORD':
+                parameter.set('DefaultValue', self.microservices_mongo_db_password)
+            elif parameter_name == 'ENV_ACR_USERNAME':
+                parameter.set('DefaultValue', self.acr_username)
+            elif parameter_name == 'ENV_ACR_PASSWORD':
+                parameter.set('DefaultValue', self.acr_password)
+            else:
+                sys.exit("Couldn't set ApplicationManifest DefaultValues")
 
-    def java_service_build(self):
-        # Build Java class that uses VMSS MSI to write to cosmos_db
-        print("build JavaService.java")
-
-    def java_service_sfpkg_declaration(self):
-        # Set service name
-        print("Declare Java Service")
+        # Set Go ServiceManifest DefaultValues
+        go_service_manifest = xml.etree.ElementTree.parse("../package/goservice/ServiceManifest.xml")
+        go_service_manifest_root = go_service_manifest.getroot()
+        go_service_manifest_codepackage = go_service_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}CodePackage')
+        go_service_manifest_entrypoint = go_service_manifest_codepackage.find('{http://schemas.microsoft.com/2011/01/fabric}EntryPoint')
+        go_service_manifest_containerhost = go_service_manifest_entrypoint.find('{http://schemas.microsoft.com/2011/01/fabric}ContainerHost')
+        image_name.text = self.go_service_image_tag  
 
     def microservices_app_sfpkg_staging(self): 
         # Create microservices_app_v1.0.sfpkg
