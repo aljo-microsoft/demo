@@ -353,13 +353,14 @@ class ResourceManagerClient:
             else:
                 sys.exit("Couldn't set ApplicationManifest DefaultValues")
 
-        # Set Go ServiceManifest DefaultValues
+        # Set Go ServiceManifest ImageName
         go_service_manifest = xml.etree.ElementTree.parse("../package/goservice/ServiceManifest.xml")
         go_service_manifest_root = go_service_manifest.getroot()
         go_service_manifest_codepackage = go_service_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}CodePackage')
         go_service_manifest_entrypoint = go_service_manifest_codepackage.find('{http://schemas.microsoft.com/2011/01/fabric}EntryPoint')
         go_service_manifest_containerhost = go_service_manifest_entrypoint.find('{http://schemas.microsoft.com/2011/01/fabric}ContainerHost')
-        image_name.text = self.go_service_image_tag  
+        go_service_manifest_image_name = go_service_manifest_containerhost.find('{http://schemas.microsoft.com/2011/01/fabric}ImageName')
+        go_service_manifest_image_name.text = self.acregistry_image_tag  
 
     def microservices_app_sfpkg_staging(self): 
         # Create microservices_app_v1.0.sfpkg
