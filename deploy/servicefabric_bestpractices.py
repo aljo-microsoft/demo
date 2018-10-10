@@ -334,7 +334,8 @@ class ResourceManagerClient:
 
     def microservices_app_sfpkg_declaration(self):
         # Set ApplicationManifest DefaultValues
-        app_manifest = xml.etree.ElementTree.parse("../package/ApplicationManifest.xml")
+        app_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
+        app_manifest = xml.etree.ElementTree.parse(app_manifest_path)
         app_manifest_root = app_manifest.getroot()
         app_manifest_params_parent = app_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}Parameters')
         app_manifest_parameters = app_manifest_params_parent.findall('{http://schemas.microsoft.com/2011/01/fabric}Parameter')
@@ -353,14 +354,19 @@ class ResourceManagerClient:
             else:
                 sys.exit("Couldn't set ApplicationManifest DefaultValues")
 
+        app_manifest.write(app_manifest_path)
         # Set Go ServiceManifest ImageName
-        go_service_manifest = xml.etree.ElementTree.parse("../package/goservice/ServiceManifest.xml")
+        go_service_manifest_path = self.microservices_app_package_path + "/GoService/ServiceManifest.xml"
+        go_service_manifest = xml.etree.ElementTree.parse(go_service_manifest_path)
         go_service_manifest_root = go_service_manifest.getroot()
         go_service_manifest_codepackage = go_service_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}CodePackage')
         go_service_manifest_entrypoint = go_service_manifest_codepackage.find('{http://schemas.microsoft.com/2011/01/fabric}EntryPoint')
         go_service_manifest_containerhost = go_service_manifest_entrypoint.find('{http://schemas.microsoft.com/2011/01/fabric}ContainerHost')
         go_service_manifest_image_name = go_service_manifest_containerhost.find('{http://schemas.microsoft.com/2011/01/fabric}ImageName')
-        go_service_manifest_image_name.text = self.acregistry_image_tag  
+        go_service_manifest_image_name.text = self.acregistry_image_tag
+
+        go_service_manifest.write(go_service_manifest_path)
+        # Set Java ServiceManifest values
 
     def microservices_app_sfpkg_staging(self): 
         # Create microservices_app_v1.0.sfpkg
