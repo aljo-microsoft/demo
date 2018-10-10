@@ -11,6 +11,7 @@ from subprocess import PIPE
 from subprocess import Popen
 import sys
 import zipfile
+import requests
 
 class ResourceManagerClient:
     # Microservice development Best Practice in Azure, is Service Fabric Applications, that are managed by
@@ -309,6 +310,10 @@ class ResourceManagerClient:
 
     def java_service_build(self):
         # Build Java class that uses VMSS MSI to write to cosmos_db
+	azure_samples_java_msi = 'https://raw.githubusercontent.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java'
+        requests.get(azure_samples_java_msi)
+        requests.text
+        # requests.text to ManageUserAssignedMSIEnabledVirtualMachine.java
         print("build JavaService.java")
 
     def microservices_cosmos_db_creation(self):
