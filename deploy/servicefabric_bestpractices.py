@@ -309,12 +309,19 @@ class ResourceManagerClient:
             sys.exit(stderr)
 
     def java_service_build(self):
-        # Build Java class that uses VMSS MSI to write to cosmos_db
-	azure_samples_java_msi = 'https://raw.githubusercontent.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java'
-        requests.get(azure_samples_java_msi)
-        requests.text
-        # requests.text to ManageUserAssignedMSIEnabledVirtualMachine.java
-        print("build JavaService.java")
+        # Build Azure Sample Java class that uses VMSS MSI
+        # Get Source
+        azure_samples_java_msi = 'https://raw.githubusercontent.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java'
+        java_source = requests.get(azure_samples_java_msi)
+        java_file_name = 'ManageUserAssignedMSIEnabledVirtualMachine.java'
+        java_file_source_path = self.java_service_source_path + "/" + java_file_name
+        java_file = open(java_file_source_path, 'w')
+        java_file.write(java_source.text)
+        # Build Source
+        java_build_process = Popen(["javac", java_file_source_path])
+
+        if java_build_process.wait() != 0:
+            sys.exit("Couldn't compile java program")
 
     def microservices_cosmos_db_creation(self):
         # Craete Cosmos DB Account
