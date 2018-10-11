@@ -5,20 +5,19 @@ Executing servicefabric_bestpractices.py will result in a Service Fabric Cluster
 ResourceManagerClient and executing functions individually.
 
 # Status
-10/8/2019
+10/10/2019
 
-ARM deployment of Service Fabric Application Versions tarteged for Linux hosts doesn't work; requires using SF client
-(sfctl or powershell) to deploy applications to Linux.
+This is a modern microservices architected application, which is composed of a Golang docker containizered Service, and a non containerized Java (see below for more) service; declared as a single ARM Service Fabric Application resource.
 
-This modern microservices architected application, is composed of a Golang Docker containizered Service, and a non 
-containerized Java Service; declared as a single ARM Service Fabric Application resource. The Go Service is implemented to
-serve an HTML UI for writing mongodb collections to CosmosDB. The Java Service currently is [Computes sample](https://github.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/blob/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java) for managing virtual machines, by:
-- Create a Resource Group and User Assigned MSI with CONTRIBUTOR access to the resource group
-- Create a Linux VM and associate it with User Assigned MSI
-   - Install Java8, Maven3 and GIT on the VM using Azure Custom Script Extension
-- Run Java application in the MSI enabled Linux VM which uses MSI credentials to manage Azure resource
-- Retrieve the Virtual machine created from the MSI enabled Linux VM.
+The Go Service is implemented to serve a HTML UI for writing mongodb collections to CosmosDB.
 
-Discovering how to update compute sample to Java Service, to write to the same cosmos db as Go Service, using VM MSI instead of Go Service used user name and password for cosmos db.
+For the Java service I'm currently evaluating using:
+The Java [Computes sample](https://github.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/blob/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java) for managing virtual machines using a user Assigned MSI;
 
-Next step is to implement inbound and outbound NSG rules.
+Requires I download Azure SDK before I can compile its dependencies
+
+and https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connect-query-java
+
+The intention is to deploy a classic enterprise application that is using Azure SQL DB for its data; and enhance it's security to use VMSS MSI instead of DB user name and password.
+
+Lastly will plan to implement inbound and outbound NSG rules to further secure the environment
