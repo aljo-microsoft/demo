@@ -358,7 +358,7 @@ class ResourceManagerClient:
             elif parameter_name == 'ENV_DB_USER_NAME':
                 parameter.set('DefaultValue', self.microservices_mongo_db_account_name)
             elif parameter_name == 'ENV_DB_PASSWORD':
-                parameter.set('DefaultValue', self.microservices_mongo_db_password)
+                parameter.set('DefaultValue', self.cosmos_db_password)
             elif parameter_name == 'ENV_ACR_USERNAME':
                 parameter.set('DefaultValue', self.acr_username)
             elif parameter_name == 'ENV_ACR_PASSWORD':
@@ -578,7 +578,7 @@ class ResourceManagerClient:
                     "servicePlacementPolicies": []
                 }
             }
-	]
+        ]
 
         # Update Template File
         template_file = open(self.template_file, 'w')
