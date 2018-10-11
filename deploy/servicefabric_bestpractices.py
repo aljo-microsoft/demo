@@ -473,9 +473,6 @@ class ResourceManagerClient:
                     if microservices[j].attrib['Name'].lower().find("go") > -1:
                         sfpkg_go_service_name = microservices[j].attrib['Name']
                         sfpkg_go_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
-                    elif microservices[j].attrib['Name'].lower().find("java") > -1:
-                        sfpkg_java_service_name = microservices[j].attrib['Name']
-                        sfpkg_java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
                         sys.exit("couldn't find ApplicationManifest Services")
 
@@ -581,42 +578,7 @@ class ResourceManagerClient:
                     "servicePlacementPolicies": []
                 }
             }
-        ]
-        # Java Service
-        java_service_name = "[concat(parameters('clusterName'), '/', '" + self.microservices_app_name + "', '/', '" + self.microservices_app_name + "~" + sfpkg_java_service_name + "')]"
-        java_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + self.microservices_app_name + "')]"
-        template_file_json["resources"] += [
-            {
-                "apiVersion": "2017-07-01-preview",
-                "type": "Microsoft.ServiceFabric/clusters/applications/services",
-                "name": java_service_name,
-                "location": "[variables('location')]",
-                "dependsOn": [
-                    java_service_depends_on
-                ],
-                "properties": {
-                    "provisioningState": "Default",
-                    "serviceKind": "Stateful",
-                    "serviceTypeName": sfpkg_java_service_type,
-                    "targetReplicaSetSize": "3",
-                    "minReplicaSetSize": "2",
-                    "replicaRestartWaitDuration": "00:01:00.0",
-                    "quorumLossWaitDuration": "00:02:00.0",
-                    "standByReplicaKeepDuration": "00:00:30.0",
-                    "partitionDescription": {
-                        "partitionScheme": "UniformInt64Range",
-                        "count": "5",
-                        "lowKey": "1",
-                        "highKey": "5"
-                    },
-                    "hasPersistedState": "true",
-                    "correlationScheme": [],
-                    "serviceLoadMetrics": [],
-                    "servicePlacementPolicies": [],
-                    "defaultMoveCost": "Low"
-                }
-            }
-        ]
+	]
 
         # Update Template File
         template_file = open(self.template_file, 'w')
@@ -645,8 +607,7 @@ def main():
     #rmc.set_msi_permissions()
     rmc.microservices_cosmos_db_creation()
     # Package Demo Microservices
-    rmc.go_service_sfpkg_declaration()
-    #rmc.java_service_sfpkg_declaration()
+    rmc.microservices_app_sfpkg_declaration()
     rmc.microservices_app_resource_declaration()
     rmc.microservices_app_sfpkg_staging()
     # Deploy Demo Microservices
