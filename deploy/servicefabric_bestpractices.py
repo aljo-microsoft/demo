@@ -277,6 +277,17 @@ class ResourceManagerClient:
             sys.exit("Unable to Connect to Cluster")
 
     def go_service_build(self):
+        # Exists or Create Deployment Group - needed for ACR
+        deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = deployment_group_exists_process.communicate()
+
+        if stdout.decode('utf-8').replace('\n', '') != 'true':
+            deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+
+            if deployment_group_create_process.wait() != 0:
+                sys.exit(stderr)
+
         # Create ACR for goservice Container
         acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--location", self.location, "--admin-enabled", "true"])
 
