@@ -277,6 +277,7 @@ class ResourceManagerClient:
             sys.exit("Unable to Connect to Cluster")
 
     def go_service_build(self):
+        print("Building GoService Docker Image")
         # Exists or Create Deployment Group - needed for ACR
         deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
@@ -335,6 +336,7 @@ class ResourceManagerClient:
             sys.exit("Couldn't compile java program")
 
     def microservices_cosmos_db_creation(self):
+        print("Provisioning DEMO App Cosmos DB Dependency")
         # Craete Cosmos DB Account
         cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
 
@@ -356,6 +358,7 @@ class ResourceManagerClient:
             sys.exit(stderr)
 
     def microservices_app_sfpkg_declaration(self):
+        print("Setting SFPKG Values")
         # Set ApplicationManifest DefaultValues
         app_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
         app_manifest = xml.etree.ElementTree.parse(app_manifest_path)
@@ -464,14 +467,8 @@ class ResourceManagerClient:
 
     def microservices_app_resource_declaration(self):
         # Update Template with Application, App Type, App Version, Service Type's (go app, and classic java)
-        print("Updating Resource Declaration Microservices SolutionJavaApp")
+        print("Updating Resource Declaration with Microservices App")
         template_file_json = json.load(open(self.template_file, 'r'))
-
-        # TODO: Below needs to be updated to only append Service to Application type
-        #       Will delcare Type with GoApp.
-	# Declare Classic App Services as resources that is apart of microservices Application
-        # Unzip SFPKG and Get Properties
-        print("Declaring classic app in template")
         application_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
         application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
         sfpkg_application_type_version = application_manifest.attrib['ApplicationTypeVersion']
