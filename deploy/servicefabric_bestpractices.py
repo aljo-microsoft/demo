@@ -40,10 +40,10 @@ class ResourceManagerClient:
 	# Minimum Service Fabric Cluster Values
         self.template_file = 'AzureDeploy.json'
         self.parameters_file = 'AzureDeploy.Parameters.json'
-        self.deployment_resource_group = 'demobpdeployrg'
-        self.keyvault_resource_group = 'demobpkeyvaultrg'
-        self.keyvault_name = 'demobpkeyvault'
-        self.cluster_name = 'demobpcluster'
+        self.deployment_resource_group = 'demobestpdeployrg'
+        self.keyvault_resource_group = 'demobestpkeyvaultrg'
+        self.keyvault_name = 'demobestpkeyvault'
+        self.cluster_name = 'demobestppcluster'
         self.admin_user_name = 'demo'
         self.admin_password = 'Password#1234'
         self.location = 'westus'
@@ -61,15 +61,15 @@ class ResourceManagerClient:
         self.microservices_app_package_path = '../MicroservicesAppPackage'
         self.microservices_app_name = 'microservicesapp'
         self.microservices_app_package_name = 'MicroservicesAppPackage.sfpkg'
-        self.storage_account_name = 'demobpstorage'
-        self.container_name = 'demobpcontainer'
+        self.storage_account_name = 'demobestpstorage'
+        self.container_name = 'demobestpcontainer'
         self.microservices_mongo_db_account_name = 'microservicesuser'
         self.microservices_mongo_db_name = 'microservicemongodb'
 
 	# Default Valyes for GoService
         self.go_service_source_path = '../build/goservice'
         self.go_service_image_tag = "goservice:1.0.0"
-        self.go_service_acr_name = "demosfbp"
+        self.go_service_acr_name = "demobestpacr"
         self.acr_username = self.microservices_mongo_db_name
         self.acr_password = 'GEN-UNIQUE-PASSWORD'
         self.acregistry = self.go_service_acr_name + ".azurecr.io"
