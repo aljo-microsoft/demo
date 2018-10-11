@@ -14,11 +14,12 @@
             <EnvironmentVariable Name="DB_USER_NAME" Value="[ENV_DB_USER_NAME]" />
             <EnvironmentVariable Name="DB_PASSWORD" Value="[ENV_DB_PASSWORD]" />
         </EnvironmentOverrides>
-	<!-- Applying Settings.xml GoSecrets to GoService, and defining distination to deliver Secrets-->
 	<Policies>
+	    <!-- Example for Settings.xml 
 	    <ConfigPackagePolicies CodePackageRef="GoCode">
                 <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
             </ConfigPackagePolicies>
+	    -->
             <ContainerHostPolicies CodePackageRef="Code">
                 <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
                 <PortBinding ContainerPort="80" EndpointRef="GoServiceTypeEndpoint"/>
