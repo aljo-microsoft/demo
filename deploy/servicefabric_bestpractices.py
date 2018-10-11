@@ -278,7 +278,7 @@ class ResourceManagerClient:
 
     def go_service_build(self):
         # Create ACR for goservice Container
-        acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--admin-enabled", "true"])
+        acr_create_process = Popen(["az", "acr", "create", "--name", self.go_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--location", self.location, "--admin-enabled", "true"])
 
         if acr_create_process.wait() != 0:
             sys.exit("Couldn't create ACR")
