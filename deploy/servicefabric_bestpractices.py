@@ -295,7 +295,7 @@ class ResourceManagerClient:
             sys.exit("Couldn't create ACR")
 
         # Build GoService Container Image
-        go_service_build_process = Popen(["az", "acr", "build", "--os", "Linux", "registry", self.go_service_acr_name, "--image", self.go_service_image_tag, "../build/goservice/"])
+        go_service_build_process = Popen(["az", "acr", "build", "--os", "Linux", "--registry", self.go_service_acr_name, "--image", self.go_service_image_tag, "../build/goservice/"])
 
         if go_service_build_process.wait() != 0:
             sys.exit("couldn't build GoService Docker Image")
