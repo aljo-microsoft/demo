@@ -58,7 +58,7 @@ class ResourceManagerClient:
         self.certificate_file_name = self.certificate_name + ".pem"
         self.parameters_file_arg = "@" + self.parameters_file
         self.microservices_app_package_url = "https://demobpstorage.blob.core.windows.net/demobpcontainer<ID>/MicroservicesApp.sfpkg"
-        self.microservices_app_package_path = '../package'
+        self.microservices_app_package_path = '../MicroserviceApp'
         self.microservices_app_name = 'microservicesapp'
         self.microservices_app_package_name = 'MicroserviceApp.sfpkg'
         self.storage_account_name = 'demobpstorage'
