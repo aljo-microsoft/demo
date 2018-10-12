@@ -15,6 +15,9 @@
     <!-- Pass environment variables to your container. -->
     <EnvironmentVariables>
       <EnvironmentVariable Name="IsContainer" Value="true"/>
+      <EnvironmentVariable Name="DATABASE_NAME" Value="sfbpmongodb"/>
+      <EnvironmentVariable Name="DB_USER_NAME" Value="sfbpuser"/>
+      <EnvironmentVariable Name="DB_PASSWORD" Value="GEN-UNIQUE"/>
     </EnvironmentVariables>
   </CodePackage>
   <!-- Config package is the contents of the Config directoy under PackageRoot that contains an 
