@@ -326,9 +326,11 @@ class ResourceManagerClient:
         azure_samples_java_msi = 'https://raw.githubusercontent.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java'
         java_source = requests.get(azure_samples_java_msi)
         java_file_name = 'ManageUserAssignedMSIEnabledVirtualMachine.java'
+        os.mkdir(self.java_service_source_path)
         java_file_source_path = self.java_service_source_path + "/" + java_file_name
         java_file = open(java_file_source_path, 'w')
         java_file.write(java_source.text)
+        java_file.close()
         # Build Source
         java_build_process = Popen(["javac", java_file_source_path])
 
