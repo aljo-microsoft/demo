@@ -307,7 +307,7 @@ class ResourceManagerClient:
         stdout, stderr = acr_username_process.communicate()
 
         if acr_username_process.wait() == 0:
-            self.acr_username = stdout.decode("utf-8").replace('\n', '')
+            self.acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
         else:
             sys.exit(stderr)
         # Get ACR Password
@@ -316,7 +316,7 @@ class ResourceManagerClient:
         stdout, stderr = acr_password_process.communicate()
 
         if acr_password_process.wait() == 0:
-            self.acr_password = stdout.decode("utf-8").replace('\n', '')
+            self.acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
         else:
             sys.exit(stderr)
 
@@ -355,7 +355,7 @@ class ResourceManagerClient:
         stdout, stderr = cosmos_db_password_process.communicate()
 
         if cosmos_db_password_process.wait() == 0:
-            self.cosmos_db_password = stdout.decode("utf-8").replace('\n', '')
+            self.cosmos_db_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
         else:
             sys.exit(stderr)
 
