@@ -20,7 +20,7 @@
                 <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
             </ConfigPackagePolicies>
 	    -->
-            <ContainerHostPolicies CodePackageRef="Code">
+            <ContainerHostPolicies CodePackageRef="GoService">
                 <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
                 <PortBinding ContainerPort="80" EndpointRef="GoServiceTypeEndpoint"/>
             </ContainerHostPolicies>
