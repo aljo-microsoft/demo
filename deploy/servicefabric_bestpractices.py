@@ -448,7 +448,7 @@ class ResourceManagerClient:
         microservices_sfpkg.close()
 
         # Upload SFPKG to Blob Container
-        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.microservices_app_package_name, "--name", self.microservices_app_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
+        upload_sfpkg_process = Popen(["az", "storage", "blob", "upload", "--file", self.microservices_app_package_name, "--name", self.microservices_app_package_name, "--connection-string", connection_string, "--container-name", self.container_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = upload_sfpkg_process.communicate()
 
@@ -458,7 +458,7 @@ class ResourceManagerClient:
             sys.exit(stderr)
 
         # Get URL for SFPKG in Storage Account Blob Container
-        url_sfpkg_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", self.microservices_app_name], stdout=PIPE, stderr=PIPE)
+        url_sfpkg_process = Popen(["az", "storage", "blob", "url", "--container-name", self.container_name, "--connection-string", connection_string, "--name", self.microservices_app_package_name], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = url_sfpkg_process.communicate()
 
