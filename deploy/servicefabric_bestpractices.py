@@ -627,6 +627,28 @@ def main():
     print("Deployed Modern Microservices solution on SF Cluster Duration: " + str(datetime.now() - demo_start))
     # Operate Demo Microservices
     rmc.setup_cluster_client()
+    """
+    Common Debug Commands:
+    - Connnect To Cluster:
+    sfctl cluster select --endpoint https://sfbpcluster.westus.cloudapp.azure.com:19080 --pem x509certificatename.pem --no-verify
+    - Manually Create App with Local Package
+    sfctl application upload ../MicroservicesAppPackage --show-progress
+    sfctl application provision --application-type-build-path MicroservicesAppPackage
+    sfctl application create --app-name fabric:/MicroservicesApp --app-type MicroserviceType --app-version 1.0.0
+    - Or Manually Create App with AppPackageUrl to SFPKG
+    connection_string = az storage account show-connection-string -g sfbpdeployrg -n sfbpstorage
+    microservice_sfpkg = az storage blob url --container-name  sfbpcontainer --connection-string $connection_string --name microservicesapp
+    sfctl application provision --application-package-download-uri $microservice_sfpkg --application-type-name MicroserviceType --application-type-version 1.0.0 --external-provision --verbose --debug
+    - Check App Health
+    sfctl application list
+    sfctl service list --application-id MicroservicesApp
+    sfctl application health --application-id MicroservicesApp
+    sfctl service health --service-id MicroservicesApp~GoService
+    - Delete App
+    sfctl application delete --application-id MicroservicesAppPackage
+    sfctl application unprovision --application-type-name MicroServicesApp --application-type-version 1.0.0
+    sfctl store delete --content-path MicroservicesAppPackage
+    """
 
 if __name__ == '__main__':
     main()
