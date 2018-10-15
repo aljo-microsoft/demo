@@ -13,6 +13,7 @@ ENV GOPATH /root/go
 ENV PATH $PATH:$GOPATH
 
 # Install goservice Dependencies, build, and run
+EXPOSE 80
 RUN mkdir -p $GOPATH/src/goservice
 ADD . $GOPATH/src/goservice/
 WORKDIR $GOPATH/src/goservice
