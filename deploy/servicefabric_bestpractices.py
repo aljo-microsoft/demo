@@ -619,7 +619,7 @@ def main():
     rmc.microservices_cosmos_db_creation()
     # Package Demo Microservices
     rmc.microservices_app_sfpkg_declaration()
-    #rmc.microservices_app_resource_declaration()
+    rmc.microservices_app_resource_declaration()
     rmc.microservices_app_sfpkg_staging()
     # Deploy Demo Microservices
     rmc.validate_declaration()
@@ -632,7 +632,7 @@ def main():
     - Connnect To Cluster:
     sfctl cluster select --endpoint https://sfbpcluster.westus.cloudapp.azure.com:19080 --pem x509certificatename.pem --no-verify
     - Manually Create App with Local Package
-    sfctl application upload ../MicroservicesAppPackage --show-progress
+    sfctl application upload --path ../MicroservicesAppPackage --show-progress
     sfctl application provision --application-type-build-path MicroservicesAppPackage
     sfctl application create --app-name fabric:/MicroservicesApp --app-type MicroserviceType --app-version 1.0.0
     - Or Manually Create App with AppPackageUrl to SFPKG
