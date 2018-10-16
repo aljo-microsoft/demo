@@ -21,7 +21,7 @@
       "value": "UbuntuServer"
     },
     "vmImageSku": {
-      "value": "17.10"
+      "value": "16.04-LTS"
     },
     "vmImageVersion": {
       "value": "latest"
