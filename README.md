@@ -5,7 +5,17 @@ Executing servicefabric_bestpractices.py will result in a Service Fabric Cluster
 ResourceManagerClient and executing functions individually.
 
 # Status
-10/10/2019
+Last Tested 10/16/2019
+
+Open Azure Cloud Shell
+
+Enter the following commands:
+
+git clone https://github.com/aljo-microsoft/demo.git
+
+cd demo/deploy
+
+python3 servicefabric_bestpractices.py
 
 This is a modern microservices architected application, which is composed of a Golang docker containizered Service, and a non containerized Java (see below for more) service; declared as a single ARM Service Fabric Application resource.
 
@@ -18,6 +28,8 @@ Requires I download Azure SDK before I can compile its dependencies
 
 and https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connect-query-java
 
-The intention is to deploy a classic enterprise application that is using Azure SQL DB for its data; and enhance it's security to use VMSS MSI instead of DB user name and password.
+The intention is to deploy a classic enterprise application that is using Azure SQL DB for its data.
 
-Lastly will plan to implement inbound and outbound NSG rules to further secure the environment
+Will enhance the GoApp's security to use VMSS MSI instead of DB user name and password.
+
+Lastly will plan to implement inbound and outbound NSG rules to further secure the environment.
