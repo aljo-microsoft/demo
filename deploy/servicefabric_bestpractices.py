@@ -619,8 +619,8 @@ def main():
     rmc.microservices_cosmos_db_creation()
     # Package Demo Microservices
     rmc.microservices_app_sfpkg_declaration()
-    rmc.microservices_app_resource_declaration()
     rmc.microservices_app_sfpkg_staging()
+    rmc.microservices_app_resource_declaration()
     # Deploy Demo Microservices
     rmc.validate_declaration()
     rmc.deploy_resources()
