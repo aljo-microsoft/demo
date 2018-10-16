@@ -364,6 +364,8 @@ class ResourceManagerClient:
         # Set ApplicationManifest DefaultValues
         app_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
         xml.etree.ElementTree.register_namespace('', "http://schemas.microsoft.com/2011/01/fabric")
+        xml.etree.ElementTree.register_namespace('xsd', "http://www.w3.org/2001/XMLSchema")
+        xml.etree.ElementTree.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
         app_manifest = xml.etree.ElementTree.parse(app_manifest_path)
         app_manifest_root = app_manifest.getroot()
         app_manifest_params_parent = app_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}Parameters')
