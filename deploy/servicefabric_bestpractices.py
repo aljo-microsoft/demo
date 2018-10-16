@@ -639,7 +639,7 @@ def main():
     sfctl application create --app-name fabric:/MicroservicesApp --app-type MicroserviceType --app-version 1.0.0
     - Or Manually Create App with AppPackageUrl to SFPKG
     connection_string = az storage account show-connection-string -g sfbpdeployrg -n sfbpstorage
-    microservice_sfpkg = az storage blob url --container-name  sfbpcontainer --connection-string $connection_string --name microservicesapp
+    microservice_sfpkg = az storage blob url --container-name  sfbpcontainer --connection-string $connection_string --name MicroservicesAppPackage.sfpkg
     sfctl application provision --application-package-download-uri $microservice_sfpkg --application-type-name MicroserviceType --application-type-version 1.0.0 --external-provision --verbose --debug
     - Check App Health
     sfctl application list
