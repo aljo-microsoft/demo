@@ -20,7 +20,7 @@ class ResourceManagerClient:
     # A vital component of success in delivering your SLA/O's will require you to make decisions.
     # E.G. may include using a x509 certificates issued by a trusted Certificate Authority.
     #
-    # This was tested October 5 2018 using Azure Cloud Shell.
+    # This was tested October 16 2018 using Azure Cloud Shell.
     def __init__(
         self,
         subscription='eec8e14e-b47d-40d9-8bd9-23ff5c381b40',
