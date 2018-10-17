@@ -647,13 +647,13 @@ def main():
     sfctl application provision --application-package-download-uri $microservice_sfpkg --application-type-name MicroserviceType --application-type-version 1.0.0 --external-provision --verbose --debug
     - Check App Health
     sfctl application list
-    sfctl service list --application-id MicroservicesApp
-    sfctl application health --application-id MicroservicesApp
-    sfctl service health --service-id MicroservicesApp~GoService
+    sfctl service list --application-id microservicesapp
+    sfctl application health --application-id microservicesapp
+    sfctl service health --service-id microservicesapp~GoService
     - Delete App
-    sfctl application delete --application-id MicroservicesAppPackage
-    sfctl application unprovision --application-type-name MicroServicesApp --application-type-version 1.0.0
-    sfctl store delete --content-path MicroservicesAppPackage
+    sfctl application delete --application-id microservicesapp
+    sfctl application unprovision --application-type-name MicroserviceType --application-type-version 1.0.0
+    sfctl store delete --content-path microservicesapp
     """
 
 if __name__ == '__main__':
