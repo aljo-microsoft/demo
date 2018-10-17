@@ -15,12 +15,12 @@ ENV PATH $PATH:$GOPATH
 # Install goservice Dependencies, build, and run
 EXPOSE 80
 RUN mkdir -p $GOPATH/src/goservice
-ADD . $GOPATH/src/goservice/
 WORKDIR $GOPATH/src/goservice
+ADD . .
 RUN	apt-get install -y -q git-all && \
 	go get -d -v github.com/gorilla/mux && \
 	go get -d -v gopkg.in/mgo.v2/bson && \
 	go get -d -v gopkg.in/mgo.v2 && \
 	go build -o main.exe ./main.go
 
-CMD ["src/goservice/main.exe"]
+CMD ["./main.exe"]
