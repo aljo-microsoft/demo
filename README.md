@@ -17,19 +17,18 @@ cd demo/deploy
 
 python3 servicefabric_bestpractices.py
 
-This is a modern microservices architected application, which is composed of a Golang docker containizered Service, and a non containerized Java (see below for more) service; declared as a single ARM Service Fabric Application resource.
+NOTES:
+This is a modern microservices architected application, which is composed of a Golang docker containizered Service, declared as an ARM Service Fabric Application resource.
 
 The Go Service is implemented to serve a HTML UI for writing mongodb collections to CosmosDB.
 
+I am actively developing this solution, with intentsions of adding a non containerized Java service; as a very common classic enterprise application is a JVM that isn't containerized.
+
 For the Java service I'm currently evaluating using:
-The Java [Computes sample](https://github.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/blob/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java) for managing virtual machines using a user Assigned MSI;
+The Java [Computes sample](https://github.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/blob/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java) for managing virtual machines using a user Assigned MSI.
 
-Requires I download Azure SDK before I can compile its dependencies
+This will allow a single microservices solution, comprised of modern Golang Dockerized service, and Classic Java service; to be deployed as a single ARM SF Application Resource.
 
-and https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connect-query-java
+I then plan to enhance the GoApp's security to use VMSS MSI instead of DB user name and password.
 
-The intention is to deploy a classic enterprise application that is using Azure SQL DB for its data.
-
-Will enhance the GoApp's security to use VMSS MSI instead of DB user name and password.
-
-Lastly will plan to implement inbound and outbound NSG rules to further secure the environment.
+Lastly I plan to implement inbound and outbound NSG rules to further secure the environment.
