@@ -5,7 +5,7 @@ Executing servicefabric_bestpractices.py will result in a Service Fabric Cluster
 ResourceManagerClient and executing functions individually.
 
 # Status
-Last Tested 10/16/2019
+Last Tested 10/17/2019
 
 Open Azure Cloud Shell
 
@@ -17,7 +17,10 @@ cd demo/deploy
 
 python3 servicefabric_bestpractices.py
 
+
 NOTES:
+This takes approximately 30 minutes to provisiong end to end.
+
 This is a modern microservices architected application, which is composed of a Golang docker containizered Service, declared as an ARM Service Fabric Application resource.
 
 The Go Service is implemented to serve a HTML UI for writing mongodb collections to CosmosDB.
