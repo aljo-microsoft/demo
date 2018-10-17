@@ -443,7 +443,14 @@ class ResourceManagerClient:
             sys.exit(stderr)
 
         # Zip SFPKG to Upload to Blob Container
-        microservices_sfpkg = zipfile.ZipFile.CreateFromDirectory(self.microservices_app_package_path, self.microservices_app_package_name)
+        microservices_sfpkg = zipfile.ZipFile(self.microservices_app_package_name, 'w', zipfile.ZIP_DEFLATED)
+        package_length = len(self.microservices_app_package_path)
+
+        for root, dirs, files in os.walk(self.microservices_app_package_path):
+            root_folder = root[package_length:]
+            for file in files:
+                microservices_sfpkg.write(os.path.join(root, file), os.path.join(root_folder, file))
+
         microservices_sfpkg.close()
 
         # Upload SFPKG to Blob Container
