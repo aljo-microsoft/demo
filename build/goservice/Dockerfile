@@ -21,6 +21,6 @@ RUN	apt-get install -y -q git-all && \
 	go get -d -v github.com/gorilla/mux && \
 	go get -d -v gopkg.in/mgo.v2/bson && \
 	go get -d -v gopkg.in/mgo.v2 && \
-	go build -o main.exe ./main.go
+	go build -o ./main.exe ./main.go
 
 CMD ["./main.exe"]
