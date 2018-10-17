@@ -390,6 +390,8 @@ class ResourceManagerClient:
         go_service_manifest_path = self.microservices_app_package_path + "/GoService/ServiceManifest.xml"
         go_service_manifest = xml.etree.ElementTree.parse(go_service_manifest_path)
         go_service_manifest_root = go_service_manifest.getroot()
+        go_service_manifest_root.set("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
+        go_service_manifest_root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
         go_service_manifest_codepackage = go_service_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}CodePackage')
         go_service_manifest_entrypoint = go_service_manifest_codepackage.find('{http://schemas.microsoft.com/2011/01/fabric}EntryPoint')
         go_service_manifest_containerhost = go_service_manifest_entrypoint.find('{http://schemas.microsoft.com/2011/01/fabric}ContainerHost')
