@@ -63,7 +63,7 @@ class ResourceManagerClient:
         self.microservices_app_package_name = 'MicroservicesAppPackage.sfpkg'
         self.storage_account_name = 'sfbpstorage'
         self.container_name = 'sfbpcontainer'
-        self.microservices_mongo_db_account_name = 'sfbpuser'
+        self.microservices_mongo_db_account_name = 'sfbpmongodb'
         self.microservices_mongo_db_name = 'sfbpmongodb'
 
 	# Default Valyes for GoService
