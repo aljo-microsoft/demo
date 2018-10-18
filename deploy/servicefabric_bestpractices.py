@@ -337,38 +337,22 @@ class ResourceManagerClient:
         if java_build_process.wait() != 0:
             sys.exit("Couldn't compile java program")
 
-    def microservices_cosmos_db_resource_declaration(self):
-         template_file_json = json.load(open(self.template_file, 'r'))
-         template_file_json["resources"] += [
-             {
-                 "type": "Microsoft.DocumentDb/databaseAccounts",
-                 "kind": "MongoDB",
-                 "name": self.microservices_mongo_db_account_name,
-                 "apiVersion": "2015-04-08",
-                 "location": "[parameters('location')]",
-                 "tags": {
-                     "defaultExperience": "MongoDB"
-                 },
-                 "properties": {
-                     "databaseAccountOfferType": "Standard",
-                     "locations": [
-                         {
-                             "id": "[concat(parameters('name'), '-', parameters('location'))]",
-                             "failoverPriority": 0,
-                             "locationName": "West US"
-                         }
-                     ],
-                     "enableMultipleWriteLocations": true,
-                     "isVirtualNetworkFilterEnabled": false,
-                     "virtualNetworkRules": [],
-                     "dependsOn": []
-                 }
-             }
-	]
-        # Update Template File
-        template_file = open(self.template_file, 'w')
-        json.dump(template_file_json, template_file)
-        template_file.close()
+    def microservices_cosmos_db_creation(self):
+        print("Provisioning DEMO App Cosmos DB Dependency")
+        # Craete Cosmos DB Account
+        cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
+
+        if cosmos_account_create_process.wait() != 0:
+            sys.exit("couldn't create GoApp Cosmos DB User")
+
+        cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--query", "primaryMasterKey"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = cosmos_db_password_process.communicate()
+
+        if cosmos_db_password_process.wait() == 0:
+            self.cosmos_db_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
 
     def microservices_app_sfpkg_declaration(self):
         print("Setting SFPKG Values")
@@ -629,11 +613,11 @@ def main():
     rmc.declare_secret_parameter_values()
     # Build Demo Microservices
     rmc.go_service_build()
+    rmc.microservices_cosmos_db_creation()
     # Package Demo Microservices
     rmc.microservices_app_sfpkg_declaration()
     rmc.microservices_app_sfpkg_staging()
     rmc.microservices_app_resource_declaration()
-    rmc.microservices_cosmos_db_resource_declaration()
     # Deploy Demo Microservices
     rmc.validate_declaration()
     rmc.deploy_resources()
