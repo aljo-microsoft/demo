@@ -5,7 +5,7 @@ Executing servicefabric_bestpractices.py will result in a Service Fabric Cluster
 ResourceManagerClient and executing functions individually.
 
 # Status
-Last Tested 10/17/2019
+Last Tested 10/18/2019
 
 Open Azure Cloud Shell
 
