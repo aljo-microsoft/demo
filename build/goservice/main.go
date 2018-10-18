@@ -27,7 +27,7 @@ func init() {
 	database = os.Getenv("DATABASE_NAME")
 	username = os.Getenv("DB_USER_NAME")
 	password = os.Getenv("DB_PASSWORD")
-	port = ":80"
+	port = ":8080"
 }
 
 func insert(w http.ResponseWriter, r *http.Request, session *mgo.Session) {
