@@ -654,6 +654,10 @@ def main():
     sfctl application delete --application-id microservicesapp
     sfctl application unprovision --application-type-name MicroserviceType --application-type-version 1.0.0
     sfctl store delete --content-path microservicesapp
+    - Use ACI to deploy container
+    db_password = az cosmosdb list-keys --name sfbpuser --resource-group sfbpdeployrg --query primaryMasterKey
+    acr_password = az acr credential show -n sfbpacr --query passwords[0].value
+    az container create -g sfbpdeployrg --name sfbpacr --image sfbpacr.azurecr.io/goservice:1.0.0 --registry-password $acr_password -e DATABASE_NAME="sfbpmongodb" DB_USER_NAME="sfbpuser" DB_PASSWORD=$db_password
     """
 
 if __name__ == '__main__':
