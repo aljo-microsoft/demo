@@ -22,8 +22,9 @@
 	    -->
             <ContainerHostPolicies CodePackageRef="GoCode">
                 <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
-                <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
+                <PortBinding ContainerPort="8081" EndpointRef="GoServiceTypeEndpoint"/>
             </ContainerHostPolicies>
+	    <ServicePackageContainerPolicy Hostname="goservice" Isolation="process">
         </Policies>
     </ServiceManifestImport>
     <DefaultServices>
