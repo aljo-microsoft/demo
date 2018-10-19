@@ -29,7 +29,7 @@
            listen. For a guest executable is used to register with the NamingService at its REST endpoint
            with http scheme. In this case since no port is specified then one if created and assigned dynamically
            to the service.-->
-      <Endpoint Name="GoServiceTypeEndpoint" UriScheme="http" Port="80" Protocol="http">
+      <Endpoint Name="GoServiceTypeEndpoint" UriScheme="http" Port="80" Protocol="http"/>
     </Endpoints>
   </Resources>
 </ServiceManifest>
