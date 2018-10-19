@@ -25,7 +25,7 @@
                 <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
             </ContainerHostPolicies>
 	    <ServicePackageResourceGovernancePolicy CpuCores="4"/>
-	    <ResourceGovernancePolicy CodePackageRef="GoCode" MemoryInMb="4096"/>
+	    <ResourceGovernancePolicy CodePackageRef="GoCode" MemoryInMB="4096"/>
         </Policies>
     </ServiceManifestImport>
     <DefaultServices>
