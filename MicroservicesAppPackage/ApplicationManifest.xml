@@ -26,6 +26,9 @@
             </ContainerHostPolicies>
 	    <ServicePackageResourceGovernancePolicy CpuCores="4"/>
 	    <ResourceGovernancePolicy CodePackageRef="GoCode" MemoryInMB="4096"/>
+	    <ServicePackageContainerPolicy Hostname="goservice" Isolation="process">
+                <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
+            </ServicePackageContainerPolicy>
         </Policies>
     </ServiceManifestImport>
     <DefaultServices>
