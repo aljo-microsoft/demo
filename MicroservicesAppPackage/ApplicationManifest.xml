@@ -24,9 +24,6 @@
                 <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
                 <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
             </ContainerHostPolicies>
-	    <ServicePackageContainerPolicy Hostname="goservice" Isolation="process">
-                <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
-	    </ServicePackageContainerPolicy>
 	    <ServicePackageResourceGovernancePolicy CpuCores="4"/>
 	    <ResourceGovernancePolicy CodePackageRef="GoCode" MemoryInMb="4096"/>
         </Policies>
