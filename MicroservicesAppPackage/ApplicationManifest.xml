@@ -24,11 +24,13 @@
                 <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
                 <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
             </ContainerHostPolicies>
+	    <!--
 	    <ServicePackageResourceGovernancePolicy CpuCores="4"/>
 	    <ResourceGovernancePolicy CodePackageRef="GoCode" MemoryInMB="4096"/>
 	    <ServicePackageContainerPolicy Hostname="goservice" Isolation="process">
                 <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
             </ServicePackageContainerPolicy>
+	    -->
         </Policies>
     </ServiceManifestImport>
     <DefaultServices>
