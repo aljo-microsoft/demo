@@ -130,9 +130,8 @@
                         "startIpAddress": "0.0.0.0"
                     },
                     "type": "firewallrules"
-                },
-            ],
-            "type": "Microsoft.Sql/servers"
+                }
+            ]
         }
     ]
 }
