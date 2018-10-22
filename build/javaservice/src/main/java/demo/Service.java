@@ -1,9 +1,8 @@
 package demo;
 
-import java.sql.connection;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Service {
@@ -40,7 +39,7 @@ public class Service {
             }
         }
         // Handle Exceptions
-        catch (SQLExeception e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
