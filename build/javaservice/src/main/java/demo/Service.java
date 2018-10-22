@@ -9,8 +9,8 @@ public class Service {
     public static void main(String[] args) {
 
         // Connection String
-        String connectionUrl = "jdbc:sqlserver://sfbpsqlserver.database.windows.net:1433;databaseName=sfbpdatabase;user=aljo;password=Password#1234";
-
+        String connectionUrl = "jdbc:sqlserver://sfbpsqlserver.database.windows.net:1433;database=sfbpdatabase;user=aljo@sfbpsqlserver;password=Password#1234;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30";
+        
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             // Create Table
             String sqlCreateTable = "CREATE TABLE SFBPTABLE " +
