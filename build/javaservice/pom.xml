@@ -18,5 +18,5 @@
      <artifactId>mssql-jdbc</artifactId>
      <version>6.4.0.jre8</version>
    </dependency>
- <dependencies>
+ </dependencies>
 </project>
