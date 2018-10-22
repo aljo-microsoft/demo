@@ -1,94 +1,138 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "sqlAdministratorLogin": {
-      "type": "string",
-      "defaultValue": "aljo",
-      "metadata": {
-        "description": "SQL Server Admin User Name"
-      }
-    },
-    "sqlAdministratorLoginPassword": {
-      "type": "string",
-      "defaultValue": "Password#1234",
-      "metadata": {
-        "description": "SQL Server Admin User Password"
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "westus",
-      "metadata": {
-        "description": "location of Cluster"
-      }
-    },
-    "sqlserverName": {
-      "type": "string",
-      "defaultValue": "sfbpsqlserver",
-      "metadata": {
-        "description": "Name of SQL Server"
-      }
-    },
-    "databaseName": {
-      "type": "string",
-      "defaultValue": "sfbpdatabase",
-      "metadata": {
-        "description": "Name of SQL Server Database"
-      }
-    }
-  },
-  "variables": {
-    "sqlserverName": "[parameters('sqlserverName')]",
-    "databaseName": "[parameters('databaseName')]"
-  },
-  "resources": [
-    {
-      "name": "[variables('sqlserverName')]",
-      "type": "Microsoft.Sql/servers",
-      "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "SqlServer"
-      },
-      "apiVersion": "2014-04-01",
-      "properties": {
-        "administratorLogin": "[parameters('sqlAdministratorLogin')]",
-        "administratorPassword": "[parameters('sqlAdministratorLoginPassword')]",
-        "version": "12.0"
-      },
-      "resources": [
-        {
-          "name": "[variables('databaseName')]",
-          "type": "databases",
-          "location": "[parameters('location')]",
-          "tags": {
-            "displayName": "Database"
-          },
-          "apiVersion": "2015-01-01",
-          "dependsOn": [
-            "[variables('sqlserverName')]"
-          ],
-          "properties": {
-            "edition": "Basic",
-            "collation": "SQL_Latin1_General_CP1_CI_AS",
-            "maxSizeBytes": "1073741824",
-            "requestedServiceObjectiveName": "Basic"
-          }
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "administratorLogin":  {
+            "type": "string",
+            "defaultValue": "aljo",
+            "metadata": {
+                "description": "SQL Server Admin User Name"
+            }
         },
-        {
-          "type": "firewallrules",
-          "apiVersion": "2014-04-01",
-          "dependsOn": [
-            "[variables('sqlserverName')]"
-          ],
-          "location": "[parameters('location')]",
-          "name": "AllowAllWindowsAzureIps",
-          "properties": {
-            "endIpAddress": "0.0.0.0",
-            "startIpAddress": "0.0.0.0"
-          }
+        "administratorLoginPassword": {
+            "type": "string",
+            "defaultValue": "Password#1234",
+            "metadata": {
+                "description": "SQL Server Admin User Password"
+            }
+        },
+        "collation": {
+            "type": "string",
+            "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+            "metadata": {
+              "description": "Type of SQL server"
+            }
+        },
+        "databaseName": {
+            "type": "string",
+            "defaultValue": "sfbpdatabase",
+            "metadata": {
+              "description": "SQL DB NAME"
+            }
+        },
+        "tier": {
+            "type": "string"
+            "defaultValue": "Standard",
+            "metadata": {
+               "description": "Pricing Tier"
+            }
+        },
+        "skuName": {
+            "type": "string"
+            "defaultValue": "S0",
+            "metadata": {
+               "description": "SKU Type"
+            }
+        },
+        "location": {
+           "type": "string",
+           "defaultValue": "westus",
+           "metadata": {
+              "description": "location of Cluster"
+           }
+        },
+        "maxSizeBytes": {
+            "type": "int"
+             "defaultValue": 268435456000,
+             "metadata": {
+               "description": "max byte size"
+             }
+        },
+        "serverName": {
+           "type": "string",
+           "defaultValue": "sfbpsqlserver",
+           "metadata": {
+              "description": "Name of SQL Server"
+           }
+        },
+        "sampleName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "zoneRedundant": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "licenseType": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "enableATP": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "allowAzureIps": {
+            "type": "bool",
+            "defaultValue": true
         }
-      ]
-    }
-  ]
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('location')]",
+            "name": "[parameters('serverName')]",
+            "properties": {
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+                "version": "12.0"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2017-10-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+                    ],
+                    "location": "[parameters('location')]",
+                    "name": "[parameters('databaseName')]",
+                    "properties": {
+                        "collation": "[parameters('collation')]",
+                        "maxSizeBytes": "[parameters('maxSizeBytes')]",
+                        "sampleName": "[parameters('sampleName')]",
+                        "zoneRedundant": "[parameters('zoneRedundant')]",
+                        "licenseType": "[parameters('licenseType')]"
+                    },
+                    "sku": {
+                        "name": "[parameters('skuName')]",
+                        "tier": "[parameters('tier')]"
+                    },
+                    "type": "databases"
+                },
+                {
+                    "condition": "[parameters('allowAzureIps')]",
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+                    ],
+                    "location": "[parameters('location')]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    },
+                    "type": "firewallrules"
+                },
+            ],
+            "type": "Microsoft.Sql/servers"
+        }
+    ]
 }
