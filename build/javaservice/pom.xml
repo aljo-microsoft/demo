@@ -1,15 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3/2001/XMLSchema-instance"
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
  <modelVersion>4.0.0</modelVersion>
-
+ <!-- Although this builds, currently JDBC dependency isn't being found by demo.Service.class -->
+ <!-- POM needs to build using Java 10, which I'd need to install in shell for this to build-->
+<!--https://github.com/Microsoft/mssql-jdbc/blob/dev/src/samples/connections/pom.xml -->
  <groupId>main.java.demo</groupId>
  <artifactId>javaservice</artifactId>
  <version>1.0.0</version>
  <packaging>jar</packaging>
 
  <properties>
-   <maven.compiler.source>1.8</maven.compiler.source>
-   <maven.compiler.target>1.8</maven.compiler.target>
+   <maven.compiler.source>1.10</maven.compiler.source>
+   <maven.compiler.target>1.10</maven.compiler.target>
  </properties>
 
  <dependencies>
