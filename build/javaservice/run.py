@@ -1,3 +1,3 @@
 mvn package
 
-java -cp target/javaservice-1.0.0.jar main.java.demo.Service
+java -jar target/javaservice-0.0.1.jar
