@@ -6,7 +6,7 @@
 	<groupId>java.demo</groupId>
 	<artifactId>javaservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<name>Service</name>
 	<description>Demo Service Fabric Sprint Boot Service</description>
 
@@ -26,20 +26,24 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
 		</dependency>
-  
-  <dependency>
-   <groupId>com.microsoft.sqlserver</groupId>
-   <artifactId>mssql-jdbc</artifactId>
-   <version>7.0.0.jre10</version>
-  </dependency>
+		
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>7.0.0.jre10</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -50,6 +54,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
