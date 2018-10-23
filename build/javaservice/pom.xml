@@ -36,6 +36,16 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>src/java/demo</sourceDirectory>
+        	<resources>
+            		<resource>
+                		<directory>${basedir}/src/java/demo</directory>
+                		<includes>
+                    			<include>JavaService.java</include>
+                    			<include>Application.java</include>
+                		</includes>
+            		</resource>
+        	</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
