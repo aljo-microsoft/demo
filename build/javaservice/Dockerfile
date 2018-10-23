@@ -1,4 +1,4 @@
-FROM java:10
+FROM java:8
 EXPOSE 8082
-ADD /target/Service.jar Service.jar
-ENTRYPOINT ["java", "-jar", "Service.jar"]
+ADD /target/javaservice-0.0.1.jar javaservice-0.0.1.jar
+ENTRYPOINT ["java", "-jar", "javaservice-0.0.1.jar"]
