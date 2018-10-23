@@ -1,4 +1,4 @@
-package main.java.demo;
+package java.demo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,9 +15,8 @@ public class Service {
             // Create Table
             String sqlCreateTable = "CREATE TABLE SFBPTABLE " +
                                     "(name VARCHAR(255), " +
-                                    "phone INTEGER, " +
-                                    "cid INTEGER not NULL, " +
-                                    "PRIMARY KEY (cid))";
+                                    "id INTEGER not NULL, " +
+                                    "PRIMARY KEY (id))";
             stmt.executeUpdate(sqlCreateTable);
             System.out.println("Created sfbpdatabase database SFBPTABLE table.");
             // Insert Table Demo Data
@@ -26,16 +25,14 @@ public class Service {
             stmt.executeUpdate(sqlUser1Data);
             String sqlUser2Data = "INSERT INTO SERVICETABLE " +
                                    "VALUES('user2', 18006427676, 2)";
-            stmt.executeUpdate(sqlUser2Data);
-            String sqlUser3Data = "INSERT INTO SERVICETABLE " +
-                                   "VALUES('user3', 18006427676, 3)";
             stmt.executeUpdate(sqlUser3Data);
             // Query Table
             String SQL = "SELECT * FROM SERVICETABLE";
             ResultSet rs = stmt.executeQuery(SQL);
             // Print Table Data
+            System.out.println("SERVICETABLE")
             while (rs.next()) {
-                System.out.println(rs.getString("name") + " " + rs.getString("phone"));
+                System.out.println("| " + "rs.getString("name") + " | " + rs.getString("id") + " |");
             }
         }
         // Handle Exceptions
