@@ -6,7 +6,7 @@
 	<groupId>java.demo</groupId>
 	<artifactId>javaservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>Service</name>
 	<description>Demo Service Fabric Sprint Boot Service</description>
 
