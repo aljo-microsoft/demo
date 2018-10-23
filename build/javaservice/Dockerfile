@@ -32,21 +32,15 @@ ENV MAVEN_HOME /opt/maven
 # remove download archive files
 RUN apt-get clean
 
-# set shell variables for java installation
-ENV java_version 1.8.0_101
-ENV filename jdk-8u101-linux-x64.tar.gz
-ENV downloadlink http://download.oracle.com/otn-pub/java/jdk/8u101-b13/$filename
-
 # download java, accepting the license agreement
-RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" -O /tmp/$filename $downloadlink 
-
-# unpack java
-RUN mkdir /opt/java-oracle && tar -zxf /tmp/$filename -C /opt/java-oracle/
-ENV JAVA_HOME /opt/java-oracle/jdk$java_version
-ENV PATH $JAVA_HOME/bin:$PATH
-
-# configure symbolic links for the java and javac executables
-RUN update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 20000 && update-alternatives --install /usr/bin/javac javac $JAVA_HOME/bin/javac 20000
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y  software-properties-common && \
+    add-apt-repository ppa:webupd8team/java -y && \
+    apt-get update && \
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
+    apt-get install -y oracle-java8-installer && \
+    apt-get clean
 
 # Add Java Demo Source to Image, Build and Run
 ADD . .
