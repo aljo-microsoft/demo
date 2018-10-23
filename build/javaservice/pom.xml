@@ -1,72 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-        <groupId>demo</groupId>
-        <artifactId>javaservice</artifactId>
-        <version>0.0.1</version>
-	
-	<description>Demo Service Fabric Sprint Boot Service</description>
+    <groupId>demo</groupId>
+    <artifactId>javaservice</artifactId>
+    <version>0.0.1</version>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.6.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.5.RELEASE</version>
+    </parent>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.10</java.version>
-	</properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>mssql-jdbc</artifactId>
-			<version>7.0.0.jre10</version>
-		</dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>7.0.0.jre8</version>
+        </dependency>
+    </dependencies>
 
-	</dependencies>
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
 
-	<build>
-		<sourceDirectory>src/java/demo</sourceDirectory>
-        	<resources>
-            		<resource>
-                		<directory>${basedir}/src/java/demo</directory>
-                		<includes>
-                    			<include>JavaService.java</include>
-                    			<include>Application.java</include>
-                		</includes>
-            		</resource>
-        	</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-   				<groupId>org.apache.maven.plugins</groupId>
-    				<artifactId>maven-compiler-plugin</artifactId>
-    				<version>3.7.0</version>
-   				<configuration>
-        				<release>10</release>
-   				</configuration>
-    				<dependencies>
-        				<dependency>
-            					<groupId>org.ow2.asm</groupId>
-            					<artifactId>asm</artifactId>
-            					<version>6.2</version> <!-- Use newer version of ASM -->
-        				</dependency>
-    				</dependencies>
-        		</plugin>
-		</plugins>
-	</build>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
