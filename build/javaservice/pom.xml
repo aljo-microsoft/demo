@@ -33,6 +33,12 @@
 			<artifactId>mssql-jdbc</artifactId>
 			<version>7.0.0.jre10</version>
 		</dependency>
+		
+		<dependency>
+        		<groupId>org.ow2.asm</groupId>
+        		<artifactId>asm</artifactId>
+        		<version>6.2</version> <!-- Use newer version of ASM -->
+    		</dependency>
 	</dependencies>
 
 	<build>
@@ -58,6 +64,7 @@
             			<configuration>
                 		       	<source>1.10</source>
         				<target>1.10</target>
+					<release>10</release>
   			        	<verbose>true</verbose>
             			</configuration>
         		</plugin>
