@@ -5,8 +5,16 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+// Create SQL Table, Add Data, and Serve
+
+@RestController
 public class Service {
-    public static void main(String[] args) {
+    
+    @RequestMapping("/")
+    public String index() {
 
         // Connection String
         String connectionUrl = "jdbc:sqlserver://sfbpsqlserver.database.windows.net:1433;database=sfbpdatabase;user=aljo@sfbpsqlserver;password=Password#1234;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30";
@@ -30,10 +38,11 @@ public class Service {
             String SQL = "SELECT * FROM SERVICETABLE";
             ResultSet rs = stmt.executeQuery(SQL);
             // Print Table Data
-            System.out.println("SERVICETABLE")
+            String tableData = "SERVICETABLE\n";
             while (rs.next()) {
-                System.out.println("| " + "rs.getString("name") + " | " + rs.getString("id") + " |");
+                tableData += "| " + rs.getString("name") + " | " + rs.getString("id") + " | \n";
             }
+            return tableData;
         }
         // Handle Exceptions
         catch (Exception e) {
