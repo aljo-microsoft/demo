@@ -4,12 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>java.demo</groupId>
-	<artifactId>Service</artifactId>
+	<artifactId>javaservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-
 	<name>Service</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Demo Service Fabric Sprint Boot Service</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
