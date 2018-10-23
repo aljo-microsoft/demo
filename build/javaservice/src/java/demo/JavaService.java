@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 // Create SQL Table, Add Data, and Serve
 
 @RestController
-public class Service {
+public class JavaService {
     
     @RequestMapping("/")
     public String index() {
