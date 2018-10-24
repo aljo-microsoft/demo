@@ -45,4 +45,4 @@ RUN apt-get update && \
 # Add Java Demo Source to Image, Build and Run
 ADD . .
 RUN mvn package
-CMD ["java", "-jar", "./target/javaservice-0.0.1.jar", "-server.port=8082"]
+CMD ["java", "-jar", "./target/javaservice-0.0.1.jar", "-Dserver.port=8082"]
