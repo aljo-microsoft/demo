@@ -5,7 +5,11 @@ Executing servicefabric_bestpractices.py will result in a Service Fabric Cluster
 ResourceManagerClient and executing functions individually.
 
 # Status
-Last Tested 10/18/2019
+Last Tested 10/23/2019
+
+Today JavaService mvn package, and dockerfile will built; haven't successful run service yet.
+
+Rest is notes from a few days ago:
 
 Open Azure Cloud Shell
 
