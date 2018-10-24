@@ -7,7 +7,7 @@ ResourceManagerClient and executing functions individually.
 # Status
 Last Tested 10/23/2019
 
-Today JavaService mvn package, and dockerfile will built; haven't successful run service yet.
+Today JavaService mvn package, and dockerfile build succesfully; deployed successfully to ACI. Next will validate implementation by provisioning Azure SQL database. Then will update SFPKG and AzureDeploy.json.
 
 Rest is notes from a few days ago:
 
