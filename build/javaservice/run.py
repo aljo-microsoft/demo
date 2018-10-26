@@ -1,3 +1,3 @@
 mvn package
 
-java -jar target/javaservice-0.0.1.jar -Dserver.port=8082
+java -jar -Dserver.port=8082 ./target/javaservice-0.0.1.jar
