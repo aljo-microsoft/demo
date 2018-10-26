@@ -5,9 +5,13 @@ java -jar -Dserver.port=8082 ./target/javaservice-0.0.1.jar
 """
 TODO: Update Project to include JavaService in MicroservicesApp:
 
-1. main():
-- rmc.java_service_build()
-2. init
+1. servicefabric_bestpractices.py
+- main():
+Add
+rmc.java_service_build()
+rmc.java_azure_sql_resource_declaration()
+
+-init
 Change
         self.acregistry = self.go_service_acr_name + ".azurecr.io"
         self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
@@ -17,7 +21,7 @@ To
         self.java_acregistry = self.java_service_acr_name + ".azurecr.io"
         self.java_acregistry_image_tag = self.java_acregistry + "/" + self.java_service_image_tag
       
-3. microservices_app_sfpkg_declaration()
+- microservices_app_sfpkg_declaration()
 Change
 go_service_manifest_image_name.text = self.acregistry_image_tag
 To
@@ -65,8 +69,100 @@ Add
         java_service_manifest_image_name.text = self.java_acregistry_image_tag
 
         java_service_manifest.write(java_service_manifest_path)
-                
-4. SFPKG:
+
+- microservices_app_resource_declaration()
+Add
+        if microservices[j].attrib['Name'].lower().find("java") > -1:
+            sfpkg_java_service_name = microservices[j].attrib['Name']
+            sfpkg_java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
+Add
+        # Java Service
+        java_service_name = "[concat(parameters('clusterName'), '/', '" + self.microservices_app_name + "', '/', '" + self.microservices_app_name + "~" + sfpkg_java_service_name + "')]"
+        java_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + self.microservices_app_name + "')]"
+        template_file_json["resources"] += [
+            {
+                "apiVersion": "2017-07-01-preview",
+                "type": "Microsoft.ServiceFabric/clusters/applications/services",
+                "name": java_service_name,
+                "location": "[variables('location')]",
+                "dependsOn": [
+                    java_service_depends_on
+                ],
+                "properties": {
+                    "provisioningState": "Default",
+                    "serviceKind": "Stateless",
+                    "serviceTypeName": sfpkg_java_service_type,
+                    "instanceCount": "-1",
+                    "partitionDescription": {
+                        "partitionScheme": "Singleton"
+                    },
+                    "correlationScheme": [],
+                    "serviceLoadMetrics": [],
+                    "servicePlacementPolicies": []
+                }
+            }
+        ]
+
+Add
+    def java_azure_sql_resource_declaration(self):
+        # Update Template with JavaService Azure SQL Resource
+        print("Updating Resource Declaration with JavaService Azure SQL Demo Dependencies")
+        template_file_json = json.load(open(self.template_file, 'r'))
+        application_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
+        application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
+	
+	# Azure SQL
+	template_file_json["resources"] += [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.Sql/servers",
+            "name": "sfbpsqlserver]",
+            "properties": {
+                "administratorLogin": "aljo",
+                "administratorLoginPassword": "Password#1234",
+                "version": "12.0"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2017-10-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', "sfbpsqlserver")]"
+                    ],
+                    "location": "[parameters('location')]",
+                    "name": "sfbpdatabase",
+                    "properties": {
+                        "collation": ""SQL_Latin1_General_CP1_CI_AS"",
+                        "maxSizeBytes": 268435456000,
+                        "sampleName": "",
+                        "zoneRedundant": false,
+                        "licenseType": ""
+                    },
+                    "sku": {
+                        "name": "S0",
+                        "tier": "Standard"
+                    },
+                    "type": "databases"
+                },
+                {
+                    "condition": true,
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', "sfbpsqlserver")]"
+                    ],
+                    "location": "[parameters('location')]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    },
+                    "type": "firewallrules"
+                }
+            ]
+        }
+    ]
+
+2. SFPKG:
 ApplicationManifest.xml
 Change
         <Parameter Name="ENV_DATABASE_NAME" DefaultValue="localhost" />
