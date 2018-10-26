@@ -244,4 +244,18 @@ Add
   </Resources>
 </ServiceManifest>
 
+3. Debug using:
+    python3
+    from servicefabric_bestpractices import ResourceManagerClient
+    rmc = ResourceManagerClient()
+    rmc.declare_secret_parameter_values()
+    rmc.go_service_build()
+    rmc.microservices_cosmos_db_creation()
+    rmc.java_service_build()
+    rmc.java_azure_sql_resource_declaration()
+    rmc.microservices_app_sfpkg_declaration()
+    rmc.microservices_app_sfpkg_staging()
+    rmc.microservices_app_resource_declaration()
+    rmc.validate_declaration()
+    rmc.deploy_resources()
 """
