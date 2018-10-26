@@ -27,10 +27,6 @@ go_service_manifest_image_name.text = self.acregistry_image_tag
 To
 go_service_manifest_image_name.text = self.go_acregistry_image_tag
 Change
-        go_service_manifest_image_name.text = self.acregistry_image_tag
-To
-        go_service_manifest_image_name.text = self.go_acregistry_image_tag
-Change
             if parameter_name == 'ENV_DATABASE_NAME':
                 parameter.set('DefaultValue', self.microservices_mongo_db_name)
             elif parameter_name == 'ENV_DB_USER_NAME':
