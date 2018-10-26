@@ -115,7 +115,7 @@ Add
             "apiVersion": "2015-05-01-preview",
             "location": "[parameters('location')]",
             "type": "Microsoft.Sql/servers",
-            "name": "sfbpsqlserver]",
+            "name": "sfbpsqlserver",
             "properties": {
                 "administratorLogin": "aljo",
                 "administratorLoginPassword": "Password#1234",
