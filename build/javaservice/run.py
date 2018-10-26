@@ -68,7 +68,7 @@ Add
 
 - microservices_app_resource_declaration()
 Add
-        if microservices[j].attrib['Name'].lower().find("java") > -1:
+        elif microservices[j].attrib['Name'].lower().find("java") > -1:
             sfpkg_java_service_name = microservices[j].attrib['Name']
             sfpkg_java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
 Add
