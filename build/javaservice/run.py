@@ -123,7 +123,7 @@ Add
                 {
                     "apiVersion": "2017-10-01-preview",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', "sfbpsqlserver")]"
+                        "[concat('Microsoft.Sql/servers/', 'sfbpsqlserver')]"
                     ],
                     "location": "[parameters('location')]",
                     "name": "sfbpdatabase",
@@ -144,7 +144,7 @@ Add
                     "condition": true,
                     "apiVersion": "2014-04-01-preview",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', "sfbpsqlserver")]"
+                        "[concat('Microsoft.Sql/servers/', 'sfbpsqlserver')]"
                     ],
                     "location": "[parameters('location')]",
                     "name": "AllowAllWindowsAzureIps",
