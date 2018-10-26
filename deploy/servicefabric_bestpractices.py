@@ -69,9 +69,9 @@ class ResourceManagerClient:
 	# Default Valyes for GoService
         self.go_service_source_path = '../build/goservice'
         self.go_service_image_tag = "goservice:1.0.0"
-        self.go_service_acr_name = "sfbpacr"
-        self.acr_username = self.microservices_mongo_db_name
-        self.acr_password = 'GEN-UNIQUE-PASSWORD'
+        self.go_service_acr_name = "sfbpgoacr"
+        self.go_acr_username = self.microservices_mongo_db_name
+        self.go_acr_password = 'GEN-UNIQUE-PASSWORD'
         self.acregistry = self.go_service_acr_name + ".azurecr.io"
         self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
         self.cosmos_db_password = 'GEN-UNIQUE-PASSWORD'
@@ -79,6 +79,10 @@ class ResourceManagerClient:
         # Default values for JavaService
         self.java_service_source_path = '../build/javaservice'
         self.java_service_name = 'javaservice'
+        self.java_service_acr_name = "sfbpjavaacr"
+        self.java_service_image_tag = "javaservice:1.0.0"
+        self.java_acr_username = "sfbpjavaacruser"
+        self.java_acr_password = 'GEN-UNIQUE-PASSWORD'
 
         # Resource Declaration
         if not Path(self.template_file).exists():
@@ -307,7 +311,7 @@ class ResourceManagerClient:
         stdout, stderr = acr_username_process.communicate()
 
         if acr_username_process.wait() == 0:
-            self.acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+            self.go_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
         else:
             sys.exit(stderr)
         # Get ACR Password
@@ -316,26 +320,53 @@ class ResourceManagerClient:
         stdout, stderr = acr_password_process.communicate()
 
         if acr_password_process.wait() == 0:
-            self.acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+            self.go_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
         else:
             sys.exit(stderr)
 
     def java_service_build(self):
-        # Build Azure Sample Java class that uses VMSS MSI
-        # Get Source
-        azure_samples_java_msi = 'https://raw.githubusercontent.com/Azure-Samples/compute-java-manage-user-assigned-msi-enabled-virtual-machine/master/src/main/java/com/microsoft/azure/management/compute/samples/ManageUserAssignedMSIEnabledVirtualMachine.java'
-        java_source = requests.get(azure_samples_java_msi)
-        java_file_name = 'ManageUserAssignedMSIEnabledVirtualMachine.java'
-        os.mkdir(self.java_service_source_path)
-        java_file_source_path = self.java_service_source_path + "/" + java_file_name
-        java_file = open(java_file_source_path, 'w')
-        java_file.write(java_source.text)
-        java_file.close()
-        # Build Source
-        java_build_process = Popen(["javac", java_file_source_path])
+        print("Building JavaService Docker Image")
+        # Exists or Create Deployment Group - needed for ACR
+        deployment_group_exists_process = Popen(["az", "group", "exists", "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
 
-        if java_build_process.wait() != 0:
-            sys.exit("Couldn't compile java program")
+        stdout, stderr = deployment_group_exists_process.communicate()
+
+        if stdout.decode('utf-8').replace('\n', '') != 'true':
+            deployment_group_create_process = Popen(["az", "group", "create", "--location", self.location, "--name", self.deployment_resource_group], stdout=PIPE, stderr=PIPE)
+
+            if deployment_group_create_process.wait() != 0:
+                sys.exit(stderr)
+
+        # Create ACR for JavaService Container
+        acr_create_process = Popen(["az", "acr", "create", "--name", self.java_service_acr_name, "--resource-group", self.deployment_resource_group, "--sku", "Basic", "--location", self.location, "--admin-enabled", "true"])
+
+        if acr_create_process.wait() != 0:
+            sys.exit("Couldn't create ACR")
+
+        # Build JavaService Container Image
+        java_service_build_process = Popen(["az", "acr", "build", "--os", "Linux", "--registry", self.java_service_acr_name, "--image", self.java_service_image_tag, "../build/javaservice/"])
+
+        if java_service_build_process.wait() != 0:
+            sys.exit("couldn't build GoService Docker Image")
+
+        # Get ACR User Name
+        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.java_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = acr_username_process.communicate()
+
+        if acr_username_process.wait() == 0:
+            self.java_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
+        # Get ACR Password
+        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.java_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = acr_password_process.communicate()
+
+        if acr_password_process.wait() == 0:
+            self.java_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
 
     def microservices_cosmos_db_creation(self):
         print("Provisioning DEMO App Cosmos DB Dependency")
@@ -374,9 +405,9 @@ class ResourceManagerClient:
             elif parameter_name == 'ENV_DB_PASSWORD':
                 parameter.set('DefaultValue', self.cosmos_db_password)
             elif parameter_name == 'ENV_ACR_USERNAME':
-                parameter.set('DefaultValue', self.acr_username)
+                parameter.set('DefaultValue', self.go_acr_username)
             elif parameter_name == 'ENV_ACR_PASSWORD':
-                parameter.set('DefaultValue', self.acr_password)
+                parameter.set('DefaultValue', self.go_acr_password)
             else:
                 sys.exit("Couldn't set ApplicationManifest DefaultValues")
 
