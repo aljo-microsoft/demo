@@ -67,6 +67,8 @@ Add
         java_service_manifest.write(java_service_manifest_path)
 
 - microservices_app_resource_declaration()
+Add for ApplicationType
+application_type_java_service_depends_on = "Microsoft.Sql/servers/sfbpsqlserver"
 Add
         elif microservices[j].attrib['Name'].lower().find("java") > -1:
             sfpkg_java_service_name = microservices[j].attrib['Name']
