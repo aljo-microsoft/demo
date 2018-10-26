@@ -156,12 +156,12 @@ Add
                 }
             ]
         }
-    ]
+        ]
     
-    # Update Template File
-    template_file = open(self.template_file, 'w')
-    json.dump(template_file_json, template_file)
-    template_file.close()
+        # Update Template File
+        template_file = open(self.template_file, 'w')
+        json.dump(template_file_json, template_file)
+        template_file.close()
 
 2. SFPKG:
 ApplicationManifest.xml
