@@ -106,8 +106,6 @@ Add
         # Update Template with JavaService Azure SQL Resource
         print("Updating Resource Declaration with JavaService Azure SQL Demo Dependencies")
         template_file_json = json.load(open(self.template_file, 'r'))
-        application_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
-        application_manifest = xml.etree.ElementTree.parse(application_manifest_path).getroot()
 	
 	# Azure SQL
 	template_file_json["resources"] += [
@@ -159,6 +157,11 @@ Add
             ]
         }
     ]
+    
+    # Update Template File
+    template_file = open(self.template_file, 'w')
+    json.dump(template_file_json, template_file)
+    template_file.close()
 
 2. SFPKG:
 ApplicationManifest.xml
