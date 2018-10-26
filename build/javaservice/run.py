@@ -133,7 +133,7 @@ Add
                         "collation": "SQL_Latin1_General_CP1_CI_AS",
                         "maxSizeBytes": 268435456000,
                         "sampleName": "",
-                        "zoneRedundant": false,
+                        "zoneRedundant": False,
                         "licenseType": ""
                     },
                     "sku": {
@@ -143,7 +143,7 @@ Add
                     "type": "databases"
                 },
                 {
-                    "condition": true,
+                    "condition": True,
                     "apiVersion": "2014-04-01-preview",
                     "dependsOn": [
                         "[concat('Microsoft.Sql/servers/', 'sfbpsqlserver')]"
