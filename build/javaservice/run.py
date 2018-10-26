@@ -128,7 +128,7 @@ Add
                     "location": "[parameters('location')]",
                     "name": "sfbpdatabase",
                     "properties": {
-                        "collation": ""SQL_Latin1_General_CP1_CI_AS"",
+                        "collation": "SQL_Latin1_General_CP1_CI_AS",
                         "maxSizeBytes": 268435456000,
                         "sampleName": "",
                         "zoneRedundant": false,
