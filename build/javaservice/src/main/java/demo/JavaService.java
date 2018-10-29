@@ -27,10 +27,10 @@ public class JavaService {
             System.out.println("Created sfbpdatabase database SFBPTABLE table.");
             // Insert Table Demo Data
             String sqlUser1Data = "INSERT INTO SFBPTABLE " +
-                                   "VALUES('user1', 18006427676, 1)";
+                                   "VALUES('user1', 1)";
             stmt.executeUpdate(sqlUser1Data);
             String sqlUser2Data = "INSERT INTO SFBPTABLE " +
-                                   "VALUES('user2', 18006427676, 2)";
+                                   "VALUES('user2', 2)";
             stmt.executeUpdate(sqlUser2Data);
             // Query Table
             String SQL = "SELECT * FROM SFBPTABLE";
