@@ -779,6 +779,10 @@ def main():
     connection_string = az storage account show-connection-string -g sfbpdeployrg -n sfbpstorage
     microservice_sfpkg = az storage blob url --container-name  sfbpcontainer --connection-string $connection_string --name MicroservicesAppPackage.sfpkg
     sfctl application provision --application-package-download-uri $microservice_sfpkg --application-type-name MicroserviceType --application-type-version 1.0.0 --external-provision --verbose --debug
+    - Manually Upgrade App - Assumes Package App version changed to 1.0.1, and applicable Service Changes made
+    sfctl application upload --path ../MicroservicesAppPackage --show-progress
+    sfctl application provision --application-type-build-path MicroservicesAppPackage
+    sfctl application upgrade --application-id microservicesapp --application-version 1.0.1 --mode Monitored --parameters "{\"GO_ACR_PASSWORD\":\"GEN_UNIQUE\",\"GO_ACR_USERNAME\":\"sfbpgoacr\",\"GO_DATABASE_NAME\":\"sfbpmongodb\",\"GO_DB_PASSWORD\":\"GEN_UNIQUE\",\"GO_DB_USER_NAME\":\"sfbpmongodb\",\"JAVA_ACR_PASSWORD\":\"GEN_UNIQUE\",\"JAVA_ACR_USERNAME\":\"sfbpjavaacr\"}"
     - Check App Health
     sfctl application list
     sfctl service list --application-id microservicesapp
@@ -799,6 +803,7 @@ def main():
     - Import-PfxCertificate -Exportable -CertStoreLocation Cert:\CurrentUser\TrustedPeople -FilePath ..\..\..\Downloads\sfbpkeyvault-x509certificatename-20181019.pfx
     - SFX: https://sfbpcluster.westus.cloudapp.azure.com:19080/Explorer
     - GoService: http://sfbpcluster.westus.cloudapp.azure.com:8081
+    - JavaService: http://sfbpcluster.westus.cloudapp.azure.com:8083
     """
 
 if __name__ == '__main__':
