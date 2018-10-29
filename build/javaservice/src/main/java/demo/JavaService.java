@@ -19,7 +19,7 @@ public class JavaService {
 
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             // Create Table
-            String sqlCreateTable = "IF NOT EXSITS (SELECT name FROM sys.tables WHERE name='SFBPTABLE' AND type='U')" +
+            String sqlCreateTable = "IF NOT EXISTS (SELECT name FROM sys.tables WHERE name='SFBPTABLE' AND type='U')" +
                                     "  CREATE TABLE SFBPTABLE (" +
                                     "    name VARCHAR(255), " +
                                     "    id INTEGER not NULL, " +
@@ -27,9 +27,8 @@ public class JavaService {
                                     "  )" +
                                     "GO";
             stmt.executeUpdate(sqlCreateTable);
-            System.out.println("sfbpdatabase database SFBPTABLE table exists.");
-            // Insert Table Demo Data
-            String sqlItem1Data = "IF (NOT EXISTS(SELECT * FROM SFBPTABLE WHERE name = 'item1'))" +
+            // Insert Demo Data
+            String sqlItem1Data = "IF (NOT EXISTS (SELECT * FROM SFBPTABLE WHERE name = 'item1'))" +
                                   "BEGIN" +
                                   "   INSERT INTO SFBPTABLE(name, id)" +
                                   "   VALUES('item1', 1)" +
