@@ -15,7 +15,7 @@ public class JavaService {
     public String index() {
                 // Connection String
         String connectionUrl = "jdbc:sqlserver://sfbpsqlserver.database.windows.net:1433;database=sfbpdatabase;user=aljo@sfbpsqlserver;password=Password#1234;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30";
-        String tableData = "SERVICETABLE\n";
+        String tableData = "SERVICETABLE";
 
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             // Create Table
@@ -38,7 +38,7 @@ public class JavaService {
             ResultSet rs = stmt.executeQuery(SQL);
             // Display Table Data
             while (rs.next()) {
-                tableData += "| " + rs.getString("name") + " | " + rs.getString("id") + " | \n";
+                tableData += " | " + rs.getString("name") + " | " + rs.getString("id") + " | ";
             }
         }
         // Handle Exceptions
