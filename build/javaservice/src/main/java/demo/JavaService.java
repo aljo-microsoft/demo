@@ -26,14 +26,14 @@ public class JavaService {
             stmt.executeUpdate(sqlCreateTable);
             System.out.println("Created sfbpdatabase database SFBPTABLE table.");
             // Insert Table Demo Data
-            String sqlUser1Data = "INSERT INTO SERVICETABLE " +
+            String sqlUser1Data = "INSERT INTO SFBPTABLE " +
                                    "VALUES('user1', 18006427676, 1)";
             stmt.executeUpdate(sqlUser1Data);
-            String sqlUser2Data = "INSERT INTO SERVICETABLE " +
+            String sqlUser2Data = "INSERT INTO SFBPTABLE " +
                                    "VALUES('user2', 18006427676, 2)";
             stmt.executeUpdate(sqlUser2Data);
             // Query Table
-            String SQL = "SELECT * FROM SERVICETABLE";
+            String SQL = "SELECT * FROM SFBPTABLE";
             ResultSet rs = stmt.executeQuery(SQL);
             // Display Table Data
             while (rs.next()) {
