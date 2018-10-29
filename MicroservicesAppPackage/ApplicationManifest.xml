@@ -1,41 +1,46 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="MicroserviceType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+<ApplicationManifest xmlns="http://schemas.microsoft.com/2011/01/fabric" ApplicationTypeName="MicroserviceType" ApplicationTypeVersion="1.0.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <Parameters>
-        <Parameter Name="ENV_DATABASE_NAME" DefaultValue="localhost" />
-        <Parameter Name="ENV_DB_USER_NAME" DefaultValue="myuser" />
-        <Parameter Name="ENV_DB_PASSWORD" DefaultValue="mypassword" />
-        <Parameter Name="ENV_ACR_USERNAME" DefaultValue="myacr" />
-        <Parameter Name="ENV_ACR_PASSWORD" DefaultValue="myacrpassword" />
+        <Parameter DefaultValue="sfbpmongodb" Name="GO_DATABASE_NAME" />
+        <Parameter DefaultValue="sfbpmongodb" Name="GO_DB_USER_NAME" />
+        <Parameter DefaultValue="GEN-UNIQUE-PASSWORD" Name="GO_DB_PASSWORD" />
+        <Parameter DefaultValue="sfbpmongodb" Name="GO_ACR_USERNAME" />
+        <Parameter DefaultValue="GEN-UNIQUE-PASSWORD" Name="GO_ACR_PASSWORD" />
+        <Parameter DefaultValue="sfbpjavaacruser" Name="JAVA_ACR_USERNAME" />
+        <Parameter DefaultValue="GEN-UNIQUE-PASSWORD" Name="JAVA_ACR_PASSWORD" />
     </Parameters>
     <ServiceManifestImport>
         <ServiceManifestRef ServiceManifestName="GoService" ServiceManifestVersion="1.0.0" />
         <EnvironmentOverrides CodePackageRef="GoCode">
-            <EnvironmentVariable Name="DATABASE_NAME" Value="[ENV_DATABASE_NAME]" />
-            <EnvironmentVariable Name="DB_USER_NAME" Value="[ENV_DB_USER_NAME]" />
-            <EnvironmentVariable Name="DB_PASSWORD" Value="[ENV_DB_PASSWORD]" />
+            <EnvironmentVariable Name="DATABASE_NAME" Value="[GO_DATABASE_NAME]" />
+            <EnvironmentVariable Name="DB_USER_NAME" Value="[GO_DB_USER_NAME]" />
+            <EnvironmentVariable Name="DB_PASSWORD" Value="[GO_DB_PASSWORD]" />
         </EnvironmentOverrides>
 	<Policies>
-	    <!-- Example for Settings.xml 
-	    <ConfigPackagePolicies CodePackageRef="GoCode">
-                <ConfigPackage Name="GoConfig" SectionName="GoSecrets" MountPoint="secrets"  EnvironmentVariableName="SECRETS_PATH" />
-            </ConfigPackagePolicies>
-	    -->
+	    
             <ContainerHostPolicies CodePackageRef="GoCode">
-                <RepositoryCredentials AccountName="[ENV_ACR_USERNAME]" Password="[ENV_ACR_PASSWORD]" PasswordEncrypted="false"/>
-                <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
+                <RepositoryCredentials AccountName="[GO_ACR_USERNAME]" Password="[GO_ACR_PASSWORD]" PasswordEncrypted="false" />
+                <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint" />
             </ContainerHostPolicies>
-	    <!--
-	    <ServicePackageResourceGovernancePolicy CpuCores="4"/>
-	    <ResourceGovernancePolicy CodePackageRef="GoCode" MemoryInMB="4096"/>
-	    <ServicePackageContainerPolicy Hostname="goservice" Isolation="process">
-                <PortBinding ContainerPort="8080" EndpointRef="GoServiceTypeEndpoint"/>
-            </ServicePackageContainerPolicy>
-	    -->
+	    
+        </Policies>
+    </ServiceManifestImport>
+    <ServiceManifestImport>
+        <ServiceManifestRef ServiceManifestName="JavaService" ServiceManifestVersion="1.0.0" />
+	      <Policies>
+            <ContainerHostPolicies CodePackageRef="JavaCode">
+                <RepositoryCredentials AccountName="[JAVA_ACR_USERNAME]" Password="[JAVA_ACR_PASSWORD]" PasswordEncrypted="false" />
+                <PortBinding ContainerPort="8082" EndpointRef="JavaServiceTypeEndpoint" />
+            </ContainerHostPolicies>
         </Policies>
     </ServiceManifestImport>
     <DefaultServices>
         <Service Name="GoService">
-            <StatelessService ServiceTypeName="GoServiceType" InstanceCount="-1" >
+            <StatelessService InstanceCount="-1" ServiceTypeName="GoServiceType">
+                <SingletonPartition />
+            </StatelessService>
+	</Service>
+        <Service Name="JavaService">
+            <StatelessService InstanceCount="-1" ServiceTypeName="JavaServiceType">
                 <SingletonPartition />
             </StatelessService>
 	</Service>

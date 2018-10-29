@@ -72,8 +72,8 @@ class ResourceManagerClient:
         self.go_service_acr_name = "sfbpgoacr"
         self.go_acr_username = self.microservices_mongo_db_name
         self.go_acr_password = 'GEN-UNIQUE-PASSWORD'
-        self.acregistry = self.go_service_acr_name + ".azurecr.io"
-        self.acregistry_image_tag = self.acregistry + "/" + self.go_service_image_tag
+        self.go_acregistry = self.go_service_acr_name + ".azurecr.io"
+        self.go_acregistry_image_tag = self.go_acregistry + "/" + self.go_service_image_tag
         self.cosmos_db_password = 'GEN-UNIQUE-PASSWORD'
 	
         # Default values for JavaService
@@ -83,6 +83,8 @@ class ResourceManagerClient:
         self.java_service_image_tag = "javaservice:1.0.0"
         self.java_acr_username = "sfbpjavaacruser"
         self.java_acr_password = 'GEN-UNIQUE-PASSWORD'
+        self.java_acregistry = self.java_service_acr_name + ".azurecr.io"
+        self.java_acregistry_image_tag = self.java_acregistry + "/" + self.java_service_image_tag
 
         # Resource Declaration
         if not Path(self.template_file).exists():
@@ -305,25 +307,6 @@ class ResourceManagerClient:
         if go_service_build_process.wait() != 0:
             sys.exit("couldn't build GoService Docker Image")
 
-        # Get ACR User Name
-        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
-
-        stdout, stderr = acr_username_process.communicate()
-
-        if acr_username_process.wait() == 0:
-            self.go_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-        else:
-            sys.exit(stderr)
-        # Get ACR Password
-        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
-
-        stdout, stderr = acr_password_process.communicate()
-
-        if acr_password_process.wait() == 0:
-            self.go_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-        else:
-            sys.exit(stderr)
-
     def java_service_build(self):
         print("Building JavaService Docker Image")
         # Exists or Create Deployment Group - needed for ACR
@@ -349,33 +332,53 @@ class ResourceManagerClient:
         if java_service_build_process.wait() != 0:
             sys.exit("couldn't build GoService Docker Image")
 
-        # Get ACR User Name
-        acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.java_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
-
-        stdout, stderr = acr_username_process.communicate()
-
-        if acr_username_process.wait() == 0:
-            self.java_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-        else:
-            sys.exit(stderr)
-        # Get ACR Password
-        acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.java_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
-
-        stdout, stderr = acr_password_process.communicate()
-
-        if acr_password_process.wait() == 0:
-            self.java_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-        else:
-            sys.exit(stderr)
-
     def microservices_cosmos_db_creation(self):
         print("Provisioning DEMO App Cosmos DB Dependency")
-        # Craete Cosmos DB Account
+        # Create Cosmos DB Account
         cosmos_account_create_process = Popen(["az", "cosmosdb", "create", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--kind", "MongoDB"])
 
         if cosmos_account_create_process.wait() != 0:
             sys.exit("couldn't create GoApp Cosmos DB User")
 
+    def microservices_app_sfpkg_declaration(self):
+        print("Getting SFPKG Values")
+        # Get Go ACR User Name
+        go_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = go_acr_username_process.communicate()
+
+        if go_acr_username_process.wait() == 0:
+            self.go_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
+        # Get Go ACR Password
+        go_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.go_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = go_acr_password_process.communicate()
+
+        if go_acr_password_process.wait() == 0:
+            self.go_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
+        # Get Java ACR User Name
+        java_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", self.java_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = java_acr_username_process.communicate()
+
+        if java_acr_username_process.wait() == 0:
+            self.java_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
+        # Get Java ACR Password
+        java_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", self.java_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+
+        stdout, stderr = java_acr_password_process.communicate()
+
+        if java_acr_password_process.wait() == 0:
+            self.java_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+        else:
+            sys.exit(stderr)
+        # Get Cosmos DB Password
         cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", self.microservices_mongo_db_account_name, "--resource-group", self.deployment_resource_group, "--query", "primaryMasterKey"], stdout=PIPE, stderr=PIPE)
 
         stdout, stderr = cosmos_db_password_process.communicate()
@@ -384,8 +387,6 @@ class ResourceManagerClient:
             self.cosmos_db_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
         else:
             sys.exit(stderr)
-
-    def microservices_app_sfpkg_declaration(self):
         print("Setting SFPKG Values")
         # Set ApplicationManifest DefaultValues
         app_manifest_path = self.microservices_app_package_path + "/ApplicationManifest.xml"
@@ -398,16 +399,20 @@ class ResourceManagerClient:
         app_manifest_parameters = app_manifest_params_parent.findall('{http://schemas.microsoft.com/2011/01/fabric}Parameter')
         for parameter in app_manifest_parameters:
             parameter_name = parameter.get('Name')
-            if parameter_name == 'ENV_DATABASE_NAME':
+            if parameter_name == 'GO_DATABASE_NAME':
                 parameter.set('DefaultValue', self.microservices_mongo_db_name)
-            elif parameter_name == 'ENV_DB_USER_NAME':
+            elif parameter_name == 'GO_DB_USER_NAME':
                 parameter.set('DefaultValue', self.microservices_mongo_db_account_name)
-            elif parameter_name == 'ENV_DB_PASSWORD':
+            elif parameter_name == 'GO_DB_PASSWORD':
                 parameter.set('DefaultValue', self.cosmos_db_password)
-            elif parameter_name == 'ENV_ACR_USERNAME':
+            elif parameter_name == 'GO_ACR_USERNAME':
                 parameter.set('DefaultValue', self.go_acr_username)
-            elif parameter_name == 'ENV_ACR_PASSWORD':
+            elif parameter_name == 'GO_ACR_PASSWORD':
                 parameter.set('DefaultValue', self.go_acr_password)
+            elif parameter_name == 'JAVA_ACR_USERNAME':
+                parameter.set('DefaultValue', self.java_acr_username)
+            elif parameter_name == 'JAVA_ACR_PASSWORD':
+                parameter.set('DefaultValue', self.java_acr_password)
             else:
                 sys.exit("Couldn't set ApplicationManifest DefaultValues")
 
@@ -422,10 +427,22 @@ class ResourceManagerClient:
         go_service_manifest_entrypoint = go_service_manifest_codepackage.find('{http://schemas.microsoft.com/2011/01/fabric}EntryPoint')
         go_service_manifest_containerhost = go_service_manifest_entrypoint.find('{http://schemas.microsoft.com/2011/01/fabric}ContainerHost')
         go_service_manifest_image_name = go_service_manifest_containerhost.find('{http://schemas.microsoft.com/2011/01/fabric}ImageName')
-        go_service_manifest_image_name.text = self.acregistry_image_tag
+        go_service_manifest_image_name.text = self.go_acregistry_image_tag
 
         go_service_manifest.write(go_service_manifest_path)
         # Set Java ServiceManifest values
+        java_service_manifest_path = self.microservices_app_package_path + "/JavaService/ServiceManifest.xml"
+        java_service_manifest = xml.etree.ElementTree.parse(java_service_manifest_path)
+        java_service_manifest_root = java_service_manifest.getroot()
+        java_service_manifest_root.set("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
+        java_service_manifest_root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        java_service_manifest_codepackage = java_service_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}CodePackage')
+        java_service_manifest_entrypoint = java_service_manifest_codepackage.find('{http://schemas.microsoft.com/2011/01/fabric}EntryPoint')
+        java_service_manifest_containerhost = java_service_manifest_entrypoint.find('{http://schemas.microsoft.com/2011/01/fabric}ContainerHost')
+        java_service_manifest_image_name = java_service_manifest_containerhost.find('{http://schemas.microsoft.com/2011/01/fabric}ImageName')
+        java_service_manifest_image_name.text = self.java_acregistry_image_tag
+        
+        java_service_manifest.write(java_service_manifest_path)
 
     def microservices_app_sfpkg_staging(self): 
         # Create microservices_app_v1.0.sfpkg
@@ -516,11 +533,15 @@ class ResourceManagerClient:
                     if microservices[j].attrib['Name'].lower().find("go") > -1:
                         sfpkg_go_service_name = microservices[j].attrib['Name']
                         sfpkg_go_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
+                    elif microservices[j].attrib['Name'].lower().find("java") > -1:
+                        sfpkg_java_service_name = microservices[j].attrib['Name']
+                        sfpkg_java_service_type = microservices[j].getchildren()[0].attrib['ServiceTypeName']
                     else:
                         sys.exit("couldn't find ApplicationManifest Services")
 
         # ApplicationType
         application_type_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'))]"
+        application_type_java_service_depends_on = "Microsoft.Sql/servers/sfbpsqlserver"
         application_type_name = "[concat(parameters('clusterName'), '/', '" + sfpkg_application_type_name + "')]"
         template_file_json["resources"] += [
             {
@@ -529,7 +550,8 @@ class ResourceManagerClient:
                 "name": application_type_name,
                 "location": "[variables('location')]",
                 "dependsOn": [
-                    application_type_depends_on
+                    application_type_depends_on,
+                    application_type_java_service_depends_on
                 ],
                 "properties": {
                     "provisioningState": "Default"
@@ -623,6 +645,94 @@ class ResourceManagerClient:
             }
         ]
 
+        # Java Service
+        java_service_name = "[concat(parameters('clusterName'), '/', '" + self.microservices_app_name + "', '/', '" + self.microservices_app_name + "~" + sfpkg_java_service_name + "')]"
+        java_service_depends_on = "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', '" + self.microservices_app_name + "')]"
+        template_file_json["resources"] += [
+            {
+                "apiVersion": "2017-07-01-preview",
+                "type": "Microsoft.ServiceFabric/clusters/applications/services",
+                "name": java_service_name,
+                "location": "[variables('location')]",
+                "dependsOn": [
+                    java_service_depends_on
+                ],
+                "properties": {
+                    "provisioningState": "Default",
+                    "serviceKind": "Stateless",
+                    "serviceTypeName": sfpkg_java_service_type,
+                    "instanceCount": "-1",
+                    "partitionDescription": {
+                        "partitionScheme": "Singleton"
+                    },
+                    "correlationScheme": [],
+                    "serviceLoadMetrics": [],
+                    "servicePlacementPolicies": []
+                }
+            }
+        ]
+
+        # Update Template File
+        template_file = open(self.template_file, 'w')
+        json.dump(template_file_json, template_file)
+        template_file.close()
+
+    def java_azure_sql_resource_declaration(self):
+        # Update Template with JavaService Azure SQL Resource
+        print("Updating Resource Declaration with JavaService Azure SQL Demo Dependencies")
+        template_file_json = json.load(open(self.template_file, 'r'))
+
+        # Azure SQL
+        template_file_json["resources"] += [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.Sql/servers",
+            "name": "sfbpsqlserver",
+            "properties": {
+                "administratorLogin": "aljo",
+                "administratorLoginPassword": "Password#1234",
+                "version": "12.0"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2017-10-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', 'sfbpsqlserver')]"
+                    ],
+                    "location": "[parameters('location')]",
+                    "name": "sfbpdatabase",
+                    "properties": {
+                        "collation": "SQL_Latin1_General_CP1_CI_AS",
+                        "maxSizeBytes": 268435456000,
+                        "sampleName": "",
+                        "zoneRedundant": False,
+                        "licenseType": ""
+                    },
+                    "sku": {
+                        "name": "S0",
+                        "tier": "Standard"
+                    },
+                    "type": "databases"
+                },
+                {
+                    "condition": True,
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', 'sfbpsqlserver')]"
+                    ],
+                    "location": "[parameters('location')]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    },
+                    "type": "firewallrules"
+                }
+            ]
+        }
+        ]
+
         # Update Template File
         template_file = open(self.template_file, 'w')
         json.dump(template_file_json, template_file)
@@ -645,6 +755,8 @@ def main():
     # Build Demo Microservices
     rmc.go_service_build()
     rmc.microservices_cosmos_db_creation()
+    rmc.java_service_build()
+    rmc.java_azure_sql_resource_declaration()
     # Package Demo Microservices
     rmc.microservices_app_sfpkg_declaration()
     rmc.microservices_app_sfpkg_staging()

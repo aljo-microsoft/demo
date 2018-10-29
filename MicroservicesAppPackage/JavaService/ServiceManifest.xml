@@ -1,0 +1,27 @@
+<ServiceManifest xmlns="http://schemas.microsoft.com/2011/01/fabric" Name="JavaService" Version="1.0.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <ServiceTypes>
+      <StatelessServiceType ServiceTypeName="JavaServiceType" UseImplicitHost="true" />
+   </ServiceTypes>
+  
+  <CodePackage Name="JavaCode" Version="1.0.0">
+    <EntryPoint>
+      <ContainerHost>
+        
+            <ImageName>sfbpjavaacr.azurecr.io/javaservice:1.0.0</ImageName>
+        <Commands />
+      </ContainerHost>
+    </EntryPoint>
+    
+    <EnvironmentVariables>
+      <EnvironmentVariable Name="IsContainer" Value="true" />
+    </EnvironmentVariables>
+  </CodePackage>
+  
+  <ConfigPackage Name="JavaConfig" Version="1.0.0" />
+  <Resources>
+    <Endpoints>
+      
+      <Endpoint Name="JavaServiceTypeEndpoint" Port="8083" Protocol="http" UriScheme="http" />
+    </Endpoints>
+  </Resources>
+</ServiceManifest>
