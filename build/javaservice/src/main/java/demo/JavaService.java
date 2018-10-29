@@ -29,11 +29,12 @@ public class JavaService {
             stmt.executeUpdate(sqlCreateTable);
             System.out.println("sfbpdatabase database SFBPTABLE table exists.");
             // Insert Table Demo Data
-            String sqlUser1Data = "IF (NOT EXISTS(SELECT * FROM SFBPTABLE WHERE name = 'user1'))" +
+            String sqlItem1Data = "IF (NOT EXISTS(SELECT * FROM SFBPTABLE WHERE name = 'item1'))" +
                                   "BEGIN" +
                                   "   INSERT INTO SFBPTABLE(name, id)" +
-                                  "   VALUES('user1', 1)" +
+                                  "   VALUES('item1', 1)" +
                                   "END";
+            stmt.executeUpdate(sqlItem1Data);
             // Query Table
             String SQL = "SELECT * FROM SFBPTABLE";
             ResultSet rs = stmt.executeQuery(SQL);
