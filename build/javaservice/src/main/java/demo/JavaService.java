@@ -19,19 +19,21 @@ public class JavaService {
 
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             // Create Table
-            String sqlCreateTable = "CREATE TABLE SFBPTABLE " +
-                                    "(name VARCHAR(255), " +
-                                    "id INTEGER not NULL, " +
-                                    "PRIMARY KEY (id))";
+            String sqlCreateTable = "IF NOT EXSITS (SELECT * FROM sysobjects WHERE name='SFBPTABLE' AND xtype='U')" +
+                                    "  CREATE TABLE SFBPTABLE (" +
+                                    "    name VARCHAR(255), " +
+                                    "    id INTEGER not NULL, " +
+                                    "    PRIMARY KEY (id)" +
+                                    "  )" +
+                                    "GO";
             stmt.executeUpdate(sqlCreateTable);
-            System.out.println("Created sfbpdatabase database SFBPTABLE table.");
+            System.out.println("sfbpdatabase database SFBPTABLE table exists.");
             // Insert Table Demo Data
-            String sqlUser1Data = "INSERT INTO SFBPTABLE " +
-                                   "VALUES('user1', 1)";
-            stmt.executeUpdate(sqlUser1Data);
-            String sqlUser2Data = "INSERT INTO SFBPTABLE " +
-                                   "VALUES('user2', 2)";
-            stmt.executeUpdate(sqlUser2Data);
+            String sqlUser1Data = "IF (NOT EXISTS(SELECT * FROM SFBPTABLE WHERE name = 'user1'))" +
+                                  "BEGIN" +
+                                  "   INSERT INTO SFBPTABLE(name, id)" +
+                                  "   VALUES('user1', 1)" +
+                                  "END";
             // Query Table
             String SQL = "SELECT * FROM SFBPTABLE";
             ResultSet rs = stmt.executeQuery(SQL);
