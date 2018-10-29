@@ -19,7 +19,7 @@ public class JavaService {
 
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             // Create Table
-            String sqlCreateTable = "IF NOT EXSITS (SELECT * FROM sysobjects WHERE name='SFBPTABLE' AND xtype='U')" +
+            String sqlCreateTable = "IF NOT EXSITS (SELECT name FROM sys.tables WHERE name='SFBPTABLE' AND xtype='U')" +
                                     "  CREATE TABLE SFBPTABLE (" +
                                     "    name VARCHAR(255), " +
                                     "    id INTEGER not NULL, " +
