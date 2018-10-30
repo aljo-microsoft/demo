@@ -29,7 +29,7 @@
 	      <Policies>
             <ContainerHostPolicies CodePackageRef="JavaCode">
                 <RepositoryCredentials AccountName="[JAVA_ACR_USERNAME]" Password="[JAVA_ACR_PASSWORD]" PasswordEncrypted="false" />
-                <PortBinding ContainerPort="8082" EndpointRef="JavaServiceTypeEndpoint" />
+                <PortBinding ContainerPort="9080" EndpointRef="JavaServiceTypeEndpoint" />
             </ContainerHostPolicies>
         </Policies>
     </ServiceManifestImport>
