@@ -66,9 +66,9 @@ az cosmosdb create --name aljodb --resource-group aljomsitest --kind MongoDB
 ### Get PrinipalID
 az resource show --id /subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.Compute/virtualMachines/aljovm--api-version 2017-12-01
 ### Grant VM MSI access to CosmosDB Keys
-az role assignment create --assignee <PrincipalID> --role Contributor --scope "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljomsitestdb"
+az role assignment create --assignee '<PrincipalID>' --role Contributor --scope "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljodb"
 
-### SSH into Machine
+### SSH into Machine (Validate NSG Rules Allow SSH from client)
 ssh aljo@aljovm.westus.cloudapp.azure.com
 ### GET Access Token for ARM from Machine (Bash)
 access_token=$(curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true | python -c "import sys, json; print json.load(sys.stdin)['access_token']")
