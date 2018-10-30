@@ -70,10 +70,11 @@ az role assignment create --assignee <PrincipalID> --role Contributor --scope "/
 
 ### SSH into Machine
 ssh aljo@aljovm.westus.cloudapp.azure.com
-### GET Access Token for ARM from Machine
-curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true
+### GET Access Token for ARM from Machine (Bash)
+access_token=$(curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true | python -c "import sys, json; print json.load(sys.stdin)['access_token']")
+
 ### Get Access Keys for Cosmos DB using MSI Access Token
-curl 'https://management.azure.com/subscriptions/<SUBSCRIPTION ID>/resourceGroups/<RESOURCE GROUP>/providers/Microsoft.DocumentDB/databaseAccounts/<COSMOS DB ACCOUNT NAME>/<KEY OPERATION TYPE>?api-version=2016-03-31' -X POST -d "" -H "Authorization: Bearer <ACCESS TOKEN>"
+curl 'https://management.azure.com/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljodb/listKeys?api-version=2016-03-31' -X POST -d "" -H "Authorization: Bearer $access_token"
 
 ### Update Go App to get DB Password using MSI instead of from App Manifest Declared Environment Variable
 msi_arm_token := request.get("'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true")
