@@ -60,16 +60,16 @@
     },
     "loadBalancedAppPort1": {
       "type": "int",
-      "defaultValue": 80,
+      "defaultValue": 8081,
       "metadata": {
-        "description": "Input endpoint1 for the application to use. Replace it with what your application uses"
+        "description": "Input endpoint1 for the application to use. Used by GoService"
       }
     },
     "loadBalancedAppPort2": {
       "type": "int",
-      "defaultValue": 8081,
+      "defaultValue": 8083,
       "metadata": {
-        "description": "Input endpoint2 for the application to use. Replace it with what your application uses"
+        "description": "Input endpoint2 for the application to use. Used by JavaService"
       }
     },
     "clusterProtectionLevel": {
