@@ -3,7 +3,7 @@
 # Maven 3.3.9
 
 FROM ubuntu:16.04
-EXPOSE 8082
+EXPOSE 9080
 
 MAINTAINER Alexander Johnson (https://github.com/aljo-microsoft)
 
@@ -45,4 +45,4 @@ RUN apt-get update && \
 # Add Java Demo Source to Image, Build and Run
 ADD . .
 RUN mvn package
-CMD ["java", "-jar", "-Dserver.port=8082", "./target/javaservice-0.0.1.jar"]
+CMD ["java", "-jar", "-Dserver.port=9080", "./target/javaservice-0.0.1.jar"]
