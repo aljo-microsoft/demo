@@ -54,26 +54,26 @@ NOTES:
 Executing servicefabric_bestpractices.py will timeout in Azure Cloud Shell, as it takes approximately 30 minutes to complete end to end, and understand there is a 20 mins timeout.
 
 Currently testing MSI use below, which I planned to leverage for replacing Package Secret values, by using tokens to fetch secrets.
-# Process to Test MSI
-# Create RG
+## Process to Test MSI
+### Create RG
 az group create --name aljomsitest --location westus
-# Create VM with SysAssigned MSI
+### Create VM with SysAssigned MSI
 az vm create --resource-group aljomsitest --name aljovm --image UbuntuLTS --generate-ssh-keys --assign-identity --admin-username aljo --admin-password Paasword#1234
-# Create Cosmos DB Account
+### Create Cosmos DB Account
 az cosmosdb create --name aljodb --resource-group aljomsitest --kind MongoDB
-# Get PrinipalID
+### Get PrinipalID
 az resource show --id /subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.Compute/virtualMachines/aljovm--api-version 2017-12-01
-# Grant VM MSI access to CosmosDB Keys
+### Grant VM MSI access to CosmosDB Keys
 az role assignment create --assignee <PrincipalID> --role Contributor --scope "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljomsitestdb"
 
-# SSH into Machine
+### SSH into Machine
 ssh aljo@aljovm.westus.cloudapp.azure.com
-# GET Access Token for ARM from Machine
+### GET Access Token for ARM from Machine
 curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true
-# Get Access Keys for Cosmos DB using MSI Access Token
+### Get Access Keys for Cosmos DB using MSI Access Token
 curl 'https://management.azure.com/subscriptions/<SUBSCRIPTION ID>/resourceGroups/<RESOURCE GROUP>/providers/Microsoft.DocumentDB/databaseAccounts/<COSMOS DB ACCOUNT NAME>/<KEY OPERATION TYPE>?api-version=2016-03-31' -X POST -d "" -H "Authorization: Bearer <ACCESS TOKEN>"
 
-# Update Go App to get DB Password using MSI instead of from App Manifest Declared Environment Variable
+### Update Go App to get DB Password using MSI instead of from App Manifest Declared Environment Variable
 msi_arm_token := request.get("'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true")
 
 cosmos_db_keys := request.get("'https://management.azure.com/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b4/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljodb/listKeys?api-version=2016-03-31' -X POST -d '' -H \"Authorization: Bearer msi_arm_token['access_token']\"")
