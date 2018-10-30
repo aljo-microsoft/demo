@@ -21,7 +21,7 @@
   <Resources>
     <Endpoints>
       
-      <Endpoint Name="JavaServiceTypeEndpoint" Port="9081" Protocol="http" UriScheme="http" />
+      <Endpoint Name="JavaServiceTypeEndpoint" Port="8083" Protocol="http" UriScheme="http" />
     </Endpoints>
   </Resources>
 </ServiceManifest>
