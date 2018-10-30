@@ -16,23 +16,39 @@ git clone https://github.com/aljo-microsoft/demo.git
 
 cd demo/deploy
 
-python3
-Python 3.5.2 (default, Nov 23 2017, 16:37:01)
-[GCC 5.4.0 20160609] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> from servicefabric_bestpractices import ResourceManagerClient
->>> rmc = ResourceManagerClient()
->>> rmc.declare_secret_parameter_values()
->>> rmc.go_service_build()
->>> rmc.microservices_cosmos_db_creation()
->>> rmc.java_service_build()
->>> rmc.java_azure_sql_resource_declaration()
->>> rmc.microservices_app_sfpkg_declaration()
->>> rmc.microservices_app_sfpkg_staging()
->>> rmc.microservices_app_resource_declaration()
->>> rmc.validate_declaration()
->>> rmc.deploy_resources()
->>> rmc.setup_cluster_client()
+python
+
+'Python 3.5.2 (default, Nov 23 2017, 16:37:01)'
+
+'[GCC 5.4.0 20160609] on linux'
+
+'Type "help", "copyright", "credits" or "license" for more information.'
+
+'>>> from servicefabric_bestpractices import ResourceManagerClient'
+
+'>>> rmc = ResourceManagerClient()'
+
+'>>> rmc.declare_secret_parameter_values()'
+
+'>>> rmc.go_service_build()'
+
+'>>> rmc.microservices_cosmos_db_creation()'
+
+'>>> rmc.java_service_build()'
+
+'>>> rmc.java_azure_sql_resource_declaration()'
+
+'>>> rmc.microservices_app_sfpkg_declaration()'
+
+'>>> rmc.microservices_app_sfpkg_staging()'
+
+'>>> rmc.microservices_app_resource_declaration()'
+
+'>>> rmc.validate_declaration()'
+
+'>>> rmc.deploy_resources()'
+
+'>>> rmc.setup_cluster_client()'
 
 NOTES:
 Executing servicefabric_bestpractices.py will timeout in Azure Cloud Shell, as it takes approximately 30 minutes to complete end to end, and understand there is a 20 mins timeout.
