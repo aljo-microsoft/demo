@@ -58,7 +58,9 @@ Currently testing MSI use below, which I planned to leverage for replacing Packa
 ### Create RG
 az group create --name aljomsitest --location westus
 ### Create VM with SysAssigned MSI
-az vm create --resource-group aljomsitest --name aljovm --image UbuntuLTS --generate-ssh-keys --assign-identity --admin-username aljo --admin-password Paasword#1234
+ssh-keygen -t rsa -b 2048
+
+az vm create --resource-group aljomsitest --name aljovm --image UbuntuLTS --assign-identity --admin-username aljo --ssh-key-value @~/.ssh/id_rsa.pub
 ### Create Cosmos DB Account
 az cosmosdb create --name aljodb --resource-group aljomsitest --kind MongoDB
 ### Get PrinipalID
