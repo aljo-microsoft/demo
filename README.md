@@ -64,7 +64,8 @@ az vm create --resource-group aljomsitest --name aljovm --image UbuntuLTS --assi
 ### Create Cosmos DB Account
 az cosmosdb create --name aljodb --resource-group aljomsitest --kind MongoDB
 ### Get PrinipalID
-az resource show --id /subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.Compute/virtualMachines/aljovm--api-version 2017-12-01
+principalid=$(az resource show --id /subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.Compute/virtualMachines/aljovm --api-version 2017-12-01 | python -c "import sys, json; print(json.load(sys.stdin)['identity'])")
+
 ### Grant VM MSI access to CosmosDB Keys
 az role assignment create --assignee '<PrincipalID>' --role Contributor --scope "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljodb"
 
