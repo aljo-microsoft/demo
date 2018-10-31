@@ -55,19 +55,21 @@ Executing servicefabric_bestpractices.py will timeout in Azure Cloud Shell, as i
 
 Currently testing MSI use below, which I planned to leverage for replacing Package Secret values, by using tokens to fetch secrets.
 ## Process to Test MSI
+### Set Subscription
+az account set --subscription 'eec8e14e-b47d-40d9-8bd9-23ff5c381b40'
 ### Create RG
-az group create --name aljomsitest --location westus
+az group create --name aljorg --location westus
 ### Create VM with SysAssigned MSI
 ssh-keygen -t rsa -b 2048
 
-az vm create --resource-group aljomsitest --name aljovm --image UbuntuLTS --assign-identity --admin-username aljo --ssh-key-value @~/.ssh/id_rsa.pub
+az vm create --resource-group aljorg --name aljovm --image UbuntuLTS --assign-identity --admin-username aljo --ssh-key-value @~/.ssh/id_rsa.pub
 ### Create Cosmos DB Account
-az cosmosdb create --name aljodb --resource-group aljomsitest --kind MongoDB
+az cosmosdb create --name aljodb --resource-group aljorg --kind MongoDB
 ### Get PrinipalID
-principalid=$(az resource show --id /subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.Compute/virtualMachines/aljovm --api-version 2017-12-01 | python -c "import sys, json; print(json.load(sys.stdin)['identity']['principalId'])")
+principalid=$(az resource show --id /subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljorg/providers/Microsoft.Compute/virtualMachines/aljovm --api-version 2017-12-01 | python -c "import sys, json; print(json.load(sys.stdin)['identity']['principalId'])")
 
 ### Grant VM MSI access to CosmosDB Keys
-az role assignment create --assignee $principalid --role 'Contributor' --scope "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljodb"
+az role assignment create --assignee $principalid --role 'Contributor' --scope "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljorg/providers/Microsoft.DocumentDB/databaseAccounts/aljodb"
 
 ### SSH into Machine (Validate NSG Rules Allow SSH from client)
 ssh aljo@aljovm.westus.cloudapp.azure.com
