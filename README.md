@@ -82,4 +82,25 @@ cosmos_db_password=$(curl 'https://management.azure.com/subscriptions/eec8e14e-b
 echo "$cosmos_db_password"
 
 ### Update Go App to get DB Password using MSI instead of from App Manifest Declared Environment Variable
-TODO: Implement above flow into Go App to get DB Password.
+### Get Access Token in Golang
+req, err := http.NewRequest("GET", "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F", nil)
+
+if err != nil {
+    // handle err
+}
+req.Header.Set("Metadata", "true")
+
+resp, err := http.DefaultClient.Do(req)
+
+if err != nil {
+    // handle err
+}
+
+if resp.StatusCode == http.StatusOK {
+   respBytes, _ := ioutil.ReadAll(resp.Body)
+   var access_token_resp map[string]interface{}
+   json.Unmarshal(respBytes, &access_token_resp)
+   access_token, _ := access_token_resp["access_token"].(string)
+}
+### Use Access Token to Get CosmosDB Account Key in Golang
+TODO: Implement
