@@ -80,8 +80,4 @@ cosmos_db_password=$(curl 'https://management.azure.com/subscriptions/eec8e14e-b
 echo "$cosmos_db_password"
 
 ### Update Go App to get DB Password using MSI instead of from App Manifest Declared Environment Variable
-msi_arm_token := request.get("'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true")
-
-cosmos_db_keys := request.get("'https://management.azure.com/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b4/resourceGroups/aljomsitest/providers/Microsoft.DocumentDB/databaseAccounts/aljodb/listKeys?api-version=2016-03-31' -X POST -d '' -H \"Authorization: Bearer msi_arm_token['access_token']\"")
-
-cosmos_db_password := cosmos_db_keys["primaryReadonlyMasterKey"]
+TODO: Implement above flow into Go App to get DB Password.
