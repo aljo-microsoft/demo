@@ -24,7 +24,7 @@ public class JavaService {
                                     "    name VARCHAR(255), " +
                                     "    id INTEGER not NULL, " +
                                     "    PRIMARY KEY (id)" +
-                                    ");
+                                    ")";
             stmt.executeUpdate(sqlCreateTable);
             // Insert Demo Data
             String sqlItem1Data = "IF (NOT EXISTS (SELECT * FROM SFBPTABLE WHERE name = 'item1'))" +
