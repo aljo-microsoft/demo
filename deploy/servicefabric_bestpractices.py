@@ -797,6 +797,7 @@ def main():
     acr_password = az acr credential show -n sfbpacr --query passwords[0].value
     az container create -g sfbpdeployrg --name sfbpacr --image sfbpacr.azurecr.io/goservice:1.0.0 --registry-password $acr_password --dns-name-label aljo-container --ports 8080 -e DATABASE_NAME="sfbpmongodb" DB_USER_NAME="sfbpuser" DB_PASSWORD=$db_password
     az container show --resource-group sfbpdeployrg --name aljoacr --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" --out table
+    az container create -g sfbpdeployrg --name sfbpjavaacr --image sfbpjavaacr.azurecr.io/javaservice:1.0.0 --registry-password $java_acr_password --dns-name-label aljo-container --ports 8082
     - Import x509certificatename.pem into TrustedRoot Store and Client Credentials Store for Browsers
     - On Windows Machine using Chrome used Portal To download PFX and ran following (don't forget to clear cookies if already trusted DNS with different cert):
     - Import-PfxCertificate -Exportable -CertStoreLocation Cert:\CurrentUser\My -FilePath ..\..\..\Downloads\sfbpkeyvault-x509certificatename-20181019.pfx
