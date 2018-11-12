@@ -27,7 +27,7 @@
       "value": "latest"
     },
     "loadBalancedAppPort1": {
-      "value": 80
+      "value": 8083
     },
     "loadBalancedAppPort2": {
       "value": 8081
