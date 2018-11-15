@@ -11,22 +11,22 @@ The Java Service is implemented to create a MS SQL Database table, insert Data, 
 Date 11/14/2019
 Converting to Azure DevOps Project
 
-Build Pipeline:
-* Build GoService Image:
-- Commands==build
-- Dockerfile==./build/goservice/Dockerfile
-- Image name==goservice
-* Tag GoService Image:
-- Commands==tag
-- Arguments==aljoacr.azurecr.io/goservice:1.0.0
-- Image name==goservice
-* Push GoService Image:
-- Commands==push
-- Image name==aljoacr.azurecr.io/goservice:1.0.0
-* Bash Script:
-- Inline
-
-Note: Uncheck Qualify image name and Repeat Buid Tasks for each Container
+### Build Pipeline:
+#### Build GoService Image:
+-Commands==build
+-Dockerfile==./build/goservice/Dockerfile
+-Image name==goservice
+#### Tag GoService Image:
+-Commands==tag
+-Arguments==aljoacr.azurecr.io/goservice:1.0.0
+-Image name==goservice
+#### Push GoService Image:
+-Commands==push
+-Image name==aljoacr.azurecr.io/goservice:1.0.0
+#### Bash Script:
+-Inline
+#### Note:
+-Uncheck Qualify image name and Repeat Buid Tasks for each Container
 
 
 
