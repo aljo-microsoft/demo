@@ -23,14 +23,16 @@ Converting to Azure DevOps Project
 #### Push GoService Image:
 -Commands==push
 -Image name==aljoacr.azurecr.io/goservice:1.0.0
-#### Bash Script:
+#### Bash Script Get Values for SFPKG:
 -Inline
+-go_acr_username=$(az acr credential show -n $go_service_acr_name --query username)
+-go_acr_password=$(az acr credential show -n $go_service_acr_name --query passwords[0].value)
+-java_acr_username=$(az acr credential show -n $java_service_acr_name --query username)
+-java_acr_password=$(az acr credential show -n $java_service_acr_name --query passwords[0].value)
+-cosmos_db_password=$(az cosmosdb list-keys --name $microservices_mongo_db_account_name --resource-group $deployment_resource_group --query primaryMasterKey)
 #### Note:
 -Uncheck Qualify image name and Repeat Buid Tasks for each Container
-
-
-
-
+-Add Env Variables and Output variables for Scripts
 
 
 Last Tested 10/30/2019
