@@ -23,13 +23,91 @@ Converting to Azure DevOps Project
 #### Push GoService Image:
 -Commands==push
 -Image name==aljoacr.azurecr.io/goservice:1.0.0
-#### Bash Script Get Values for SFPKG:
+#### Python script - Set SFPKG ApplicationManifest Values:
 -Inline
--go_acr_username=$(az acr credential show -n $go_service_acr_name --query username)
--go_acr_password=$(az acr credential show -n $go_service_acr_name --query passwords[0].value)
--java_acr_username=$(az acr credential show -n $java_service_acr_name --query username)
--java_acr_password=$(az acr credential show -n $java_service_acr_name --query passwords[0].value)
--cosmos_db_password=$(az cosmosdb list-keys --name $microservices_mongo_db_account_name --resource-group $deployment_resource_group --query primaryMasterKey)
+from subprocess import PIPE
+from subprocess import Popen
+import xml.etree.ElementTree
+
+print("Getting SFPKG ApplicationManifest Values")
+# Get Go ACR User Name
+go_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+
+stdout, stderr = go_acr_username_process.communicate()
+
+if go_acr_username_process.wait() == 0:
+    go_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+else:
+    sys.exit(stderr)
+# Get Go ACR Password
+go_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", go_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+
+stdout, stderr = go_acr_password_process.communicate()
+
+if go_acr_password_process.wait() == 0:
+    go_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+else:
+    sys.exit(stderr)
+# Get Java ACR User Name
+java_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", java_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+
+stdout, stderr = java_acr_username_process.communicate()
+
+if java_acr_username_process.wait() == 0:
+    java_acr_username = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+else:
+    sys.exit(stderr)
+# Get Java ACR Password
+java_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", java_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+
+stdout, stderr = java_acr_password_process.communicate()
+
+if java_acr_password_process.wait() == 0:
+    java_acr_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+else:
+    sys.exit(stderr)
+# Get Cosmos DB Password
+cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", microservices_mongo_db_account_name, "--resource-group", deployment_resource_group, "--query", "primaryMasterKey"], stdout=PIPE, stderr=PIPE)
+
+stdout, stderr = cosmos_db_password_process.communicate()
+
+if cosmos_db_password_process.wait() == 0:
+    cosmos_db_password = stdout.decode("utf-8").replace('\n', '').replace('"', '')
+else:
+    sys.exit(stderr)
+print("Setting SFPKG Application Manifest Values")
+# Set ApplicationManifest DefaultValues
+app_manifest_path = microservices_app_package_path + "/ApplicationManifest.xml"
+xml.etree.ElementTree.register_namespace('', "http://schemas.microsoft.com/2011/01/fabric")
+app_manifest = xml.etree.ElementTree.parse(app_manifest_path)
+app_manifest_root = app_manifest.getroot()
+app_manifest_root.set("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
+app_manifest_root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+app_manifest_params_parent = app_manifest_root.find('{http://schemas.microsoft.com/2011/01/fabric}Parameters')
+app_manifest_parameters = app_manifest_params_parent.findall('{http://schemas.microsoft.com/2011/01/fabric}Parameter')
+for parameter in app_manifest_parameters:
+    parameter_name = parameter.get('Name')
+    if parameter_name == 'GO_DATABASE_NAME':
+        parameter.set('DefaultValue', self.microservices_mongo_db_name)
+    elif parameter_name == 'GO_DB_USER_NAME':
+        parameter.set('DefaultValue', self.microservices_mongo_db_account_name)
+    elif parameter_name == 'GO_DB_PASSWORD':
+        parameter.set('DefaultValue', self.cosmos_db_password)
+    elif parameter_name == 'GO_ACR_USERNAME':
+        parameter.set('DefaultValue', self.go_acr_username)
+    elif parameter_name == 'GO_ACR_PASSWORD':
+        parameter.set('DefaultValue', self.go_acr_password)
+    elif parameter_name == 'JAVA_ACR_USERNAME':
+        parameter.set('DefaultValue', self.java_acr_username)
+    elif parameter_name == 'JAVA_ACR_PASSWORD':
+        parameter.set('DefaultValue', self.java_acr_password)
+    else:
+        sys.exit("Couldn't set ApplicationManifest DefaultValues")
+
+app_manifest.write(app_manifest_path)
+-Arguments:
+go_service_acr_name=aljoacr, java_service_acr_name=aljoacr, microservices_mongo_db_account_name=sfbpmongodb, deployment_resource_group=aljocontainer, microservices_app_package_path=./MicroservicesAppPackage
+
 #### Note:
 -Uncheck Qualify image name and Repeat Buid Tasks for each Container
 -Add Env Variables and Output variables for Scripts
