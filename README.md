@@ -12,18 +12,18 @@ Date 11/14/2019
 Converting to Azure DevOps Project
 
 Build Pipeline:
-Build GoService Image:
+* Build GoService Image:
 - Commands==build
 - Dockerfile==./build/goservice/Dockerfile
 - Image name==goservice
-Tag GoService Image:
+* Tag GoService Image:
 - Commands==tag
 - Arguments==aljoacr.azurecr.io/goservice:1.0.0
 - Image name==goservice
-Push GoService Image:
+* Push GoService Image:
 - Commands==push
 - Image name==aljoacr.azurecr.io/goservice:1.0.0
-Bash Script:
+* Bash Script:
 - Inline
 
 Note: Uncheck Qualify image name and Repeat Buid Tasks for each Container
