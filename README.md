@@ -28,10 +28,14 @@ Converting to Azure DevOps Project
 from subprocess import PIPE
 from subprocess import Popen
 import xml.etree.ElementTree
+import argparse
+
+parser = argparse.ArgumentParser()
+args = parser.parse_args()
 
 print("Getting SFPKG ApplicationManifest Values")
 # Get Go ACR User Name
-go_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+go_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", args.go_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
 
 stdout, stderr = go_acr_username_process.communicate()
 
@@ -40,7 +44,7 @@ if go_acr_username_process.wait() == 0:
 else:
     sys.exit(stderr)
 # Get Go ACR Password
-go_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", go_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+go_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", args.go_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
 
 stdout, stderr = go_acr_password_process.communicate()
 
@@ -49,7 +53,7 @@ if go_acr_password_process.wait() == 0:
 else:
     sys.exit(stderr)
 # Get Java ACR User Name
-java_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", java_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
+java_acr_username_process = Popen(["az", "acr", "credential", "show", "-n", args.java_service_acr_name, "--query", "username"], stdout=PIPE, stderr=PIPE)
 
 stdout, stderr = java_acr_username_process.communicate()
 
@@ -58,7 +62,7 @@ if java_acr_username_process.wait() == 0:
 else:
     sys.exit(stderr)
 # Get Java ACR Password
-java_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", java_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
+java_acr_password_process = Popen(["az", "acr", "credential", "show", "-n", args.java_service_acr_name, "--query", "passwords[0].value"], stdout=PIPE, stderr=PIPE)
 
 stdout, stderr = java_acr_password_process.communicate()
 
@@ -67,7 +71,7 @@ if java_acr_password_process.wait() == 0:
 else:
     sys.exit(stderr)
 # Get Cosmos DB Password
-cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", microservices_mongo_db_account_name, "--resource-group", deployment_resource_group, "--query", "primaryMasterKey"], stdout=PIPE, stderr=PIPE)
+cosmos_db_password_process = Popen(["az", "cosmosdb", "list-keys", "--name", args.microservices_mongo_db_account_name, "--resource-group", args.deployment_resource_group, "--query", "primaryMasterKey"], stdout=PIPE, stderr=PIPE)
 
 stdout, stderr = cosmos_db_password_process.communicate()
 
@@ -77,7 +81,7 @@ else:
     sys.exit(stderr)
 print("Setting SFPKG Application Manifest Values")
 # Set ApplicationManifest DefaultValues
-app_manifest_path = microservices_app_package_path + "/ApplicationManifest.xml"
+app_manifest_path = args.microservices_app_package_path + "/ApplicationManifest.xml"
 xml.etree.ElementTree.register_namespace('', "http://schemas.microsoft.com/2011/01/fabric")
 app_manifest = xml.etree.ElementTree.parse(app_manifest_path)
 app_manifest_root = app_manifest.getroot()
@@ -90,17 +94,17 @@ for parameter in app_manifest_parameters:
     if parameter_name == 'GO_DATABASE_NAME':
         parameter.set('DefaultValue', self.microservices_mongo_db_name)
     elif parameter_name == 'GO_DB_USER_NAME':
-        parameter.set('DefaultValue', self.microservices_mongo_db_account_name)
+        parameter.set('DefaultValue', microservices_mongo_db_account_name)
     elif parameter_name == 'GO_DB_PASSWORD':
-        parameter.set('DefaultValue', self.cosmos_db_password)
+        parameter.set('DefaultValue', cosmos_db_password)
     elif parameter_name == 'GO_ACR_USERNAME':
-        parameter.set('DefaultValue', self.go_acr_username)
+        parameter.set('DefaultValue', go_acr_username)
     elif parameter_name == 'GO_ACR_PASSWORD':
-        parameter.set('DefaultValue', self.go_acr_password)
+        parameter.set('DefaultValue', go_acr_password)
     elif parameter_name == 'JAVA_ACR_USERNAME':
-        parameter.set('DefaultValue', self.java_acr_username)
+        parameter.set('DefaultValue', java_acr_username)
     elif parameter_name == 'JAVA_ACR_PASSWORD':
-        parameter.set('DefaultValue', self.java_acr_password)
+        parameter.set('DefaultValue', java_acr_password)
     else:
         sys.exit("Couldn't set ApplicationManifest DefaultValues")
 
