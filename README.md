@@ -107,7 +107,8 @@ for parameter in app_manifest_parameters:
 app_manifest.write(app_manifest_path)
 -Arguments:
 go_service_acr_name=aljoacr, java_service_acr_name=aljoacr, microservices_mongo_db_account_name=sfbpmongodb, deployment_resource_group=aljocontainer, microservices_app_package_path=./MicroservicesAppPackage
-
+#### Python script - Set SFPKG (Go) ServiceManifest Values:
+#### Python script - Set SFPKG (Java) ServiceManifest Values:
 #### Note:
 -Uncheck Qualify image name and Repeat Buid Tasks for each Container
 -Add Env Variables and Output variables for Scripts
