@@ -45,16 +45,16 @@
       "value": "My"
     },
     "certificateIssuerThumbprint": {
-      "value": "AD898AC73DF333EB60AC1F5FC6C4B2219DDB79B7"
+      "value": ""
     },    
     "certificateThumbprint": {
-      "value": "2EA0E81867D3B5357502D680AE7C07463BB16C16"
+      "value": ""
     },
     "sourceVaultValue": {
-      "value": "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljokvrg/providers/Microsoft.KeyVault/vaults/aljokv"
+      "value": ""
     },
     "certificateUrlValue": {
-      "value": "https://aljokv.vault.azure.net/secrets/certname/116c2743fb164ae882c6d7fd456832b2"
+      "value": ""
     },
     "storageAccountType": {
       "value": "Standard_LRS"
