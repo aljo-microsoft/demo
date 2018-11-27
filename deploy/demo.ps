@@ -1,0 +1,16 @@
+Import-PfxCertificate -Exportable -CertStoreLocation Cert:\CurrentUser\My -FilePath .\
+Import-PfxCertificate -Exportable -CertStoreLocation Cert:\CurrentUser\TrustedPeople -FilePath .\
+
+$ClusterName= "sfbpcluster.westus.cloudapp.azure.com.trafficmanager.net:19000"
+$thumb=""
+
+Connect-ServiceFabricCluster -ConnectionEndpoint $ClusterName -KeepAliveIntervalInSec 10 `
+    -X509Credential `
+    -ServerCertThumbprint $thumb  `
+    -FindType FindByThumbprint `
+    -FindValue $thumb `
+    -StoreLocation CurrentUser `
+    -StoreName My 
+
+Disable-ServiceFabricNode -NodeName _NTvm1_0 -Intent RemoveNode -Force
+# ~15 minutes to migrate Stateful Seed Node
