@@ -1,0 +1,78 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "certificateCommonName": {
+       "value": "sfbpcluster.westus.cloudapp.azure.com"
+    },
+    "clusterLocation": {
+      "value": "westus"
+    },
+    "computeLocation": {
+        "value": "westus"
+    },
+    "clusterName": {
+      "value": "sfbpcluster"
+    },
+    "dnsName": {
+        "value": "sfbpcluster"
+    },
+    "adminUserName": {
+      "value": "adminuser"
+    },
+    "adminPassword": {
+      "value": "Password@123"
+    },
+    "vmImagePublisher": {
+      "value": "MicrosoftWindowsServer"
+    },
+    "vmImageOffer": {
+      "value": "WindowsServer"
+    },
+    "vmImageSku": {
+      "value": "2012-R2-Datacenter"
+    },
+    "vmImageSku2": {
+      "value": "2016-Datacenter-with-Containers"
+    },
+    "vmImageVersion": {
+      "value": "latest"
+    },    
+    "clusterProtectionLevel": {
+      "value": "EncryptAndSign"
+    },
+    "certificateStoreValue": {
+      "value": "My"
+    },
+    "certificateIssuerThumbprint": {
+      "value": "AD898AC73DF333EB60AC1F5FC6C4B2219DDB79B7"
+    },    
+    "certificateThumbprint": {
+      "value": "2EA0E81867D3B5357502D680AE7C07463BB16C16"
+    },
+    "sourceVaultValue": {
+      "value": "/subscriptions/eec8e14e-b47d-40d9-8bd9-23ff5c381b40/resourceGroups/aljokvrg/providers/Microsoft.KeyVault/vaults/aljokv"
+    },
+    "certificateUrlValue": {
+      "value": "https://aljokv.vault.azure.net/secrets/certname/116c2743fb164ae882c6d7fd456832b2"
+    },
+    "storageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "supportLogStorageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "applicationDiagnosticsStorageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "nt0InstanceCount": {
+      "value": 5
+    },
+    "vmNodeType0Size": {
+      "value": "Standard_D2_V2"
+    },
+    "vmNodeType2Size": {
+        "value": "Standard_D4_v2"
+    }
+  }
+}
