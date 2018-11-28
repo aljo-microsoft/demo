@@ -730,11 +730,12 @@
                         			"Sink": [
                           			   {
                             				"name": "MyApplicationInsightsProfilerSinkVMSS",
-                            				"ApplicationInsightsProfiler": "[parameters('applicationInsightsKey')]"
+                            				"ApplicationInsights": "[parameters('applicationInsightsKey')]"
                           			   }
                          			]
                       			    },
                                             "DiagnosticMonitorConfiguration": {
+						"sinks": "MyApplicationInsightsProfilerSinkVMSS",
                                                 "overallQuotaInMB": "50000",
                                                 "EtwProviders": {
                                                     "EtwEventSourceProviderConfiguration": [
@@ -1062,11 +1063,12 @@
                         			"Sink": [
                           			   {
                             				"name": "MyApplicationInsightsProfilerSinkVMSS",
-                            				"ApplicationInsightsProfiler": "[parameters('applicationInsightsKey')]"
+                            				"ApplicationInsights": "[parameters('applicationInsightsKey')]"
                           			   }
                          			]
                       			    },
                                             "DiagnosticMonitorConfiguration": {
+						"sinks": "MyApplicationInsightsProfilerSinkVMSS",
                                                 "overallQuotaInMB": "50000",
                                                 "EtwProviders": {
                                                     "EtwEventSourceProviderConfiguration": [
@@ -1396,11 +1398,12 @@
                         			"Sink": [
                           			   {
                             				"name": "MyApplicationInsightsProfilerSinkVMSS",
-                            				"ApplicationInsightsProfiler": "[parameters('applicationInsightsKey')]"
+                            				"ApplicationInsights": "[parameters('applicationInsightsKey')]"
                           			   }
                          			]
                       			    },
                                             "DiagnosticMonitorConfiguration": {
+						"sinks": "MyApplicationInsightsProfilerSinkVMSS",
                                                 "overallQuotaInMB": "50000",
                                                 "EtwProviders": {
                                                     "EtwEventSourceProviderConfiguration": [
