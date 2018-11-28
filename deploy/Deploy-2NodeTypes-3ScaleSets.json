@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
 	"applicationInsightsKey": {
-	    "type" "string",
+	    "type": "string",
 	     "metadata": {
 		"description": "App Insights Key for VMSS Diagnostics"
 	     }
@@ -415,7 +415,7 @@
            "profileStatus": "Enabled",
            "trafficRoutingMethod": "Weighted",
              "dnsConfig": {
-             "relativeName": "sfbpcluster,
+             "relativeName": "sfbpcluster",
              "ttl": 30
            },
            "monitorConfig": {
