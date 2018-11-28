@@ -41,6 +41,10 @@
             "type": "int",
             "defaultValue": 19000
         },
+	"visualObjectsPort": {
+	   "type": "int",
+	   "defaultValue": 8081
+	},
         "nt0fabricHttpGatewayPort": {
             "type": "int",
             "defaultValue": 19080
@@ -322,10 +326,11 @@
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
         "subnet0Ref": "[concat(variables('vnetID'),'/subnets/',parameters('subnet0Name'))]",
         "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',parameters('subnet1Name'))]",
-		"lbID0": "[resourceId('Microsoft.Network/loadBalancers', concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType0Name')))]",
+	"lbID0": "[resourceId('Microsoft.Network/loadBalancers', concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType0Name')))]",
         "lbIPConfig0": "[concat(variables('lbID0'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
         "lbPoolID0": "[concat(variables('lbID0'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID0": "[concat(variables('lbID0'),'/probes/FabricGatewayProbe')]",
+	"lbVOProbeID0": "[concat(variables('lbID0'),'/probes/VisualObjectsProbe')]",
         "lbHttpProbeID0": "[concat(variables('lbID0'),'/probes/FabricHttpGatewayProbe')]",
         "lbNatPoolID0": "[concat(variables('lbID0'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName0": "[toLower(concat(uniqueString(resourceGroup().id), '1', '0' ))]",
@@ -333,13 +338,15 @@
         "lbIPConfig1": "[concat(variables('lbID1'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
         "lbPoolID1": "[concat(variables('lbID1'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID1": "[concat(variables('lbID1'),'/probes/FabricGatewayProbe')]",
+	"lbVOProbeID1": "[concat(variables('lbID1'),'/probes/VisualObjectsProbe')]",
         "lbHttpProbeID1": "[concat(variables('lbID1'),'/probes/FabricHttpGatewayProbe')]",
         "lbNatPoolID1": "[concat(variables('lbID1'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName1": "[toLower(concat(uniqueString(resourceGroup().id), '1', '1' ))]",
-		"lbID2": "[resourceId('Microsoft.Network/loadBalancers', concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType2Name')))]",
+	"lbID2": "[resourceId('Microsoft.Network/loadBalancers', concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType2Name')))]",
         "lbIPConfig2": "[concat(variables('lbID2'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
         "lbPoolID2": "[concat(variables('lbID2'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID2": "[concat(variables('lbID2'),'/probes/FabricGatewayProbe')]",
+	"lbVOProbeID2": "[concat(variables('lbID2'),'/probes/VisualObjectsProbe')]",
         "lbHttpProbeID2": "[concat(variables('lbID2'),'/probes/FabricHttpGatewayProbe')]",
         "lbNatPoolID2": "[concat(variables('lbID2'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName2": "[toLower(concat(uniqueString(resourceGroup().id), '1', '2' ))]"
@@ -402,7 +409,7 @@
            "profileStatus": "Enabled",
            "trafficRoutingMethod": "Weighted",
              "dnsConfig": {
-             "relativeName": "sfbp.visualobjects",
+             "relativeName": "sfbpcluster,
              "ttl": 30
            },
            "monitorConfig": {
@@ -548,6 +555,25 @@
                 ],
                 "loadBalancingRules": [
                     {
+                        "name": "VisualObjectsRule",
+                        "properties": {
+                            "backendAddressPool": {
+                                "id": "[variables('lbPoolID0')]"
+                            },
+                            "backendPort": "[parameters('visualObjectsPort')]",
+                            "enableFloatingIP": "false",
+                            "frontendIPConfiguration": {
+                                "id": "[variables('lbIPConfig0')]"
+                            },
+                            "frontendPort": "[parameters('visualObjectsPort')]",
+                            "idleTimeoutInMinutes": "5",
+                            "probe": {
+                                "id": "[variables('lbVOProbeID0')]"
+                            },
+                            "protocol": "tcp"
+                        }
+                    },
+		    {
                         "name": "LBRule",
                         "properties": {
                             "backendAddressPool": {
@@ -587,6 +613,15 @@
                     }
                 ],
                 "probes": [
+		    {
+                        "name": "VisualObjectsProbe",
+                        "properties": {
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2,
+                            "port": "[parameters('visualObjectsPort')]",
+                            "protocol": "tcp"
+                        }
+                    },
                     {
                         "name": "FabricGatewayProbe",
                         "properties": {
@@ -843,6 +878,25 @@
                     }
                 ],
                 "loadBalancingRules": [
+		    {
+                        "name": "VisualObjectsRule",
+                        "properties": {
+                            "backendAddressPool": {
+                                "id": "[variables('lbPoolID1')]"
+                            },
+                            "backendPort": "[parameters('visualObjectsPort')]",
+                            "enableFloatingIP": "false",
+                            "frontendIPConfiguration": {
+                                "id": "[variables('lbIPConfig1')]"
+                            },
+                            "frontendPort": "[parameters('visualObjectsPort')]",
+                            "idleTimeoutInMinutes": "5",
+                            "probe": {
+                                "id": "[variables('lbVOProbeID1')]"
+                            },
+                            "protocol": "tcp"
+                        }
+                    },
                     {
                         "name": "LBRule",
                         "properties": {
@@ -883,6 +937,15 @@
                     }
                 ],
                 "probes": [
+	           {
+                        "name": "VisualObjectsProbe",
+                        "properties": {
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2,
+                            "port": "[parameters('visualObjectsPort')]",
+                            "protocol": "tcp"
+                        }
+                    },
                     {
                         "name": "FabricGatewayProbe",
                         "properties": {
@@ -1139,6 +1202,25 @@
                     }
                 ],
                 "loadBalancingRules": [
+		     {
+                        "name": "VisualObjectsRule",
+                        "properties": {
+                            "backendAddressPool": {
+                                "id": "[variables('lbPoolID2')]"
+                            },
+                            "backendPort": "[parameters('visualObjectsPort')]",
+                            "enableFloatingIP": "false",
+                            "frontendIPConfiguration": {
+                                "id": "[variables('lbIPConfig2')]"
+                            },
+                            "frontendPort": "[parameters('visualObjectsPort')]",
+                            "idleTimeoutInMinutes": "5",
+                            "probe": {
+                                "id": "[variables('lbVOProbeID2')]"
+                            },
+                            "protocol": "tcp"
+                        }
+                    },
                     {
                         "name": "LBRule",
                         "properties": {
@@ -1179,6 +1261,15 @@
                     }
                 ],
                 "probes": [
+	            {
+                        "name": "VisualObjectsProbe",
+                        "properties": {
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2,
+                            "port": "[parameters('visualObjectsPort')]",
+                            "protocol": "tcp"
+                        }
+                    },
                     {
                         "name": "FabricGatewayProbe",
                         "properties": {
