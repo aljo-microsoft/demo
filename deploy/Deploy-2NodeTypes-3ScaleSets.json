@@ -853,7 +853,7 @@
         {
             "apiVersion": "[variables('publicIPApiVersion')]",
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[concat(parameters('lbIPName'),'-','1')]",
+            "name": "[concat(parameters('lbIPName'),'-','2')]",
             "location": "[parameters('computeLocation')]",
             "properties": {
                 "dnsSettings": {
