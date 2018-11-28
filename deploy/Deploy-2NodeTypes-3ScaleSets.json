@@ -364,8 +364,8 @@
            "name": "SFXTrafficeManager",
            "location": "global",
            "dependsOn": [
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','0')]",
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','2')]"
+              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','1')]",
+              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','3')]"
            ],
            "properties": {
            "profileStatus": "Enabled",
@@ -384,7 +384,7 @@
                "name": "endpointntvm0",
                "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                "properties": {
-                  "target": "[concat(parameters('dnsName'),'-','ntvm0','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                  "target": "[concat(parameters('dnsName'),'-','ntvm1','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
                   "endpointStatus": "Enabled",
                   "endpointLocation": "[parameters('computeLocation')]"
                 }
@@ -393,7 +393,7 @@
                 "name": "endpointntvm2",
                 "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                 "properties": {
-                   "target": "[concat(parameters('dnsName'),'-','ntvm2','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                   "target": "[concat(parameters('dnsName'),'-','ntvm3','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
                    "endpointStatus": "Enabled",
                    "endpointLocation": "[parameters('computeLocation')]"
                  }
@@ -407,9 +407,9 @@
            "name": "VisualObjectsTrafficeManager",
            "location": "global",
            "dependsOn": [
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','0')]",
-	      "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','1')]",
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','2')]"
+              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','1')]",
+	      "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','2')]",
+              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','3')]"
            ],
            "properties": {
            "profileStatus": "Enabled",
@@ -428,7 +428,7 @@
                "name": "endpointntvm0",
                "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                "properties": {
-                  "target": "[concat(parameters('dnsName'),'-','ntvm0','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                  "target": "[concat(parameters('dnsName'),'-','ntvm1','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
                   "endpointStatus": "Enabled",
                   "endpointLocation": "[parameters('computeLocation')]"
                 }
@@ -437,7 +437,7 @@
                 "name": "endpointntvm1",
                 "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                 "properties": {
-                   "target": "[concat(parameters('dnsName'),'-','ntvm1','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                   "target": "[concat(parameters('dnsName'),'-','ntvm2','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
                    "endpointStatus": "Enabled",
                    "endpointLocation": "[parameters('computeLocation')]"
                  }
@@ -446,7 +446,7 @@
                 "name": "endpointntvm2",
                 "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                 "properties": {
-                   "target": "[concat(parameters('dnsName'),'-','ntvm2','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                   "target": "[concat(parameters('dnsName'),'-','ntvm3','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
                    "endpointStatus": "Enabled",
                    "endpointLocation": "[parameters('computeLocation')]"
                  }
@@ -521,11 +521,11 @@
         {
             "apiVersion": "[variables('publicIPApiVersion')]",
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[concat(parameters('lbIPName'),'-','0')]",
+            "name": "[concat(parameters('lbIPName'),'-','1')]",
             "location": "[parameters('computeLocation')]",
             "properties": {
                 "dnsSettings": {
-                    "domainNameLabel": "[concat(parameters('dnsName'),'-','ntvm0')]"
+                    "domainNameLabel": "[concat(parameters('dnsName'),'-','ntvm1')]"
                 },
                 "publicIPAllocationMethod": "Dynamic"
             },
@@ -540,7 +540,7 @@
             "name": "[concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType0Name'))]",
             "location": "[parameters('computeLocation')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/',concat(parameters('lbIPName'),'-','0'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/',concat(parameters('lbIPName'),'-','1'))]"
             ],
             "properties": {
                 "frontendIPConfigurations": [
@@ -548,7 +548,7 @@
                         "name": "LoadBalancerIPConfig",
                         "properties": {
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('lbIPName'),'-','0'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('lbIPName'),'-','1'))]"
                             }
                         }
                     }
@@ -872,7 +872,7 @@
             "name": "[concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType1Name'))]",
             "location": "[parameters('computeLocation')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/',concat(parameters('lbIPName'),'-','1'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/',concat(parameters('lbIPName'),'-','2'))]"
             ],
             "properties": {
                 "frontendIPConfigurations": [
@@ -880,7 +880,7 @@
                         "name": "LoadBalancerIPConfig",
                         "properties": {
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('lbIPName'),'-','1'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('lbIPName'),'-','2'))]"
                             }
                         }
                     }
@@ -1185,7 +1185,7 @@
 		{
             "apiVersion": "[variables('publicIPApiVersion')]",
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[concat(parameters('lbIPName'),'-','2')]",
+            "name": "[concat(parameters('lbIPName'),'-','3')]",
             "location": "[parameters('computeLocation')]",
             "properties": {
                 "dnsSettings": {
@@ -1204,7 +1204,7 @@
             "name": "[concat('LB','-', parameters('clusterName'),'-',parameters('vmNodeType2Name'))]",
             "location": "[parameters('computeLocation')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/',concat(parameters('lbIPName'),'-','2'))]"
+                "[concat('Microsoft.Network/publicIPAddresses/',concat(parameters('lbIPName'),'-','3'))]"
             ],
             "properties": {
                 "frontendIPConfigurations": [
@@ -1212,7 +1212,7 @@
                         "name": "LoadBalancerIPConfig",
                         "properties": {
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('lbIPName'),'-','2'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('lbIPName'),'-','3'))]"
                             }
                         }
                     }
