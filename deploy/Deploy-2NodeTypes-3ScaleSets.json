@@ -2,6 +2,12 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
     "contentVersion": "1.0.0.0",
     "parameters": {
+	"applicationInsightsKey": {
+	    "type" "string",
+	     "metadata": {
+		"description": "App Insights Key for VMSS Diagnostics"
+	     }
+	},
         "certificateCommonName": {
             "type": "string",
             "metadata": {
@@ -720,6 +726,14 @@
                                     "publisher": "Microsoft.Azure.Diagnostics",
                                     "settings": {
                                         "WadCfg": {
+			                    "SinksConfig": {
+                        			"Sink": [
+                          			   {
+                            				"name": "MyApplicationInsightsProfilerSinkVMSS",
+                            				"ApplicationInsightsProfiler": "[parameters('applicationInsightsKey')]"
+                          			   }
+                         			]
+                      			    },
                                             "DiagnosticMonitorConfiguration": {
                                                 "overallQuotaInMB": "50000",
                                                 "EtwProviders": {
@@ -1044,6 +1058,14 @@
                                     "publisher": "Microsoft.Azure.Diagnostics",
                                     "settings": {
                                         "WadCfg": {
+				            "SinksConfig": {
+                        			"Sink": [
+                          			   {
+                            				"name": "MyApplicationInsightsProfilerSinkVMSS",
+                            				"ApplicationInsightsProfiler": "[parameters('applicationInsightsKey')]"
+                          			   }
+                         			]
+                      			    },
                                             "DiagnosticMonitorConfiguration": {
                                                 "overallQuotaInMB": "50000",
                                                 "EtwProviders": {
@@ -1370,6 +1392,14 @@
                                     "publisher": "Microsoft.Azure.Diagnostics",
                                     "settings": {
                                         "WadCfg": {
+					    "SinksConfig": {
+                        			"Sink": [
+                          			   {
+                            				"name": "MyApplicationInsightsProfilerSinkVMSS",
+                            				"ApplicationInsightsProfiler": "[parameters('applicationInsightsKey')]"
+                          			   }
+                         			]
+                      			    },
                                             "DiagnosticMonitorConfiguration": {
                                                 "overallQuotaInMB": "50000",
                                                 "EtwProviders": {
