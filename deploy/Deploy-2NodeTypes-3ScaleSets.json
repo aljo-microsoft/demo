@@ -737,6 +737,16 @@
                                             "DiagnosticMonitorConfiguration": {
 						"sinks": "MyApplicationInsightsProfilerSinkVMSS",
                                                 "overallQuotaInMB": "50000",
+						"PerformanceCounters" : {
+							"scheduledTransferPeriod" : "PT1M",
+              						"PerformanceCounterConfiguration" : [
+                  						{
+                    							"counterSpecifier" : "\\Processor(_Total)\\% Processor Time",
+                    							"sampleRate" : "PT15S",
+                  							"unit" : "Percent"
+                   						}
+               						]
+          					},
                                                 "EtwProviders": {
                                                     "EtwEventSourceProviderConfiguration": [
                                                         {
@@ -1070,6 +1080,16 @@
                                             "DiagnosticMonitorConfiguration": {
 						"sinks": "MyApplicationInsightsProfilerSinkVMSS",
                                                 "overallQuotaInMB": "50000",
+						 "PerformanceCounters" : {
+							"scheduledTransferPeriod" : "PT1M",
+              						"PerformanceCounterConfiguration" : [
+                  						{
+                    							"counterSpecifier" : "\\Processor(_Total)\\% Processor Time",
+                    							"sampleRate" : "PT15S",
+                  							"unit" : "Percent"
+                   						}
+               						]
+          					},
                                                 "EtwProviders": {
                                                     "EtwEventSourceProviderConfiguration": [
                                                         {
@@ -1405,6 +1425,16 @@
                                             "DiagnosticMonitorConfiguration": {
 						"sinks": "MyApplicationInsightsProfilerSinkVMSS",
                                                 "overallQuotaInMB": "50000",
+						"PerformanceCounters" : {
+							"scheduledTransferPeriod" : "PT1M",
+              						"PerformanceCounterConfiguration" : [
+                  						{
+                    							"counterSpecifier" : "\\Processor(_Total)\\% Processor Time",
+                    							"sampleRate" : "PT15S",
+                  							"unit" : "Percent"
+                   						}
+               						]
+          					},
                                                 "EtwProviders": {
                                                     "EtwEventSourceProviderConfiguration": [
                                                         {
