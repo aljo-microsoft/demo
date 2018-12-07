@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "registryName": {
+            "value": "aljok8goacr"
+        },
+        "registryLocation": {
+            "value": "West US"
+        },
+        "registrySku": {
+            "value": "Standard"
+        },
+        "clusterName": {
+            "value": "aljok8go"
+        },
+        "dnsPrefix": {
+            "value": "aljok8go"
+        },
+        "appInsightsLocation": {
+            "value": "East US"
+        },
+        "clusterLocation": {
+            "value": "Central US"
+        },
+        "servicePrincipalClientId": {
+            "value": null
+        },
+        "servicePrincipalClientSecret": {
+            "value": null
+        },
+        "agentCount": {
+            "value": 3
+        },
+        "agentVMSize": {
+            "value": "Standard_D2_v2"
+        },
+        "kubernetesVersion": {
+            "value": "1.10.8"
+        },
+        "omsLocation": {
+            "value": "East US"
+        },
+        "clusterTags": {
+            "value": {}
+        }
+    }
+}
