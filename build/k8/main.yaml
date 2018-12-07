@@ -1,0 +1,16 @@
+metadata:
+  name: maindeployment
+spec:
+  template:
+    metadata:
+      labels:
+        app: maindeployment
+    spec:
+      containers:
+      - name: main
+        image: <ACR_NAME>.azurecr.io/main:<VERSION>
+        ports:
+        - containerPort: 8083
+          hostPort: 9083
+      imagePullSecrets:
+      - name: acr-auth
