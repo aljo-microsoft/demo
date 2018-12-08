@@ -31,6 +31,9 @@ spec:
      imagePullPolicy: IfNotPresent
      securityContext: 
       privileged: false
+   imagePullSecrets:
+    - 
+   name: acr-auth
    restartPolicy: Always
    terminationGracePeriodSeconds: 30
    dnsPolicy: ClusterFirst
