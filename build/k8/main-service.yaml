@@ -1,0 +1,30 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "main",
+    "namespace": "default",
+    "selfLink": "/api/v1/namespaces/default/services/main",
+    "labels": {
+      "k8s-app": "main"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "mainlistener",
+        "protocol": "TCP",
+        "port": 9083,
+        "targetPort": 8083,
+        "nodePort": 18083
+      }
+    ],
+    "selector": {
+      "k8s-app": "main"
+    },
+    "clusterIP": "<CLUSTER_IP_ADDRESS>",
+    "type": "LoadBalancer",
+    "sessionAffinity": "None",
+    "externalTrafficPolicy": "Cluster"
+  }
+}
