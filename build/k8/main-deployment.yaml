@@ -21,19 +21,19 @@ spec:
    labels: 
     "k8s-app": aljomain
   spec: 
-   containers: 
-    - 
-   name: aljomain
+   containers:
+   -  
+     name: aljomain
      image: "<ACR_NAME>.azurecr.io/main:<VERSION>"
      resources: 
      terminationMessagePath: "/dev/termination-log"
      terminationMessagePolicy: File
      imagePullPolicy: IfNotPresent
      securityContext: 
-      privileged: false
-   imagePullSecrets:
-    - 
-   name: acr-auth
+       privileged: false
+   imagePullSecrets: 
+   -
+     name: acr-auth
    restartPolicy: Always
    terminationGracePeriodSeconds: 30
    dnsPolicy: ClusterFirst
