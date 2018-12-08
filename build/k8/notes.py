@@ -1,3 +1,6 @@
+# AzureDeploy.json and AzureDeploy.parameters.json not tested.
+# Manually provisioned K8's cluster through portal, and created template/parm files to reproduce repliably.
+
 # Open Dashboard
 az aks browse --resource-group <RESOURCE_GROUP> --name <K8_NAME>
 
