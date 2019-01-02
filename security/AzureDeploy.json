@@ -716,20 +716,21 @@
                   "type": "IaaSAntimalware",
                   "typeHandlerVersion": "1.1",
                   "settings": {
-                  "AntimalwareEnabled": "true",
-                  "Exclusions": {
-                    "Paths": ["D:\\SvcFab", "D:\\SvcFab\\Log", "C:\\Program Files\\Microsoft Service Fabric"],
-                    "Processes": ["Fabric.exe", "FabricHost.exe", "FabricInstallerService.exe", "FabricSetup.exe", "FabricDeployer.exe", "ImageBuilder.exe", "FabricGateway.exe", "FabricDCA.exe", "FabricFAS.exe", "FabricUOS.exe", "FabricRM.exe", "FileStoreService.exe"]
+                    "AntimalwareEnabled": "true",
+                    "Exclusions": {
+                      "Paths": ["D:\\SvcFab", "D:\\SvcFab\\Log", "C:\\Program Files\\Microsoft Service Fabric"],
+                      "Processes": ["Fabric.exe", "FabricHost.exe", "FabricInstallerService.exe", "FabricSetup.exe", "FabricDeployer.exe", "ImageBuilder.exe", "FabricGateway.exe", "FabricDCA.exe", "FabricFAS.exe", "FabricUOS.exe", "FabricRM.exe", "FileStoreService.exe"]
+                    },
+                    "RealtimeProtectionEnabled": "true",
+                    "ScheduledScanSettings": {
+                      "isEnabled": "true",
+                      "scanType": "Quick",
+                      "day": "7",
+                      "time": "120"
+                    }
                   },
-                  "RealtimeProtectionEnabled": "true",
-                  "ScheduledScanSettings": {
-                    "isEnabled": "true",
-                    "scanType": "Quick",
-                    "day": "7",
-                    "time": "120"
-                  }
+                  "protectedSettings": null
                 }
-                "protectedSettings": null
               }
             ]
           },
