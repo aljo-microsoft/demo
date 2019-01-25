@@ -98,19 +98,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-        if upload_sfpkg_process.wait() == 0:
-            print("Uploaded SFPKG To Storage Account Blob Container")
-        else:
-            sys.exit(stderr)
-
-        # Get URL for SFPKG in Storage Account Blob Container
-        url_sfpkg_process = Popen(["az", "storage", "blob", "url", "--container-name", container_name, "--connection-string", connection_string, "--name", app_package_name], stdout=PIPE, stderr=PIPE)
-
-        stdout, stderr = url_sfpkg_process.communicate()
-
-        if url_sfpkg_process.wait() == 0:
-            self.microservices_app_package_url = stdout.decode("utf-8").replace('\n', '').replace('"', '')
-            print("Got URL for SFPKG in Storage Account Blob")
-        else:
-            sys.exit(stderr)
