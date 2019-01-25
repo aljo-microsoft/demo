@@ -1,0 +1,24 @@
+<ApplicationManifest xmlns="http://schemas.microsoft.com/2011/01/fabric" ApplicationTypeName="minecraftType" ApplicationTypeVersion="1.0.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Parameters>
+        <Parameter DefaultValue="REPLACE_ACR_USERNAME" Name="ACR_USERNAME" />
+        <Parameter DefaultValue="REPLACE_ENCRYPTED_ACR_PASSWORD" Name="ACR_PASSWORD" />
+    </Parameters>
+    <ServiceManifestImport>
+        <ServiceManifestRef ServiceManifestName="minecraftSvc" ServiceManifestVersion="1.0.0" />
+        <EnvironmentOverrides CodePackageRef="Code">
+        </EnvironmentOverrides>
+	      <Policies>
+            <ContainerHostPolicies CodePackageRef="Code">
+                <RepositoryCredentials AccountName="[ACR_USERNAME]" Password="[ACR_PASSWORD]" PasswordEncrypted="false" />
+                <PortBinding ContainerPort="25565" EndpointRef="ServiceTypeEndpoint" />
+            </ContainerHostPolicies>
+        </Policies>
+    </ServiceManifestImport>
+    <DefaultServices>
+        <Service Name="minecraftSvc">
+            <StatelessService InstanceCount="1" ServiceTypeName="minecraftType">
+                <SingletonPartition />
+            </StatelessService>
+	      </Service>
+    </DefaultServices>
+</ApplicationManifest>
