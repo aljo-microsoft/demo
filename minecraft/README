@@ -9,3 +9,15 @@ Requirements:
   in your ARM template with appropriate KV and cert properties.
 - invoke sfpkg_stage.py from a shell with AZ CLI and python installed within this directory after cloning the repo.
 - Perform a group deployments using AzureDeploy.json and AzureDeploy.parameters.json
+
+Some additional optional steps include:
+- Provision a DNS zone to bring your domain into Azure; E.G. To remove Browerser warning for CA issued certs.
+  and map it to your Traffic Manager.
+
+TODO:
+- Add NSG Rules to Template
+- Get Access to OpenHack
+- Encrypt Credentials for ACR, and update PKG with secured creds and template with encryptoin certificate.
+- Configure Application Insights and Log Analytics
+- Configure AAD for clients
+- Configure CD Pipeline in Azure DevOps
