@@ -619,7 +619,7 @@
                                     "settings": {
                                         "clusterEndpoint": "[reference(parameters('clusterName')).clusterEndpoint]",
                                         "nodeTypeRef": "[parameters('vmNodeType0Name')]",
-                                        "dataPath": "D:\\\\SvcFab",
+                                        "dataPath": "[parameters('fabricDataRoot')]",
                                         "durabilityLevel": "Silver",
                                         "enableParallelJobs": true,
                                         "nicPrefixOverride": "[parameters('subnet0Prefix')]",
@@ -963,7 +963,7 @@
                                     "settings": {
                                         "clusterEndpoint": "[reference(parameters('clusterName')).clusterEndpoint]",
                                         "nodeTypeRef": "[parameters('vmNodeType1Name')]",
-                                        "dataPath": "D:\\\\SvcFab",
+                                        "dataPath": "[parameters('fabricDataRoot')]",
                                         "durabilityLevel": "Silver",
                                         "enableParallelJobs": true,
                                         "nicPrefixOverride": "[parameters('subnet1Prefix')]",
@@ -1166,6 +1166,19 @@
                             }
                         ],
                         "name": "Security"
+                    },
+		    {
+                        "parameters": [
+                            {
+                                "name": "FabricDataRoot",
+                                "value": "[parameters('fabricDataRoot')]"
+                            },
+			    {
+                                "name": "FabricLogRoot",
+                                "value": "[parameters('fabricLogRoot')]"
+                            }
+                        ],
+                        "name": "Setup"
                     }
                 ],
                 "managementEndpoint": "[concat('https://',reference(concat(parameters('lbIPName'),'-','1')).dnsSettings.fqdn,':',parameters('nt0fabricHttpGatewayPort'))]",
