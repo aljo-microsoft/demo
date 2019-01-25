@@ -763,6 +763,7 @@
                             {
                                 "name": "[concat(parameters('nicName'), '-0')]",
                                 "properties": {
+				    "enableAcceleratedNetworking": true,
                                     "ipConfigurations": [
                                         {
                                             "name": "[concat(parameters('nicName'),'-',0)]",
@@ -1106,6 +1107,7 @@
                             {
                                 "name": "[concat(parameters('nicName'), '-1')]",
                                 "properties": {
+			            "enableAcceleratedNetworking": true,
                                     "ipConfigurations": [
                                         {
                                             "name": "[concat(parameters('nicName'),'-',1)]",
