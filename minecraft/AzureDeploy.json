@@ -309,6 +309,7 @@
         "vNetApiVersion": "2018-08-01",
         "storageApiVersion": "2018-07-01",
         "publicIPApiVersion": "2018-08-01",
+	"trafficManagerApiVersion": "2018-04-01",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
         "subnet0Ref": "[concat(variables('vnetID'),'/subnets/',parameters('subnet0Name'))]",
         "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',parameters('subnet1Name'))]",
@@ -330,14 +331,14 @@
         "vmStorageAccountName1": "[toLower(concat(uniqueString(resourceGroup().id), '1', '1' ))]"
     },
     "resources": [
-        {
-           "apiVersion": "2018-04-01",
+	{
+           "apiVersion": "[variables('trafficManagerApiVersion')]",
            "type": "Microsoft.Network/trafficManagerProfiles",
-           "name": "SFXTrafficeManager",
+           "name": "[parameters('certificateCommonName')]",
            "location": "global",
            "dependsOn": [
               "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','1')]",
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','3')]"
+	      "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','2')]"
            ],
            "properties": {
            "profileStatus": "Enabled",
@@ -347,60 +348,16 @@
              "ttl": 30
            },
            "monitorConfig": {
-              "protocol": "HTTPS",
-              "port": 19080,
-              "path": "/Explorer"
-           },
-           "endpoints": [
-             {
-               "name": "endpointntvm0",
-               "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
-               "properties": {
-                  "target": "[concat(parameters('dnsName'),'-','ntvm1','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
-                  "endpointStatus": "Enabled",
-                  "endpointLocation": "[parameters('computeLocation')]"
-                }
-             },
-             {
-                "name": "endpointntvm2",
-                "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
-                "properties": {
-                   "target": "[concat(parameters('dnsName'),'-','ntvm3','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
-                   "endpointStatus": "Enabled",
-                   "endpointLocation": "[parameters('computeLocation')]"
-                 }
-              }
-            ]
-          }
-        },
-	{
-           "apiVersion": "2018-04-01",
-           "type": "Microsoft.Network/trafficManagerProfiles",
-           "name": "VisualObjectsTrafficeManager",
-           "location": "global",
-           "dependsOn": [
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','1')]",
-	      "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','2')]",
-              "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbIPName'),'-','3')]"
-           ],
-           "properties": {
-           "profileStatus": "Enabled",
-           "trafficRoutingMethod": "Weighted",
-             "dnsConfig": {
-             "relativeName": "sfbpcluster",
-             "ttl": 30
-           },
-           "monitorConfig": {
               "protocol": "HTTP",
-              "port": 8081,
-              "path": "/visualobjects"
+              "port": 19080,
+              "path": "/Explorer/index.html"
            },
            "endpoints": [
              {
                "name": "endpointntvm0",
                "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                "properties": {
-                  "target": "[concat(parameters('dnsName'),'-','ntvm1','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                  "target": "[concat('https://',reference(concat(parameters('lbIPName'),'-','1')).ipAddress)]",
                   "endpointStatus": "Enabled",
                   "endpointLocation": "[parameters('computeLocation')]"
                 }
@@ -409,16 +366,7 @@
                 "name": "endpointntvm1",
                 "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
                 "properties": {
-                   "target": "[concat(parameters('dnsName'),'-','ntvm2','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
-                   "endpointStatus": "Enabled",
-                   "endpointLocation": "[parameters('computeLocation')]"
-                 }
-              },
-	      {
-                "name": "endpointntvm2",
-                "type": "Microsoft.Network/trafficManagerProfiles/ExternalEndpoints",
-                "properties": {
-                   "target": "[concat(parameters('dnsName'),'-','ntvm3','.',parameters('clusterLocation'),'.cloudapp.azure.com')]",
+                   "target": "[concat('https://',reference(concat(parameters('lbIPName'),'-','2')).ipAddress)]",
                    "endpointStatus": "Enabled",
                    "endpointLocation": "[parameters('computeLocation')]"
                  }
