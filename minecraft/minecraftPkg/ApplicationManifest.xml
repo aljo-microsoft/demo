@@ -7,7 +7,12 @@
         <ServiceManifestRef ServiceManifestName="minecraftSvc" ServiceManifestVersion="1.0.0" />
         <EnvironmentOverrides CodePackageRef="Code">
         </EnvironmentOverrides>
-	      <Policies>
+	<Policies>
+	    <!-- Example for Settings.xml 
+	    <ConfigPackagePolicies CodePackageRef="Code">
+                <ConfigPackage Name="Config" SectionName="Secrets" MountPoint="secretspath"  EnvironmentVariableName="SECRETS_PATH" />
+            </ConfigPackagePolicies>
+	    -->
             <ContainerHostPolicies CodePackageRef="Code">
                 <RepositoryCredentials AccountName="[ACR_USERNAME]" Password="[ACR_PASSWORD]" PasswordEncrypted="false" />
                 <PortBinding ContainerPort="25565" EndpointRef="ServiceTypeEndpoint" />
