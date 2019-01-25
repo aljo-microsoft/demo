@@ -1,0 +1,11 @@
+This demo's a SFRP Windows Clusters and SF Minecraft Application resource declaration.
+
+Requirements:
+- Update AzureDeploy.parameters.json with Certificate property values.
+- Update minecraftPkg/ApplicationManifest.xml "REPLACE_ACR_NAME" and "REPLACE_ENCRYPTED_ACR_PASSWORD"
+  with credentials for openhack/minecraft-server:1.0-nanoserver-1803; or update the container registery/image/tag
+  and creds appropriately. Also if you use an encrypted password, change 'PasswordEncrypted="False"' to
+  'PasswordEncrypted="True"', and deploy your encryption cert by appending the Secrets properties of the Scale Sets resources
+  in your ARM template with appropriate KV and cert properties.
+- invoke sfpkg_stage.py from a shell with AZ CLI and python installed.
+- Perform a group deployments using AzureDeploy.json and AzureDeploy.parameters.json
