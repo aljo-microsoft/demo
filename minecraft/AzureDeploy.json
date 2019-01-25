@@ -20,6 +20,12 @@
                 "description": "Location of the Cluster"
             }
         },
+        "computeLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "Location of the Compute, Network, and Storage"
+            }
+        },
         "clusterName": {
             "type": "string",
             "defaultValue": "Cluster",
@@ -94,17 +100,6 @@
         "subnet1Prefix": {
             "type": "string",
             "defaultValue": "10.0.1.0/24"
-        },
-		"nt2fabricTcpGatewayPort": {
-            "type": "int",
-            "defaultValue": 19000
-        },
-        "nt2fabricHttpGatewayPort": {
-            "type": "int",
-            "defaultValue": 19080
-        },
-        "computeLocation": {
-            "type": "string"
         },
         "publicIPAddressName": {
             "type": "string",
@@ -284,7 +279,7 @@
         },
         "vmNodeType0Size": {
             "type": "string",
-            "defaultValue": "Standard_D2_v2"
+            "defaultValue": "Standard_DS8_v3"
         },
         "nt1InstanceCount": {
             "type": "int",
@@ -300,7 +295,15 @@
         },
         "vmNodeType1Size": {
             "type": "string",
-            "defaultValue": "Standard_D2_v2"
+            "defaultValue": "Standard_DS8_v3"
+        },
+	"fabricDataRoot": {
+            "type": "string",
+            "defaultValue": "D:\\\\SvcFab"
+        },
+	"fabricLogRoot": {
+            "type": "string",
+            "defaultValue": "D:\\\\SvcFab\\Logs"
         }
     },
     "variables": {
