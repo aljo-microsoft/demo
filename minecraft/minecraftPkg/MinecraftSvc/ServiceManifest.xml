@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ServiceManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="MinecraftSvc" Version="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+   <ServiceTypes>
+      <StatelessServiceType ServiceTypeName="minecraftType" UseImplicitHost="true"/>
+   </ServiceTypes>
+  <CodePackage Name="Code" Version="1.0.0">
+    <EntryPoint>
+      <ContainerHost>
+            <ImageName>openhack/minecraft-server:1.0-nanoserver-1803</ImageName>
+        <Commands></Commands>
+      </ContainerHost>
+    </EntryPoint>
+    <EnvironmentVariables>
+      <EnvironmentVariable Name="IsContainer" Value="true"/>
+    </EnvironmentVariables>
+  </CodePackage>
+  <ConfigPackage Name="Config" Version="1.0.0" />
+  <Resources>
+    <Endpoints>
+      <Endpoint Name="ServiceTypeEndpoint" UriScheme="http" Port="25565" Protocol="http"/>
+    </Endpoints>
+  </Resources>
+</ServiceManifest>
