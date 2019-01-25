@@ -18,7 +18,7 @@
       "value": "sfbpcluster"
     },
     "dnsName": {
-        "value": "sfbpcluster"
+       "value": "sfbpcluster"
     },
     "adminUserName": {
       "value": "adminuser"
@@ -73,6 +73,33 @@
     },
     "vmNodeType2Size": {
         "value": "Standard_DS8_v3"
+    },
+    "fabricDataRoot": {
+       "value": "D:\\\\SvcFab"
+    },
+	  "fabricLogRoot": {
+       "value": "D:\\\\SvcFab\\Logs"
+    },
+    "sfpkg_application_name_0": {
+       "value": "Minecraft"
+    },
+    "sfpkg_application_type_name_0": {
+       "value": "MinecraftType"
+    },
+    "sfpkg_application_type_version_0": {
+       "value": ""
+    },
+    "sfpkg_url_0": {
+       "value": ""
+    },
+    "sfpkg_application_name_0_service_name_0": {
+       "value": "MinecraftSvc"
+    },
+    "sfpkg_application_name_0_service_type_0": {
+       "value": "MinecraftSvcType"
+    },
+    "sfpkg_application_name_0_service_count_0": {
+       "value": "1"
     }
   }
 }
