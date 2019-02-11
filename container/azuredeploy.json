@@ -325,7 +325,7 @@
 	"subnet2Name": {
             "type": "string",
             "defaultValue": "Subnet-02"
-        },
+        }
     },
     "variables": {
         "vmssApiVersion": "2018-06-01",
