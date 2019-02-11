@@ -51,6 +51,10 @@
 	   "type": "int",
 	   "defaultValue": 80
 	},
+	"loadBalancedAppPort2": {
+	   "type": "int",
+	   "defaultValue": 8081
+	},
         "nt0fabricHttpGatewayPort": {
             "type": "int",
             "defaultValue": 19080
