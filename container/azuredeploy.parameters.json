@@ -18,13 +18,13 @@
       "value": "sfbpcluster"
     },
     "dnsName": {
-        "value": "sfbpcluster"
+        "value": "azureservicefabricbestpractices"
     },
     "adminUserName": {
       "value": "adminuser"
     },
     "adminPassword": {
-      "value": "Password@123"
+      "value": ""
     },
     "vmImagePublisher": {
       "value": "MicrosoftWindowsServer"
