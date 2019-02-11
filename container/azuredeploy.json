@@ -886,6 +886,62 @@
               "description": "allow VNET outbound"
             }
           },
+	  {
+            "name": "AllowSFRPOutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "ServiceFabric",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4000,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow SFRP outbound"
+            }
+          },
+          {
+            "name": "AllowStorageOutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "Storage",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4020,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow SFRP outbound"
+            }
+          },
+	  {
+            "name": "AllowMCROutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "MicrosoftContainerRegistry",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4040,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow MCR outbound"
+            }
+	  },
+          {
+            "name": "AllowACROutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "AzureContainerRegistry",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4060,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow ACR outbound"
+            }
+          },
           {
             "name": "DenyInternetOutbound",
             "properties": {
@@ -893,7 +949,7 @@
               "destinationAddressPrefix": "Internet",
               "destinationPortRange": "*",
               "direction": "Outbound",
-              "priority": 4000,
+              "priority": 4080,
               "protocol": "*",
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
@@ -1453,6 +1509,62 @@
               "description": "allow VNET outbound"
             }
           },
+	{
+            "name": "AllowSFRPOutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "ServiceFabric",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4000,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow SFRP outbound"
+            }
+          },
+          {
+            "name": "AllowStorageOutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "Storage",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4020,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow SFRP outbound"
+            }
+          },
+	  {
+            "name": "AllowMCROutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "MicrosoftContainerRegistry",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4040,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow MCR outbound"
+            }
+	  },
+          {
+            "name": "AllowACROutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "AzureContainerRegistry",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4060,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow ACR outbound"
+            }
+          },
           {
             "name": "DenyInternetOutbound",
             "properties": {
@@ -1460,7 +1572,7 @@
               "destinationAddressPrefix": "Internet",
               "destinationPortRange": "*",
               "direction": "Outbound",
-              "priority": 4000,
+              "priority": 4080,
               "protocol": "*",
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
@@ -2022,6 +2134,62 @@
               "description": "allow VNET outbound"
             }
           },
+	{
+            "name": "AllowSFRPOutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "ServiceFabric",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4000,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow SFRP outbound"
+            }
+          },
+          {
+            "name": "AllowStorageOutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "Storage",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4020,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow SFRP outbound"
+            }
+          },
+	  {
+            "name": "AllowMCROutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "MicrosoftContainerRegistry",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4040,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow MCR outbound"
+            }
+	  },
+          {
+            "name": "AllowACROutbound",
+            "properties": {
+              "access": "Allow",
+              "destinationAddressPrefix": "AzureContainerRegistry",
+              "destinationPortRange": "*",
+              "direction": "Outbound",
+              "priority": 4060,
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "description": "Allow ACR outbound"
+            }
+          },
           {
             "name": "DenyInternetOutbound",
             "properties": {
@@ -2029,7 +2197,7 @@
               "destinationAddressPrefix": "Internet",
               "destinationPortRange": "*",
               "direction": "Outbound",
-              "priority": 4000,
+              "priority": 4080,
               "protocol": "*",
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
