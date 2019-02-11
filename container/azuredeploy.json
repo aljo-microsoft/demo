@@ -287,12 +287,12 @@
         },
         "vmNodeType0Name": {
             "type": "string",
-            "defaultValue": "NTvm1",
+            "defaultValue": "red",
             "maxLength": 9
         },
         "vmNodeType0Size": {
             "type": "string",
-            "defaultValue": "Standard_D2_v2"
+            "defaultValue": "Standard_D8s_v3"
         },
         "nt1InstanceCount": {
             "type": "int",
@@ -303,12 +303,12 @@
         },
         "vmNodeType1Name": {
             "type": "string",
-            "defaultValue": "NTvm2",
+            "defaultValue": "blue",
             "maxLength": 9
         },
         "vmNodeType1Size": {
             "type": "string",
-            "defaultValue": "Standard_D2_v2"
+            "defaultValue": "Standard_D8s_v3"
         },
 		"nt2InstanceCount": {
             "type": "int",
@@ -319,12 +319,12 @@
         },
         "vmNodeType2Name": {
             "type": "string",
-            "defaultValue": "NTvm3",
+            "defaultValue": "pink",
             "maxLength": 9
         },
         "vmNodeType2Size": {
             "type": "string",
-            "defaultValue": "Standard_D4_v2"
+            "defaultValue": "Standard_D8s_v3"
         },
 	"subnet2Name": {
             "type": "string",
