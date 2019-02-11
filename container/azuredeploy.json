@@ -321,7 +321,11 @@
         "vmNodeType2Size": {
             "type": "string",
             "defaultValue": "Standard_D4_v2"
-        }
+        },
+	"subnet2Name": {
+            "type": "string",
+            "defaultValue": "Subnet-02"
+        },
     },
     "variables": {
         "vmssApiVersion": "2018-06-01",
@@ -492,9 +496,9 @@
             "name": "[parameters('virtualNetworkName')]",
             "location": "[parameters('computeLocation')]",
             "dependsOn":  [
-               "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]",
-               "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet1Name')))]",
-               "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet2Name')))]"
+               "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', parameters('subnet0Name')))]",
+               "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', parameters('subnet1Name')))]",
+               "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', parameters('subnet2Name')))]"
             ],
             "properties": {
                 "addressSpace": {
