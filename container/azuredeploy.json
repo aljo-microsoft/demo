@@ -344,7 +344,7 @@
         "lbIPConfig0": "[concat(variables('lbID0'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
         "lbPoolID0": "[concat(variables('lbID0'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID0": "[concat(variables('lbID0'),'/probes/FabricGatewayProbe')]",
-	"lbVOProbeID0": "[concat(variables('lbID0'),'/probes/VisualObjectsProbe')]",
+	"lbVOProbeID0": "[concat(variables('lbID0'),'/probes/MyAppProbe')]",
         "lbHttpProbeID0": "[concat(variables('lbID0'),'/probes/FabricHttpGatewayProbe')]",
         "lbNatPoolID0": "[concat(variables('lbID0'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName0": "[toLower(concat(uniqueString(resourceGroup().id), '1', '0' ))]",
@@ -352,7 +352,7 @@
         "lbIPConfig1": "[concat(variables('lbID1'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
         "lbPoolID1": "[concat(variables('lbID1'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID1": "[concat(variables('lbID1'),'/probes/FabricGatewayProbe')]",
-	"lbVOProbeID1": "[concat(variables('lbID1'),'/probes/VisualObjectsProbe')]",
+	"lbVOProbeID1": "[concat(variables('lbID1'),'/probes/MyAppProbe')]",
         "lbHttpProbeID1": "[concat(variables('lbID1'),'/probes/FabricHttpGatewayProbe')]",
         "lbNatPoolID1": "[concat(variables('lbID1'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName1": "[toLower(concat(uniqueString(resourceGroup().id), '1', '1' ))]",
@@ -360,7 +360,7 @@
         "lbIPConfig2": "[concat(variables('lbID2'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
         "lbPoolID2": "[concat(variables('lbID2'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID2": "[concat(variables('lbID2'),'/probes/FabricGatewayProbe')]",
-	"lbVOProbeID2": "[concat(variables('lbID2'),'/probes/VisualObjectsProbe')]",
+	"lbVOProbeID2": "[concat(variables('lbID2'),'/probes/MyAppProbe')]",
         "lbHttpProbeID2": "[concat(variables('lbID2'),'/probes/FabricHttpGatewayProbe')]",
         "lbNatPoolID2": "[concat(variables('lbID2'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName2": "[toLower(concat(uniqueString(resourceGroup().id), '1', '2' ))]"
@@ -573,17 +573,17 @@
                 ],
                 "loadBalancingRules": [
                     {
-                        "name": "VisualObjectsRule",
+                        "name": "MyAppRule",
                         "properties": {
                             "backendAddressPool": {
                                 "id": "[variables('lbPoolID0')]"
                             },
-                            "backendPort": "[parameters('visualObjectsPort')]",
+                            "backendPort": "[parameters('loadBalancedAppPort1')]",
                             "enableFloatingIP": "false",
                             "frontendIPConfiguration": {
                                 "id": "[variables('lbIPConfig0')]"
                             },
-                            "frontendPort": "[parameters('visualObjectsPort')]",
+                            "frontendPort": "[parameters('loadBalancedAppPort1')]",
                             "idleTimeoutInMinutes": "5",
                             "probe": {
                                 "id": "[variables('lbVOProbeID0')]"
@@ -632,11 +632,11 @@
                 ],
                 "probes": [
 		    {
-                        "name": "VisualObjectsProbe",
+                        "name": "MyAppProbe",
                         "properties": {
                             "intervalInSeconds": 5,
                             "numberOfProbes": 2,
-                            "port": "[parameters('visualObjectsPort')]",
+                            "port": "[parameters('loadBalancedAppPort1')]",
                             "protocol": "tcp"
                         }
                     },
@@ -1140,17 +1140,17 @@
                 ],
                 "loadBalancingRules": [
 		    {
-                        "name": "VisualObjectsRule",
+                        "name": "MyAppRule",
                         "properties": {
                             "backendAddressPool": {
                                 "id": "[variables('lbPoolID1')]"
                             },
-                            "backendPort": "[parameters('visualObjectsPort')]",
+                            "backendPort": "[parameters('loadBalancedAppPort1')]",
                             "enableFloatingIP": "false",
                             "frontendIPConfiguration": {
                                 "id": "[variables('lbIPConfig1')]"
                             },
-                            "frontendPort": "[parameters('visualObjectsPort')]",
+                            "frontendPort": "[parameters('loadBalancedAppPort1')]",
                             "idleTimeoutInMinutes": "5",
                             "probe": {
                                 "id": "[variables('lbVOProbeID1')]"
@@ -1199,11 +1199,11 @@
                 ],
                 "probes": [
 	           {
-                        "name": "VisualObjectsProbe",
+                        "name": "MyAppProbe",
                         "properties": {
                             "intervalInSeconds": 5,
                             "numberOfProbes": 2,
-                            "port": "[parameters('visualObjectsPort')]",
+                            "port": "[parameters('loadBalancedAppPort1')]",
                             "protocol": "tcp"
                         }
                     },
@@ -1707,17 +1707,17 @@
                 ],
                 "loadBalancingRules": [
 		     {
-                        "name": "VisualObjectsRule",
+                        "name": "MyAppRule",
                         "properties": {
                             "backendAddressPool": {
                                 "id": "[variables('lbPoolID2')]"
                             },
-                            "backendPort": "[parameters('visualObjectsPort')]",
+                            "backendPort": "[parameters('loadBalancedAppPort1')]",
                             "enableFloatingIP": "false",
                             "frontendIPConfiguration": {
                                 "id": "[variables('lbIPConfig2')]"
                             },
-                            "frontendPort": "[parameters('visualObjectsPort')]",
+                            "frontendPort": "[parameters('loadBalancedAppPort1')]",
                             "idleTimeoutInMinutes": "5",
                             "probe": {
                                 "id": "[variables('lbVOProbeID2')]"
@@ -1766,11 +1766,11 @@
                 ],
                 "probes": [
 	            {
-                        "name": "VisualObjectsProbe",
+                        "name": "MyAppProbe",
                         "properties": {
                             "intervalInSeconds": 5,
                             "numberOfProbes": 2,
-                            "port": "[parameters('visualObjectsPort')]",
+                            "port": "[parameters('loadBalancedAppPort1')]",
                             "protocol": "tcp"
                         }
                     },
