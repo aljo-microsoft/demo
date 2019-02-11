@@ -887,7 +887,7 @@
             }
           },
           {
-            "name": "allowVnetOutbound",
+            "name": "DenyInternetOutbound",
             "properties": {
               "access": "Deny",
               "destinationAddressPrefix": "Internet",
@@ -1454,7 +1454,7 @@
             }
           },
           {
-            "name": "allowVnetOutbound",
+            "name": "DenyInternetOutbound",
             "properties": {
               "access": "Deny",
               "destinationAddressPrefix": "Internet",
@@ -2023,7 +2023,7 @@
             }
           },
           {
-            "name": "allowVnetOutbound",
+            "name": "DenyInternetOutbound",
             "properties": {
               "access": "Deny",
               "destinationAddressPrefix": "Internet",
