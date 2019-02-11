@@ -678,7 +678,7 @@
       {
       "apiVersion": "2018-08-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[concat('nsg', variables('subnet0Name'))]",
+      "name": "[concat('nsg', parameters('subnet0Name'))]",
       "location": "[resourceGroup().location]",
       "properties": {
         "securityRules": [
@@ -1245,7 +1245,7 @@
       {
       "apiVersion": "2018-08-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[concat('nsg', variables('subnet1Name'))]",
+      "name": "[concat('nsg', parameters('subnet1Name'))]",
       "location": "[resourceGroup().location]",
       "properties": {
         "securityRules": [
@@ -1814,7 +1814,7 @@
       {
       "apiVersion": "2018-08-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[concat('nsg', variables('subnet2Name'))]",
+      "name": "[concat('nsg', parameters('subnet2Name'))]",
       "location": "[resourceGroup().location]",
       "properties": {
         "securityRules": [
