@@ -72,10 +72,10 @@
       "value": 5
     },
     "vmNodeType0Size": {
-      "value": "Standard_DS8_v3"
+      "value": "Standard_D8s_v3"
     },
     "vmNodeType2Size": {
-        "value": "Standard_DS8_v3"
+        "value": "Standard_D8s_v3"
     }
   }
 }
