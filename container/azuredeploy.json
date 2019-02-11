@@ -715,7 +715,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0ephemeralStartPort'), '-', variables('nt0ephemeralEndPort'))]",
+              "destinationPortRange": "[concat(parameters('nt0ephemeralStartPort'), '-', parameters('nt0ephemeralEndPort'))]",
               "direction": "Inbound",
               "priority": 3930,
               "protocol": "*",
@@ -729,7 +729,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0fabricHttpGatewayPort')]",
+              "destinationPortRange": "[parameters('nt0fabricHttpGatewayPort')]",
               "direction": "Inbound",
               "priority": 3900,
               "protocol": "*",
@@ -743,7 +743,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0fabricTcpGatewayPort')]",
+              "destinationPortRange": "[parameters('nt0fabricTcpGatewayPort')]",
               "direction": "Inbound",
               "priority": 3910,
               "protocol": "*",
@@ -757,7 +757,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0applicationStartPort'), '-', variables('nt0applicationEndPort'))]",
+              "destinationPortRange": "[concat(parameters('nt0applicationStartPort'), '-', parameters('nt0applicationEndPort'))]",
               "direction": "Inbound",
               "priority": 3940,
               "protocol": "*",
@@ -799,7 +799,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0reverseProxyEndpointPort')]",
+              "destinationPortRange": "[parameters('nt0reverseProxyEndpointPort')]",
               "direction": "Inbound",
               "priority": 3980,
               "protocol": "*",
@@ -1282,7 +1282,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0ephemeralStartPort'), '-', variables('nt0ephemeralEndPort'))]",
+              "destinationPortRange": "[concat(parameters('nt0ephemeralStartPort'), '-', parameters('nt0ephemeralEndPort'))]",
               "direction": "Inbound",
               "priority": 3930,
               "protocol": "*",
@@ -1296,7 +1296,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0fabricHttpGatewayPort')]",
+              "destinationPortRange": "[parameters('nt0fabricHttpGatewayPort')]",
               "direction": "Inbound",
               "priority": 3900,
               "protocol": "*",
@@ -1310,7 +1310,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0fabricTcpGatewayPort')]",
+              "destinationPortRange": "[parameters('nt0fabricTcpGatewayPort')]",
               "direction": "Inbound",
               "priority": 3910,
               "protocol": "*",
@@ -1324,7 +1324,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0applicationStartPort'), '-', variables('nt0applicationEndPort'))]",
+              "destinationPortRange": "[concat(parameters('nt0applicationStartPort'), '-', parameters('nt0applicationEndPort'))]",
               "direction": "Inbound",
               "priority": 3940,
               "protocol": "*",
@@ -1366,7 +1366,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0reverseProxyEndpointPort')]",
+              "destinationPortRange": "[parameters('nt0reverseProxyEndpointPort')]",
               "direction": "Inbound",
               "priority": 3980,
               "protocol": "*",
@@ -1851,7 +1851,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0ephemeralStartPort'), '-', variables('nt0ephemeralEndPort'))]",
+              "destinationPortRange": "[concat(parameters('nt0ephemeralStartPort'), '-', parameters('nt0ephemeralEndPort'))]",
               "direction": "Inbound",
               "priority": 3930,
               "protocol": "*",
@@ -1865,7 +1865,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0fabricHttpGatewayPort')]",
+              "destinationPortRange": "[parameters('nt0fabricHttpGatewayPort')]",
               "direction": "Inbound",
               "priority": 3900,
               "protocol": "*",
@@ -1879,7 +1879,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0fabricTcpGatewayPort')]",
+              "destinationPortRange": "[parameters('nt0fabricTcpGatewayPort')]",
               "direction": "Inbound",
               "priority": 3910,
               "protocol": "*",
@@ -1893,7 +1893,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[concat(variables('nt0applicationStartPort'), '-', variables('nt0applicationEndPort'))]",
+              "destinationPortRange": "[concat(parameters('nt0applicationStartPort'), '-', parameters('nt0applicationEndPort'))]",
               "direction": "Inbound",
               "priority": 3940,
               "protocol": "*",
@@ -1935,7 +1935,7 @@
             "properties": {
               "access": "Allow",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "[variables('nt0reverseProxyEndpointPort')]",
+              "destinationPortRange": "[parameters('nt0reverseProxyEndpointPort')]",
               "direction": "Inbound",
               "priority": 3980,
               "protocol": "*",
