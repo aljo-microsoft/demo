@@ -325,7 +325,11 @@
 	"subnet2Name": {
             "type": "string",
             "defaultValue": "Subnet-02"
-        }
+        },
+	"nt0reverseProxyEndpointPort": {
+            "type": "string",
+            "defaultValue": "19081"
+	}
     },
     "variables": {
         "vmssApiVersion": "2018-06-01",
