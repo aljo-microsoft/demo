@@ -47,7 +47,7 @@
             "type": "int",
             "defaultValue": 19000
         },
-	"visualObjectsPort": {
+	"loadBalancedAppPort1": {
 	   "type": "int",
 	   "defaultValue": 80
 	},
