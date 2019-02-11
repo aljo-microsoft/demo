@@ -6,7 +6,7 @@
       "value": ""
     },
     "certificateCommonName": {
-       "value": "sfbpcluster.westus.cloudapp.azure.com"
+       "value": "azureservicefabricbestpractices.com"
     },
     "clusterLocation": {
       "value": "westus"
@@ -18,13 +18,13 @@
       "value": "sfbpcluster"
     },
     "dnsName": {
-        "value": "sfbpcluster"
+        "value": "azureservicefabricbestpractices"
     },
     "adminUserName": {
       "value": "adminuser"
     },
     "adminPassword": {
-      "value": "Password@123"
+      "value": ""
     },
     "vmImagePublisher": {
       "value": "MicrosoftWindowsServer"
@@ -33,7 +33,7 @@
       "value": "WindowsServer"
     },
     "vmImageSku": {
-      "value": "2012-R2-Datacenter"
+      "value": "2016-Datacenter-with-Containers"
     },
     "vmImageSku2": {
       "value": "2016-Datacenter-with-Containers"
@@ -72,10 +72,10 @@
       "value": 5
     },
     "vmNodeType0Size": {
-      "value": "Standard_D2_V2"
+      "value": "Standard_D4_v3"
     },
     "vmNodeType2Size": {
-        "value": "Standard_D4_v2"
+        "value": "Standard_D8s_v3"
     }
   }
 }
