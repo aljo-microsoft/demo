@@ -8,6 +8,12 @@
       "metadata": {
         "description": "Location of the resources (e.g. westus, eastus, westeurope)."
       }
+    },
+    "sfbpHttpsCertificate": {
+      "type": "string",
+      "metadata": {
+        "description": "HTTPS certificate for IIS Server."
+      }
     }
   },
   "resources": [
@@ -29,7 +35,8 @@
       "type": "Microsoft.ServiceFabricMesh/applications",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "Microsoft.ServiceFabricMesh/networks/SfbpNetwork"
+        "Microsoft.ServiceFabricMesh/networks/SfbpNetwork",
+        "Microsoft.ServiceFabricMesh/secrets/sfbpHttpsCertificate.pfx/values/2019.02.28"
       ],
       "properties": {
         "description": "Service Fabric Mesh Application!",
@@ -135,6 +142,30 @@
             }
           }
         ]
+      }
+    },
+    {
+      "apiVersion": "2018-07-01-preview",
+      "name": "sfbpHttpsCertificate.pfx",
+      "type": "Microsoft.ServiceFabricMesh/secrets",
+      "location": "[parameters('location')]", 
+      "dependsOn": [],
+      "properties": {
+        "kind": "inlinedValue",
+        "description": "SFBP Application Secret",
+        "contentType": "text/plain",
+      }
+    },
+    {
+      "apiVersion": "2018-07-01-preview",
+      "name": "sfbpHttpsCertificate.pfx/2019.02.28",
+      "type": "Microsoft.ServiceFabricMesh/secrets/values",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "Microsoft.ServiceFabricMesh/secrets/sfbpHttpsCertificate.pfx"
+      ],
+      "properties": {
+        "value": "[parameters('sfbpHttpsCertificate')]"
       }
     }
   ],
