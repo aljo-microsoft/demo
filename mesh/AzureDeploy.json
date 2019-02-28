@@ -1,0 +1,147 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "WestUS",
+      "metadata": {
+        "description": "Location of the resources (e.g. westus, eastus, westeurope)."
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-09-01-preview",
+      "name": "SfbpNetwork",
+      "type": "Microsoft.ServiceFabricMesh/networks",
+      "location": "[parameters('location')]",
+      "dependsOn": [],
+      "properties": {
+        "kind": "Local",
+        "description": "Azure Service Fabric Mesh Application network.",
+        "networkAddressPrefix": "10.0.0.0/24"
+      }
+    },
+    {
+      "apiVersion": "2018-09-01-preview",
+      "name": "SfbpApplication",
+      "type": "Microsoft.ServiceFabricMesh/applications",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "Microsoft.ServiceFabricMesh/networks/SfbpNetwork"
+      ],
+      "properties": {
+        "description": "Service Fabric Mesh Application!",
+        "services": [
+          {
+            "type": "Microsoft.ServiceFabricMesh/services",
+            "location": "[parameters('location')]",
+            "name": "SfbpSvc",
+
+            "properties": {
+              "description": "Service Fabric Mesh Service.",
+              "osType": "windows",
+              "codePackages": [
+                {
+                  "name": "code",
+                  "image": "mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2016",
+                  "volumes": [
+                    {
+                      "name": "Sfbpvol",
+                      "creationParameters": {
+                        "kind": "ServiceFabricVolumeDisk",
+                        "sizeDisk": "Small"
+                      },
+                      "destinationPath": "C:\\data"
+                    }
+                  ],
+                  "endpoints": [
+                    {
+                      "name": "sfbpHttpListener",
+                      "port": "80"
+                    },
+                    {
+                      "name": "sfbpHttpsListener",
+                      "port": "443"
+                    }
+                  ],
+                  "environmentVariables": [
+                    {
+                      "name": "EULA",
+                      "value": "TRUE"
+                    }
+                  ],
+                  "resources": {
+                    "requests": {
+                      "cpu": "4",
+                      "memoryInGB": "4"
+                    }
+                  }
+                }
+              ],
+              "replicaCount": "1",
+              "networkRefs": [
+                {
+                  "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'SfbpNetwork')]",
+                  "endpointRefs": [
+                    {
+                      "name": "sfbpHttpListener"
+                    },
+                    {
+                      "name": "sfbpHttpsListener"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2018-09-01-preview",
+      "name": "SfbpGateway",
+      "type": "Microsoft.ServiceFabricMesh/gateways",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "Microsoft.ServiceFabricMesh/networks/SfbpNetwork"
+      ],
+      "properties": {
+        "description": "Service Fabric Mesh Gateway for Sfbp Service.",
+        "sourceNetwork": {
+          "name": "Open"
+        },
+        "destinationNetwork": {
+          "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'SfbpNetwork')]"
+        },
+        "tcp": [
+          {
+            "name": "Public",
+            "port": 80,
+            "destination": {
+              "applicationName": "SfbpApplication",
+              "serviceName": "SfbpSvc",
+              "endpointName": "sfbpHttpListener"
+            }
+          },
+          {
+            "name": "Public",
+            "port": 443,
+            "destination": {
+              "applicationName": "SfbpApplication",
+              "serviceName": "SfbpSvc",
+              "endpointName": "sfbpHttpsListener"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "publicIPAddress": {
+      "value": "[reference('SfbpGateway').ipAddress]",
+      "type": "string"
+    }
+  }
+}
