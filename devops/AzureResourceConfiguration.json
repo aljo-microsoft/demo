@@ -203,7 +203,7 @@
         "accessPolicies": [
           {
             "tenantId": "[parameters('tenantId')]",
-            "objectId": "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName'))]"
+            "objectId": "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName'))]",
             "permissions": {
               "secrets": "[parameters('secretsPermissions')]"
             }
