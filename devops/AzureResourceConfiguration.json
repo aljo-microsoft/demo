@@ -55,7 +55,7 @@
         "description": "Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet."
       }
     },
-    "adServicePrincipalId ": {
+    "adServicePrincipalId": {
       "type": "string",
       "metadata": {
         "description": "Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets."
@@ -116,6 +116,9 @@
       "name": "[parameters('keyVaultName')]",
       "apiVersion": "2018-02-14",
       "location": "[parameters('location')]",
+      "dependsOn": [
+         "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName'))]"
+      ],
       "properties": {
         "enabledForDeployment": "[parameters('enabledForDeployment')]",
         "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
@@ -200,7 +203,7 @@
         "accessPolicies": [
           {
             "tenantId": "[parameters('tenantId')]",
-            "objectId": "[parameters('objectId')]",
+            "objectId": "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName'))]"
             "permissions": {
               "secrets": "[parameters('secretsPermissions')]"
             }
