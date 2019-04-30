@@ -206,11 +206,10 @@
                   "contentType": "application/x-pkcs12"
               },
               "x509_props": {
-                  "subject": "CN=MyApp.MySubDomain.MyTopDomain",
+                  "subject": "CN=MyApp.MySubDomain.MyRootDomain",
                   "sans": {
                       "dns_names": [
-                          "MyApp.MySubDomain.MyTopDomain",
-                          "MyApp.MySubDomain2.MyTopDomain2"
+                          "MyApp.MySubDomain.MyRootDomain"
                       ],
                       "emails": [
                           "MyDomain@Email"
