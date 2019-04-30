@@ -92,12 +92,14 @@
     },
     "secretName": {
       "type": "string",
+      "defaultValue": "sfbpSecret",
       "metadata": {
         "description": "Specifies the name of the secret that you want to create."
       }
     },
     "secretValue": {
-      "type": "securestring",
+      "type": "string",
+      "defaultValue": "TestValue",
       "metadata": {
         "description": "Specifies the value of the secret that you want to create."
       }
@@ -107,6 +109,13 @@
       "defaultValue": "sfbpuser",
       "metadata": {
         "description": "Specifies the value of the secret that you want to create."
+      }
+    },
+    "certificateName": {
+      "type": "string",
+      "defaultValue": "sfbpCertificate",
+      "metadata": {
+        "description": "Specifies the name of the certificate you want to create."
       }
     }
   },
@@ -124,16 +133,7 @@
         "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
         "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
         "tenantId": "[parameters('tenantId')]",
-        "accessPolicies": [
-          {
-            "objectId": "[parameters('adServicePrincipalId')]",
-            "tenantId": "[parameters('tenantId')]",
-            "permissions": {
-              "keys": "[parameters('keysPermissions')]",
-              "secrets": "[parameters('secretsPermissions')]"      
-            }
-          }
-        ],
+        "accessPolicies": [],
         "sku": {
           "name": "[parameters('skuName')]",
           "family": "A"
@@ -144,43 +144,6 @@
             "bypass": "AzureServices"
           }
         }
-      }
-    },
-    {
-      "type": "Microsoft.KeyVault/vaults/certificates",
-      "name": "[concat(parameters('keyVaultName'), '/', parameters('certificateName'))]",
-      "apiVersion": "2018-02-14",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-      ],
-      "properties": {
-          "policy": {
-              "key_props": {
-                  "exportable": true,
-                  "kty": "RSA",
-                  "key_size": 2048,
-                  "reuse_key": false
-              },
-              "secret_props": {
-                  "contentType": "application/x-pkcs12"
-              },
-              "x509_props": {
-                  "subject": "<CN=MyApp.MySubDomain.MyTopDomain>",
-                  "sans": {
-                      "dns_names": [
-                          "<MyApp.MySubDomain.MyTopDomain",
-                          "<MyApp.MySubDomain2.MyTopDomain2"
-                      ],
-                      "emails": [
-                          "<MyDomain.Email>"
-                      ]
-                  }
-              },
-              "issuer": {
-                  "name": "Self"
-              }
-          }
       }
     },
     {
@@ -199,13 +162,19 @@
       "type": "Microsoft.KeyVault/vaults/accessPolicies",
       "name": "[concat(parameters('keyVaultName'), '/add')]",
       "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ],
       "properties": {
         "accessPolicies": [
           {
-            "tenantId": "[parameters('tenantId')]",
-            "objectId": "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName'))]",
+            "tenantId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName')), '2018-11-30', 'Full').properties.tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('uaidName')), '2018-11-30', 'Full').properties.principalId]",
             "permissions": {
-              "secrets": "[parameters('secretsPermissions')]"
+              "keys": "[parameters('secretsPermissions')]",
+              "secrets": "[parameters('secretsPermissions')]",
+              "certificates": "[parameters('secretsPermissions')]",
+              "storage": "[parameters('secretsPermissions')]"
             }
           }
         ]
@@ -216,6 +185,52 @@
       "name": "[parameters('uaidName')]",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]"
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/certificates",
+      "name": "[concat(parameters('keyVaultName'), '/', parameters('certificateName'))]",
+      "apiVersion": "2018-02-14",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ],
+      "properties": {
+          "policy": {
+              "key_props": {
+                  "exportable": true,
+                  "kty": "RSA",
+                  "key_size": 2048,
+                  "reuse_key": true
+              },
+              "secret_props": {
+                  "contentType": "application/x-pkcs12"
+              },
+              "x509_props": {
+                  "subject": "CN=MyApp.MySubDomain.MyTopDomain",
+                  "sans": {
+                      "dns_names": [
+                          "MyApp.MySubDomain.MyTopDomain",
+                          "MyApp.MySubDomain2.MyTopDomain2"
+                      ],
+                      "emails": [
+                          "MyDomain@Email"
+                      ]
+                  }
+              },
+              "issuer": {
+                  "name": "Self"
+              },
+              "validityInMonths": 12,
+              "keyUsage": [
+                  "cRLSign",
+                  "dataEncipherment",
+                  "digitalSignature",
+                  "keyEncipherment",
+                  "keyAgreement",
+                  "keyCertSign"
+             ]
+          }
+      }
     }
   ]
 }
