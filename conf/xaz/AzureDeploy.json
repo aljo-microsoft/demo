@@ -172,7 +172,49 @@
       "metadata": {
         "description": "Refers to the location URL in your key vault where the certificate was uploaded, it is should be in the format of https://<name of the vault>.vault.azure.net:443/secrets/<exact location>"
       }
-    }
+    },
+    "sfpkg_application_name_0": {
+            "type": "string",
+            "metadata": {
+                "description": "SFPKG Application Name 0"
+            }
+        },
+        "sfpkg_application_type_name_0": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG Application Type Name 0"
+            }
+        },
+        "sfpkg_application_type_version_0": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG Application Type Version 0"
+            }
+        },
+        "sfpkg_url_0": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG URL 0"
+            }
+        },
+        "sfpkg_application_name_0_service_name_0": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG Application Name 0 Service Name 0"
+            }
+        },
+        "sfpkg_application_name_0_service_type_0": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG Application Name 0 Service Type 0"
+            }
+        },
+        "sfpkg_application_name_0_service_count_0": {
+            "type": "string",
+            "metadata": {
+                "description": "SFPKG Application Name 0 Service Count 0"
+            }
+        }
   },
   "variables": {
     "dnsName": "[parameters('clusterName')]",
@@ -1784,7 +1826,88 @@
         "resourceType": "Service Fabric",
         "clusterName": "[parameters('clusterName')]"
       }
-    }
+    },
+    {
+          "apiVersion": "2017-07-01-preview",
+          "type": "Microsoft.ServiceFabric/clusters/applicationTypes",
+          "name": "[concat(parameters('clusterName'), '/',  parameters('sfpkg_application_type_name_0'))]",
+          "location": "[variables('location')]",
+          "dependsOn": [
+               "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'))]"
+           ],
+           "properties": {
+               "provisioningState": "Default"
+           }
+       },
+       {
+           "apiVersion": "2017-07-01-preview",
+           "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
+           "name": "[concat(parameters('clusterName'), '/', parameters('sfpkg_application_type_name_0'), '/', parameters('sfpkg_application_type_version_0'))]",
+           "location": "[variables('location')]",
+           "dependsOn": [
+                "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('sfpkg_application_type_name_0'))]"
+           ],
+           "properties": {
+                "provisioningState": "Default",
+                "appPackageUrl": parameters('sfpkg_url_0')
+           }
+       },
+       {
+           "apiVersion": "2017-07-01-preview",
+           "type": "Microsoft.ServiceFabric/clusters/applications",
+           "name": "[concat(parameters('clusterName'), '/', parameters('sfpkg_application_name_0'))]",
+           "location": "[variables('location')]",
+           "dependsOn": [
+                "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('sfpkg_application_type_name_0'), '/versions/', parameters('sfpkg_application_type_version_0'))]"
+           ],
+           "properties": {
+               "provisioningState": "Default",
+               "typeName": parameters('sfpkg_application_type_name_0'),
+               "typeVersion": parameters('sfpkg_application_type_version_0'),
+               "parameters": {},
+               "upgradePolicy": {
+                    "upgradeReplicaSetCheckTimeout": "01:00:00.0",
+                    "forceRestart": "false",
+                    "rollingUpgradeMonitoringPolicy": {
+                        "healthCheckWaitDuration": "00:02:00.0",
+                        "healthCheckStableDuration": "00:05:00.0",
+                        "healthCheckRetryTimeout": "00:10:00.0",
+                        "upgradeTimeout": "01:00:00.0",
+                        "upgradeDomainTimeout": "00:20:00.0"
+                    },
+                    "applicationHealthPolicy": {
+                        "considerWarningAsError": "false",
+                        "maxPercentUnhealthyDeployedApplications": "50",
+                        "defaultServiceTypeHealthPolicy": {
+                        "maxPercentUnhealthyServices": "50",
+                        "maxPercentUnhealthyPartitionsPerService": "50",
+                        "maxPercentUnhealthyReplicasPerPartition": "50"
+                    }
+                }
+             }
+          }
+       },
+       {
+           "apiVersion": "2017-07-01-preview",
+           "type": "Microsoft.ServiceFabric/clusters/applications/services",
+           "name": "[concat(parameters('clusterName'), '/', parameters('sfpkg_application_name_0'), '/', parameters('sfpkg_application_name_0'), "~", parameters('sfpkg_application_name_0_service_name_0'))]",
+           "location": "[variables('location')]",
+           "dependsOn": [
+               "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('sfpkg_application_name_0'))]"
+           ],
+           "properties": {
+                "provisioningState": "Default",
+                "serviceKind": "Stateless",
+                "serviceTypeName": parameters('sfpkg_application_name_0_service_type_0'),
+                "instanceCount": parameters('sfpkg_application_name_0_service_count_0'),
+                "partitionDescription": {
+                     "partitionScheme": "Singleton"
+                },
+                "correlationScheme": [],
+                "serviceLoadMetrics": [],
+                "servicePlacementPolicies": []
+            }
+       }
   ],
   "outputs": {
     "clusterProperties": {
