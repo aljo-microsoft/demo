@@ -27,13 +27,13 @@
       "value": "CHANGE-ME"
     },
     "sfpkg_application_name_0": {
-       "value": "CHANGE-ME"
+       "value": "VisualObjectsApplication"
     },
     "sfpkg_application_type_name_0": {
-       "value": "CHANGE-ME"
+       "value": "VisualObjectsApplicationType"
     },
     "sfpkg_application_type_version_0": {
-       "value": "CHANGE-ME"
+       "value": "1.0.0"
     },
     "sfpkg_url_0": {
        "value": ""
@@ -46,5 +46,14 @@
     },
     "sfpkg_application_name_0_service_count_0": {
        "value": "CHANGE-ME"
-    }  }
+    },
+    "sfpkg_application_name_0_service_name_1": {
+       "value": "CHANGE-ME"
+    },
+    "sfpkg_application_name_0_service_type_1": {
+       "value": "VisualObjects.ActorServiceType"
+    },
+    "sfpkg_application_name_0_service_count_1": {
+       "value": "3"
+    }
 }
