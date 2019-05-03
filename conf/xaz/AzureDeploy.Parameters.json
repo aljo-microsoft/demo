@@ -39,7 +39,7 @@
        "value": ""
     },
     "sfpkg_application_name_0_service_name_0": {
-       "value": "VisualObjects.WebServicePkg"
+       "value": "VisualObjects.WebService"
     },
     "sfpkg_application_name_0_service_type_0": {
        "value": "VisualObjects.WebServiceType"
@@ -48,7 +48,7 @@
        "value": "1"
     },
     "sfpkg_application_name_0_service_name_1": {
-       "value": "VisualObjects.ActorServicePkg"
+       "value": "VisualObjects.ActorService"
     },
     "sfpkg_application_name_0_service_type_1": {
        "value": "VisualObjects.ActorServiceType"
