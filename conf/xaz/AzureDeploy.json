@@ -214,6 +214,30 @@
             "metadata": {
                 "description": "SFPKG Application Name 0 Service Count 0"
             }
+        },
+        "sfpkg_application_name_0_service_name_1": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG Application Name 0 Service Name 0"
+            }
+        },
+        "sfpkg_application_name_0_service_type_1": {
+            "type": "string",
+            "metadata": {
+               "description": "SFPKG Application Name 0 Service Type 0"
+            }
+        },
+        "sfpkg_application_name_0_service_min_1": {
+            "type": "string",
+            "metadata": {
+                "description": "SFPKG Application Name 0 Service min 1"
+            }
+        },
+        "sfpkg_application_name_0_service_target_1": {
+            "type": "string",
+            "metadata": {
+                "description": "SFPKG Application Name 0 Service target 1"
+            }
         }
   },
   "variables": {
@@ -1911,40 +1935,17 @@
        {
            "apiVersion": "2017-07-01-preview",
            "type": "Microsoft.ServiceFabric/clusters/applications/services",
-           "name": "[concat(parameters('clusterName'), '/', parameters('sfpkg_application_name_0'), '/', parameters('sfpkg_application_name_0'), "~", parameters('sfpkg_application_name_0_service_name_0'))]",
+           "name": "[concat(parameters('clusterName'), '/', parameters('sfpkg_application_name_1'), '/', parameters('sfpkg_application_name_0'), "~", parameters('sfpkg_application_name_0_service_name_1'))]",
            "location": "[variables('location')]",
            "dependsOn": [
                "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('sfpkg_application_name_0'))]"
            ],
            "properties": {
                 "provisioningState": "Default",
-                "serviceKind": "Stateless",
-                "serviceTypeName": parameters('sfpkg_application_name_0_service_type_0'),
-                "instanceCount": parameters('sfpkg_application_name_0_service_count_0'),
-                "partitionDescription": {
-                     "partitionScheme": "Singleton"
-                },
-                "correlationScheme": [],
-                "serviceLoadMetrics": [],
-                "servicePlacementPolicies": []
-            }
-       },
-       {
-           "apiVersion": "2017-07-01-preview",
-           "type": "Microsoft.ServiceFabric/clusters/applications/services",
-           "name": "[concat(parameters('clusterName'), '/', parameters('sfpkg_application_name_0'), '/', parameters('sfpkg_application_name_0'), "~", parameters('sfpkg_application_name_0_service_name_0'))]",
-           "location": "[variables('location')]",
-           "dependsOn": [
-               "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('sfpkg_application_name_0'))]"
-           ],
-           "properties": {
-                "provisioningState": "Default",
-                "serviceKind": "Stateless",
-                "serviceTypeName": parameters('sfpkg_application_name_0_service_type_0'),
-                "instanceCount": parameters('sfpkg_application_name_0_service_count_0'),
-                "partitionDescription": {
-                     "partitionScheme": "Singleton"
-                },
+                "serviceKind": "Statefull",
+                "serviceTypeName": parameters('sfpkg_application_name_0_service_type_1'),
+                "minReplicaSetSize": parameters('sfpkg_application_name_0_service_min_1'),
+                "targetReplicaSetSize": parameters('sfpkg_application_name_0_service_target_1'),
                 "correlationScheme": [],
                 "serviceLoadMetrics": [],
                 "servicePlacementPolicies": []
