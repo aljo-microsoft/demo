@@ -1920,7 +1920,6 @@
                "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('sfpkg_application_name_0'))]"
            ],
            "properties": {
-                "provisioningState": "Default",
                 "serviceKind": "Stateless",
                 "serviceTypeName": parameters('sfpkg_application_name_0_service_type_0'),
                 "instanceCount": parameters('sfpkg_application_name_0_service_count_0'),
@@ -1941,7 +1940,6 @@
                "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('sfpkg_application_name_0'))]"
            ],
            "properties": {
-                "provisioningState": "Default",
                 "serviceKind": "Statefull",
                 "serviceTypeName": parameters('sfpkg_application_name_0_service_type_1'),
                 "minReplicaSetSize": parameters('sfpkg_application_name_0_service_min_1'),
