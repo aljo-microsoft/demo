@@ -1946,9 +1946,18 @@
                 "serviceTypeName": parameters('sfpkg_application_name_0_service_type_1'),
                 "minReplicaSetSize": parameters('sfpkg_application_name_0_service_min_1'),
                 "targetReplicaSetSize": parameters('sfpkg_application_name_0_service_target_1'),
-                "correlationScheme": [],
-                "serviceLoadMetrics": [],
-                "servicePlacementPolicies": []
+                "partitionDescription": {
+                    "partitionScheme": {
+                       "UniformInt64Range": {
+                         "UniformInt64RangePartitionSchemeDescription": {
+                             "PartitionScheme": "UniformInt64Range",
+                             "Count": 10,
+                             "LowKey": "-9223372036854775808",
+                             "HighKey": "9223372036854775807"
+                         }
+                       }
+                    }
+                }
             }
        }
   ],
