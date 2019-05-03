@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "clusterName": {
-      "value": "MyCluster"
+      "value": "sfazcluster"
     },
     "clusterLocation": {
       "value": "eastus2"
@@ -39,21 +39,24 @@
        "value": ""
     },
     "sfpkg_application_name_0_service_name_0": {
-       "value": "CHANGE-ME"
+       "value": "VisualObjects.WebServicePkg"
     },
     "sfpkg_application_name_0_service_type_0": {
-       "value": "CHANGE-ME"
+       "value": "VisualObjects.WebServiceType"
     },
     "sfpkg_application_name_0_service_count_0": {
-       "value": "CHANGE-ME"
+       "value": "1"
     },
     "sfpkg_application_name_0_service_name_1": {
-       "value": "CHANGE-ME"
+       "value": "VisualObjects.ActorServicePkg"
     },
     "sfpkg_application_name_0_service_type_1": {
        "value": "VisualObjects.ActorServiceType"
     },
-    "sfpkg_application_name_0_service_count_1": {
+    "sfpkg_application_name_0_service_min_1": {
        "value": "3"
-    }
+    },
+    "sfpkg_application_name_0_service_target_1": {
+       "value": "10"
+    },
 }
